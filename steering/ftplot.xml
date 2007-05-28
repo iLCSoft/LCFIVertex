@@ -1,0 +1,31 @@
+<!--##########################################
+    #                                        #
+    #     Example steering file for marlin   #
+    #                                        #
+    ##########################################-->
+
+
+<marlin>
+ <execute>
+  <processor name="MyPlot"/>
+ </execute>
+
+ <global>
+  <parameter name="LCIOInputFiles"> flavourtagout.slcio </parameter>
+  <!-- limit the number of processed records (run+evt): -->  
+  <!-- parameter name="MaxRecordNumber" value="1000000000" /-->  
+  <XXXparameter name="SkipNEvents" value="0" />  
+  <parameter name="SupressCheck" value="false" />  
+  <!--- parameter name="GearXMLFile"> gear_ldc.xml </parameter> -->  
+ </global>
+
+ <processor name="MyPlot" type="Plot">
+ <!--Plots various outputs from the flavour tag-->
+  <!--Name of the collection of ReconstructedParticles that is the jet-->
+  <parameter name="JetCollectionName" type="string">FTSelectedJets </parameter>
+  <!--Filename for the output-->
+  <parameter name="OutputFilename" type="string">PlotProcessorOutput </parameter>
+</processor>
+
+
+</marlin>

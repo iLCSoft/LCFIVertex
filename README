@@ -1,0 +1,33 @@
+The LCFI Vertex Package
+
+Installation:
+If you already have MarlinReco installed and working then installing
+this package should only require placing the directory containing this
+file in $MARLIN/packages eg. $MARLIN/packages/LCFIVertex
+
+Documentation
+To build the documentation, which includes examples of how to run the
+processors in the package you will need doxygen 
+(http://www.doxygen.org/) and pdflatex for the pdf
+documentation. They are usually included with most linux distributions.
+Run the following commands from the LCFIVertex directory:
+
+For the HTML documentation:
+cd doc
+doxygen
+firefox html/index.html
+(or other browser)
+
+For the PDF documentation (a subset of the HTML which does not include
+all classes in the package):
+cd doc
+doxygen Doxyfile.latex
+cd latex
+make
+(a file refman.pdf is produced)
+
+
+Ben Jeffery b.jeffery1@physics.ox.ac.uk
+
+
+
