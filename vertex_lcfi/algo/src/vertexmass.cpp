@@ -403,6 +403,6 @@ namespace vertex_lcfi
 
     return ptmin;
 
-  };
+  }
       
 }
