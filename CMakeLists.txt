@@ -217,9 +217,7 @@ IF( DOXYGEN_FOUND AND LATEX_COMPILER AND
     # run latex + pdflatex
     ADD_CUSTOM_COMMAND(
         OUTPUT  "${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf"
-        COMMAND "${LATEX_COMPILER}" ARGS -interaction=batchmode refman.tex
-        COMMAND "${LATEX_COMPILER}" ARGS -interaction=batchmode refman.tex
-        COMMAND "${PDFLATEX_COMPILER}" ARGS -interaction=batchmode refman.tex
+        COMMAND "${CMAKE_BUILD_TOOL}"
         # copy pdf to doc directory
         COMMAND "${CMAKE_COMMAND}" -E copy "refman.pdf" "${CMAKE_SOURCE_DIR}/doc"
         DEPENDS "${CMAKE_SOURCE_DIR}/doc/latex"
