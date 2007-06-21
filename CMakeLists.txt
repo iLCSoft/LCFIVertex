@@ -173,7 +173,14 @@ INSTALL( TARGETS lib_${PROJECT_NAME} DESTINATION lib PERMISSIONS
 
 # DOCUMENTATION
 FIND_PACKAGE( Doxygen )
+FIND_PACKAGE( LATEX )
+
+# global doc target for calling doc_html and doc_latex
+ADD_CUSTOM_TARGET( doc )
+
+#doxygen
 IF( DOXYGEN_FOUND )
+    
     ADD_CUSTOM_COMMAND(
         OUTPUT  "${CMAKE_SOURCE_DIR}/doc/html"
         COMMAND "${DOXYGEN_EXECUTABLE}"
@@ -181,10 +188,53 @@ IF( DOXYGEN_FOUND )
         COMMENT "Building API Documentation..."
         VERBATIM )
     
-    ADD_CUSTOM_TARGET( doc DEPENDS
+    # add doc_html target
+    ADD_CUSTOM_TARGET( doc_html DEPENDS
         "${CMAKE_SOURCE_DIR}/doc/html" )
+    # tell doc target to call doc_html
+    ADD_DEPENDENCIES( doc doc_html )
+    
 ELSE()
     MESSAGE( SEND_ERROR "Doxygen not found in your system!!" )
+    IF( INSTALL_DOC )
+        MESSAGE( STATUS "INSTALL_DOC forced to OFF" )
+        SET( INSTALL_DOC OFF )
+    ENDIF()
+ENDIF()
+
+#latex
+IF( DOXYGEN_FOUND AND LATEX_COMPILER AND
+    MAKEINDEX_COMPILER AND PDFLATEX_COMPILER )
+     
+     # generate latex with doxygen
+     ADD_CUSTOM_COMMAND(
+        OUTPUT  "${CMAKE_SOURCE_DIR}/doc/latex"
+        COMMAND "${DOXYGEN_EXECUTABLE}" ARGS Doxyfile.latex
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/doc"
+        COMMENT "Generating Latex Documentation with Doxygen..."
+        VERBATIM )
+    
+    # run latex + pdflatex
+    ADD_CUSTOM_COMMAND(
+        OUTPUT  "${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf"
+        COMMAND "${LATEX_COMPILER}" ARGS -interaction=batchmode refman.tex
+        COMMAND "${LATEX_COMPILER}" ARGS -interaction=batchmode refman.tex
+        COMMAND "${PDFLATEX_COMPILER}" ARGS -interaction=batchmode refman.tex
+        # copy pdf to doc directory
+        COMMAND "${CMAKE_COMMAND}" -E copy "refman.pdf" "${CMAKE_SOURCE_DIR}/doc"
+        DEPENDS "${CMAKE_SOURCE_DIR}/doc/latex"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/doc/latex"
+        COMMENT "Building Latex Documentation..."
+        VERBATIM )
+    
+    # add doc_latex target
+    ADD_CUSTOM_TARGET( doc_latex DEPENDS
+        "${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf" )
+    # tell doc target to call doc_latex
+    ADD_DEPENDENCIES( doc doc_latex )
+    
+ELSE()
+    MESSAGE( SEND_ERROR "Latex not found in your system!!" )
     IF( INSTALL_DOC )
         MESSAGE( STATUS "INSTALL_DOC forced to OFF" )
         SET( INSTALL_DOC OFF )
