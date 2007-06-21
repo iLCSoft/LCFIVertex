@@ -93,7 +93,8 @@ INSTALL( DIRECTORY
         PATTERN "*~" EXCLUDE
         PATTERN "*CVS*" EXCLUDE )
 
-### SOURCES #################################################################
+
+### SOURCES ##################################################################
 
 # require proper c++
 ADD_DEFINITIONS( "-Wall -ansi -pedantic" )
@@ -111,67 +112,9 @@ FILE( GLOB_RECURSE vertex_lcfi_srcs "vertex_lcfi/*.cc" )
 # library sources
 SET( library_sources ${processor_srcs} ${vertex_lcfi_srcs} )
 
-##########################################################################################
-# End of User section: please try not to modify below this line
-##########################################################################################
 
+### DOCUMENTATION ############################################################
 
-# library *nix style versioning
-SET( ${PROJECT_NAME}_VERSION
-    "${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_LEVEL}" )
-SET( ${PROJECT_NAME}_SOVERSION
-    "${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}" )
-
-# add library install path to the rpath list
-SET( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
-MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH )
-
-# append link pathes to rpath list
-SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH 1 )
-MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH_USE_LINK_PATH )
-
-# output directories
-SET( EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin" CACHE PATH
-    "EXECUTABLE_OUTPUT_PATH" FORCE )
-SET( LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib" CACHE PATH
-    "LIBRARY_OUTPUT_PATH" FORCE )
-MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH )
-
-# DEPENDENCIES: this code has to be placed before adding any library or
-# executable so that these are linked properly against the dependencies
-IF( DEFINED ${PROJECT_NAME}_DEPENDS OR DEFINED BUILD_WITH OR DEFINED LINK_WITH )
-    # load macro
-    IF( NOT EXISTS "${CMAKE_MODULE_PATH}/MacroCheckDeps.cmake" )
-        MESSAGE( FATAL_ERROR
-            "\nSorry, could not find MacroCheckDeps.cmake...\n"
-            "Please set CMAKE_MODULE_PATH correctly with: "
-            "cmake -DCMAKE_MODULE_PATH=<path_to_cmake_modules>" )
-    ENDIF()
-    INCLUDE( "${CMAKE_MODULE_PATH}/MacroCheckDeps.cmake" )
-    CHECK_DEPS()
-ENDIF()
-
-# LIBRARY
-ADD_LIBRARY( lib_${PROJECT_NAME} ${library_sources} )
-# create symbolic lib target for calling target lib_XXX
-ADD_CUSTOM_TARGET( lib DEPENDS lib_${PROJECT_NAME} )
-# change lib_target properties
-SET_TARGET_PROPERTIES( lib_${PROJECT_NAME} PROPERTIES
-    # create *nix style library versions + symbolic links
-    VERSION ${${PROJECT_NAME}_VERSION}
-    SOVERSION ${${PROJECT_NAME}_SOVERSION}
-    # allow creating static and shared libs without conflicts
-    CLEAN_DIRECT_OUTPUT 1
-    # avoid conflicts between library and binary target names
-    OUTPUT_NAME ${PROJECT_NAME} )
-
-# install library
-INSTALL( TARGETS lib_${PROJECT_NAME} DESTINATION lib PERMISSIONS
-        OWNER_READ OWNER_WRITE OWNER_EXECUTE
-        GROUP_READ GROUP_EXECUTE
-        WORLD_READ WORLD_EXECUTE )
-
-# DOCUMENTATION
 FIND_PACKAGE( Doxygen )
 FIND_PACKAGE( LATEX )
 
@@ -249,6 +192,67 @@ IF( INSTALL_DOC )
             DESTINATION .
             PATTERN "*CVS*" EXCLUDE )
 ENDIF()
+
+
+##########################################################################################
+# End of User section: please try not to modify below this line
+##########################################################################################
+
+
+# library *nix style versioning
+SET( ${PROJECT_NAME}_VERSION
+    "${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_LEVEL}" )
+SET( ${PROJECT_NAME}_SOVERSION
+    "${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}" )
+
+# add library install path to the rpath list
+SET( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
+MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH )
+
+# append link pathes to rpath list
+SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH 1 )
+MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH_USE_LINK_PATH )
+
+# output directories
+SET( EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin" CACHE PATH
+    "EXECUTABLE_OUTPUT_PATH" FORCE )
+SET( LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib" CACHE PATH
+    "LIBRARY_OUTPUT_PATH" FORCE )
+MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH )
+
+# DEPENDENCIES: this code has to be placed before adding any library or
+# executable so that these are linked properly against the dependencies
+IF( DEFINED ${PROJECT_NAME}_DEPENDS OR DEFINED BUILD_WITH OR DEFINED LINK_WITH )
+    # load macro
+    IF( NOT EXISTS "${CMAKE_MODULE_PATH}/MacroCheckDeps.cmake" )
+        MESSAGE( FATAL_ERROR
+            "\nSorry, could not find MacroCheckDeps.cmake...\n"
+            "Please set CMAKE_MODULE_PATH correctly with: "
+            "cmake -DCMAKE_MODULE_PATH=<path_to_cmake_modules>" )
+    ENDIF()
+    INCLUDE( "${CMAKE_MODULE_PATH}/MacroCheckDeps.cmake" )
+    CHECK_DEPS()
+ENDIF()
+
+# LIBRARY
+ADD_LIBRARY( lib_${PROJECT_NAME} ${library_sources} )
+# create symbolic lib target for calling target lib_XXX
+ADD_CUSTOM_TARGET( lib DEPENDS lib_${PROJECT_NAME} )
+# change lib_target properties
+SET_TARGET_PROPERTIES( lib_${PROJECT_NAME} PROPERTIES
+    # create *nix style library versions + symbolic links
+    VERSION ${${PROJECT_NAME}_VERSION}
+    SOVERSION ${${PROJECT_NAME}_SOVERSION}
+    # allow creating static and shared libs without conflicts
+    CLEAN_DIRECT_OUTPUT 1
+    # avoid conflicts between library and binary target names
+    OUTPUT_NAME ${PROJECT_NAME} )
+
+# install library
+INSTALL( TARGETS lib_${PROJECT_NAME} DESTINATION lib PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE )
 
 # create uninstall configuration file 
 CONFIGURE_FILE( "${CMAKE_SOURCE_DIR}/cmake_uninstall.cmake.in"
