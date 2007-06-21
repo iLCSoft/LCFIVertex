@@ -32,7 +32,7 @@ SET( ${PROJECT_NAME}_PATCH_LEVEL 1 )
 ### SETTINGS #################################################################
 
 # project options
-OPTION( BUILD_SHARED_LIBS "Set this to OFF to build static libraries " ON )
+OPTION( BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON )
 OPTION( INSTALL_DOC "Set to ON to install Documentation" ON )
 
 # project dependencies
@@ -282,7 +282,7 @@ MESSAGE( STATUS )
 # force some variables that could be defined in the command line
 # to be written to cache
 SET( BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}" CACHE BOOL
-    "Build shared libraries flag" FORCE )
+    "Set to OFF to build static libraries" FORCE )
 SET( CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH
     "Where to install ${PROJECT_NAME}" FORCE )
 SET( CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
