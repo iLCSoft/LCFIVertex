@@ -138,7 +138,7 @@ IF( DOXYGEN_FOUND )
     ADD_DEPENDENCIES( doc doc_html )
     
 ELSE()
-    MESSAGE( SEND_ERROR "Doxygen not found in your system!!" )
+    MESSAGE( STATUS "Doxygen not found in your system!!" )
     IF( INSTALL_DOC )
         MESSAGE( STATUS "INSTALL_DOC forced to OFF" )
         SET( INSTALL_DOC OFF )
@@ -175,7 +175,7 @@ IF( DOXYGEN_FOUND AND LATEX_COMPILER AND
     ADD_DEPENDENCIES( doc doc_latex )
     
 ELSE()
-    MESSAGE( SEND_ERROR "Latex not found in your system!!" )
+    MESSAGE( STATUS "Latex not found in your system!!" )
     IF( INSTALL_DOC )
         MESSAGE( STATUS "INSTALL_DOC forced to OFF" )
         SET( INSTALL_DOC OFF )
