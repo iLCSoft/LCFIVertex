@@ -107,7 +107,7 @@ ADD_DEFINITIONS( "-Wall -ansi -pedantic" )
 
 # get list of all source files
 AUX_SOURCE_DIRECTORY( src processor_srcs )
-FILE( GLOB_RECURSE vertex_lcfi_srcs "vertex_lcfi/*.cc" )
+FILE( GLOB_RECURSE vertex_lcfi_srcs "vertex_lcfi/*.cpp" )
 
 # library sources
 SET( library_sources ${processor_srcs} ${vertex_lcfi_srcs} )
