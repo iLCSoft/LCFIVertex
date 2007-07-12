@@ -23,7 +23,7 @@ Installation: (using cmake)
     $ make doc_latex -> for the PDF documentation (refman.pdf)
 
  For more information on CMake for the ILCSoftware check:
- http://www-flc.desy.de/ilcsoft/ (will be available soon!)
+ http://ilcsoft.desy.de/portal/general_documentation/index_eng.html (will be available soon!)
 
  CMake's official website:
  http://www.cmake.org
