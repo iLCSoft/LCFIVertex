@@ -1,13 +1,23 @@
 The LCFI Vertex Package
 
-Installation: (using cmake)
+releases:
+ ----------
+| v00-01-01|
+ ----------
+   - same code as v00-01
+     the first official release except that
+     cmake build is supported 
+
+
+Installation: (using cmake - new build tool for Marlin v00-09-08)
 -------------------------------------------------------------
 
  1st: edit the file BuildSetup.cmake according to your
       system setup.
 
  2nd: type the following commands:
-    
+
+    $ tar zxvf boost.tgz  # -- if not yet done --
     $ mkdir build
     $ cd build
     $ cmake -C ../BuildSetup.cmake ..
