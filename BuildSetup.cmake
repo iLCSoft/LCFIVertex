@@ -16,19 +16,19 @@
 #############################################################################
 
 # ILC_HOME
-SET( ILC_HOME "/afs/desy.de/group/it/ilcsoft/v01-01_beta"
+SET( ILC_HOME "/afs/desy.de/group/it/ilcsoft/v01-01"
     CACHE PATH "Path to ILC Software" FORCE )
 
 # Path to Marlin
-SET( Marlin_HOME "${ILC_HOME}/Marlin/HEAD"
+SET( Marlin_HOME "${ILC_HOME}/Marlin/v00-09-08"
     CACHE PATH "Path to Marlin" FORCE )
 
 # Path to LCIO
-SET( LCIO_HOME "${ILC_HOME}/lcio/HEAD"
+SET( LCIO_HOME "${ILC_HOME}/lcio/v01-08-03"
     CACHE PATH "Path to LCIO" FORCE )
 
 # CMake Modules Path
-SET( CMAKE_MODULE_PATH "${ILC_HOME}/CMakeModules/v01-00"
+SET( CMAKE_MODULE_PATH "${ILC_HOME}/CMakeModules/v01-01"
     CACHE PATH "Path to CMake Modules" FORCE )
 
 ###############################################
