@@ -47,48 +47,48 @@ ENDIF()
 
 # set default install prefix to project root directory
 IF( CMAKE_INSTALL_PREFIX STREQUAL "/usr/local" )
-    SET( CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}" )
+    SET( CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}" )
 ENDIF()
 
 
 ### INCLUDES #################################################################
 
 # include directories
-INCLUDE_DIRECTORIES( "${CMAKE_SOURCE_DIR}/include" )
-INCLUDE_DIRECTORIES( "${CMAKE_SOURCE_DIR}/vertex_lcfi" )
-INCLUDE_DIRECTORIES( "${CMAKE_SOURCE_DIR}/vertex_lcfi/nnet/inc" )
+INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/include" )
+INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/vertex_lcfi" )
+INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/vertex_lcfi/nnet/inc" )
 # boost
-INCLUDE_DIRECTORIES( "${CMAKE_SOURCE_DIR}/boost" )
+INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/boost" )
 
 # install include files
 INSTALL( DIRECTORY
-        "${CMAKE_SOURCE_DIR}/include"
-        "${CMAKE_SOURCE_DIR}/boost"
+        "${PROJECT_SOURCE_DIR}/include"
+        "${PROJECT_SOURCE_DIR}/boost"
         DESTINATION .
         PATTERN "*~" EXCLUDE
         PATTERN "*CVS*" EXCLUDE )
 INSTALL( DIRECTORY
-        "${CMAKE_SOURCE_DIR}/vertex_lcfi/inc"
+        "${PROJECT_SOURCE_DIR}/vertex_lcfi/inc"
         DESTINATION "vertex_lcfi"
         PATTERN "*~" EXCLUDE
         PATTERN "*CVS*" EXCLUDE )
 INSTALL( DIRECTORY
-        "${CMAKE_SOURCE_DIR}/vertex_lcfi/algo/inc"
+        "${PROJECT_SOURCE_DIR}/vertex_lcfi/algo/inc"
         DESTINATION "vertex_lcfi/algo"
         PATTERN "*~" EXCLUDE
         PATTERN "*CVS*" EXCLUDE )
 INSTALL( DIRECTORY
-        "${CMAKE_SOURCE_DIR}/vertex_lcfi/nnet/inc"
+        "${PROJECT_SOURCE_DIR}/vertex_lcfi/nnet/inc"
         DESTINATION "vertex_lcfi/nnet"
         PATTERN "*~" EXCLUDE
         PATTERN "*CVS*" EXCLUDE )
 INSTALL( DIRECTORY
-        "${CMAKE_SOURCE_DIR}/vertex_lcfi/util/inc"
+        "${PROJECT_SOURCE_DIR}/vertex_lcfi/util/inc"
         DESTINATION "vertex_lcfi/util"
         PATTERN "*~" EXCLUDE
         PATTERN "*CVS*" EXCLUDE )
 INSTALL( DIRECTORY
-        "${CMAKE_SOURCE_DIR}/vertex_lcfi/zvtop/include"
+        "${PROJECT_SOURCE_DIR}/vertex_lcfi/zvtop/include"
         DESTINATION "vertex_lcfi/zvtop"
         PATTERN "*~" EXCLUDE
         PATTERN "*CVS*" EXCLUDE )
@@ -125,15 +125,15 @@ ADD_CUSTOM_TARGET( doc )
 IF( DOXYGEN_FOUND )
     
     ADD_CUSTOM_COMMAND(
-        OUTPUT  "${CMAKE_SOURCE_DIR}/doc/html"
+        OUTPUT  "${PROJECT_SOURCE_DIR}/doc/html"
         COMMAND "${DOXYGEN_EXECUTABLE}"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/doc"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/doc"
         COMMENT "Building API Documentation..."
         VERBATIM )
     
     # add doc_html target
     ADD_CUSTOM_TARGET( doc_html DEPENDS
-        "${CMAKE_SOURCE_DIR}/doc/html" )
+        "${PROJECT_SOURCE_DIR}/doc/html" )
     # tell doc target to call doc_html
     ADD_DEPENDENCIES( doc doc_html )
     
@@ -151,26 +151,26 @@ IF( DOXYGEN_FOUND AND LATEX_COMPILER AND
      
      # generate latex with doxygen
      ADD_CUSTOM_COMMAND(
-        OUTPUT  "${CMAKE_SOURCE_DIR}/doc/latex"
+        OUTPUT  "${PROJECT_SOURCE_DIR}/doc/latex"
         COMMAND "${DOXYGEN_EXECUTABLE}" ARGS Doxyfile.latex
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/doc"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/doc"
         COMMENT "Generating Latex Documentation with Doxygen..."
         VERBATIM )
     
     # run latex + pdflatex
     ADD_CUSTOM_COMMAND(
-        OUTPUT  "${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf"
+        OUTPUT  "${PROJECT_SOURCE_DIR}/doc/latex/refman.pdf"
         COMMAND "${CMAKE_BUILD_TOOL}"
         # copy pdf to doc directory
-        COMMAND "${CMAKE_COMMAND}" -E copy "refman.pdf" "${CMAKE_SOURCE_DIR}/doc"
-        DEPENDS "${CMAKE_SOURCE_DIR}/doc/latex"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/doc/latex"
+        COMMAND "${CMAKE_COMMAND}" -E copy "refman.pdf" "${PROJECT_SOURCE_DIR}/doc"
+        DEPENDS "${PROJECT_SOURCE_DIR}/doc/latex"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/doc/latex"
         COMMENT "Building Latex Documentation..."
         VERBATIM )
     
     # add doc_latex target
     ADD_CUSTOM_TARGET( doc_latex DEPENDS
-        "${CMAKE_SOURCE_DIR}/doc/latex/refman.pdf" )
+        "${PROJECT_SOURCE_DIR}/doc/latex/refman.pdf" )
     # tell doc target to call doc_latex
     ADD_DEPENDENCIES( doc doc_latex )
     
@@ -185,10 +185,10 @@ ENDIF()
 # install documentation
 IF( INSTALL_DOC )
     # make sure doxygen is executed (make doc) before make install
-    INSTALL( CODE "EXEC_PROGRAM(${CMAKE_BUILD_TOOL} ${CMAKE_BINARY_DIR} ARGS doc)" )
+    INSTALL( CODE "EXEC_PROGRAM(${CMAKE_BUILD_TOOL} ${PROJECT_BINARY_DIR} ARGS doc)" )
 
     # install documentation
-    INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/doc"
+    INSTALL( DIRECTORY "${PROJECT_SOURCE_DIR}/doc"
             DESTINATION .
             PATTERN "*CVS*" EXCLUDE )
 ENDIF()
@@ -220,9 +220,9 @@ SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH 1 )
 MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH_USE_LINK_PATH )
 
 # output directories
-SET( EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin" CACHE PATH
+SET( EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin" CACHE PATH
     "EXECUTABLE_OUTPUT_PATH" FORCE )
-SET( LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib" CACHE PATH
+SET( LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib" CACHE PATH
     "LIBRARY_OUTPUT_PATH" FORCE )
 MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH )
 
@@ -261,19 +261,19 @@ INSTALL( TARGETS lib_${PROJECT_NAME} DESTINATION lib PERMISSIONS
         WORLD_READ WORLD_EXECUTE )
 
 # create uninstall configuration file 
-CONFIGURE_FILE( "${CMAKE_SOURCE_DIR}/cmake_uninstall.cmake.in"
-                "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake"
+CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+                "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
                 IMMEDIATE @ONLY )
 
 # create uninstall target
-ADD_CUSTOM_TARGET( uninstall "${CMAKE_COMMAND}" -P "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake" )
+ADD_CUSTOM_TARGET( uninstall "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake" )
 
 # create configuration file from .in file
-CONFIGURE_FILE( "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
-                "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY )
+CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY )
 
 # install configuration file
-INSTALL( FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" DESTINATION . )
+INSTALL( FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" DESTINATION . )
 
 # display status message for important variables
 MESSAGE( STATUS )
