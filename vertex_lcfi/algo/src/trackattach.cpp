@@ -27,9 +27,11 @@ namespace vertex_lcfi
     _LoDCutmin = 0.18;
     _LoDCutmax = 2.5 ;
     _CloseapproachCut = 1.0;
+    _AddAllTracksFromSecondary = false;
     _ParameterNames.push_back("LoDCutmin");
     _ParameterNames.push_back("LoDCutmax");
     _ParameterNames.push_back("CloseapproachCut");
+    _ParameterNames.push_back("AddAllTracksFromSecondary");
   }
 
   string TrackAttach::name() const
@@ -48,6 +50,7 @@ namespace vertex_lcfi
     _ParameterValues.push_back(makeString(_LoDCutmin));
     _ParameterValues.push_back(makeString(_LoDCutmax));
     _ParameterValues.push_back(makeString(_CloseapproachCut));
+    _ParameterValues.push_back(makeString(_AddAllTracksFromSecondary));
     return _ParameterValues;
   }	
   
@@ -71,6 +74,11 @@ namespace vertex_lcfi
     if (Parameter == "CloseapproachCut")
       {
 	_CloseapproachCut = Value;
+	return;
+      } 
+    if (Parameter == "AddAllTracksFromSecondary")
+      {
+	_AddAllTracksFromSecondary = Value;
 	return;
       } 
       this->badParameter(Parameter);
@@ -98,8 +106,8 @@ namespace vertex_lcfi
     DecayChain* DecaywithAtTracks = new DecayChain(*MyDecayChain);
     MemoryManager<DecayChain> ::Event()->registerObject(DecaywithAtTracks);
     std::vector<vertex_lcfi::Track > AttachedTracks;
-  
-
+    std::vector<Track*> Innertracks;
+    
     for (std::vector<Vertex*>::const_iterator iVertex = (MyDecayChain->vertices().begin()); iVertex != MyDecayChain->vertices().end() ;++iVertex)
       {
 
@@ -116,7 +124,8 @@ namespace vertex_lcfi
     
     if (MyDecayChain->vertices().empty())
 	    std::cerr << "Empty Decay Chain - trackattach.cpp:119" << std::endl;
-    	    //TODO Throw something
+
+
     VertexPos = (MyDecayChain->vertices()[tempvertex]->position()).subtract( (MyDecayChain->vertices()[0])->position() );
 
     distance =  VertexPos.mag();
@@ -148,10 +157,26 @@ namespace vertex_lcfi
 	TrackState* TSLin = LinearTrack.makeState();
 	TrackState* TSHel;
 
+
 	for (std::vector<Track*>::const_iterator iTrack = (MyDecayChain->jet()->tracks().begin()); iTrack != MyDecayChain->jet()->tracks().end() ;++iTrack)
 	  {
 
+
+	    //new addition to find tracks not from primary but associated with a vertex
+
+	    if (_AddAllTracksFromSecondary == true )
+	      {
+		for (std::vector<Vertex*>::const_iterator iVertex = (++MyDecayChain->vertices().begin()); iVertex != MyDecayChain->vertices().end() ;++iVertex)
+		  {	
 		    
+		    if((*iVertex)->hasTrack(*iTrack))
+		      {
+
+			Innertracks.push_back(*iTrack);
+		      }
+		  }
+	      }
+
 	    TSHel = (**iTrack).makeState();  
 
 	    //this is a smart way of solving many problems
@@ -177,16 +202,32 @@ namespace vertex_lcfi
 
 		if(  DecaywithAtTracks->hasTrack(*iTrack) == 0 )
 		  {
+		    
 		    DecaywithAtTracks->addTrack(*iTrack);
 		  }
 	      }
 	    else
 	      {
-	      	if(DecaywithAtTracks->hasTrack(*iTrack) == 1)
+		if (_AddAllTracksFromSecondary == true )
 		  {
-		    DecaywithAtTracks->removeTrack(*iTrack);
+		    std::vector<Track*>::const_iterator Inner = find(Innertracks.begin(),Innertracks.end(),*iTrack );
+		    if(Inner == Innertracks.end())
+		      {
+			if(DecaywithAtTracks->hasTrack(*iTrack) == 1)
+			  {
+			    DecaywithAtTracks->removeTrack(*iTrack);
+			  }
+		      }
+		  }
+		else
+		  {
+		    if(DecaywithAtTracks->hasTrack(*iTrack) == 1)
+		      {
+			DecaywithAtTracks->removeTrack(*iTrack);
+		      }
 		  }
 	      }
+	   
 	  }
       }
     else
@@ -199,9 +240,10 @@ namespace vertex_lcfi
 	      }
 	  }
       }
- 
+    
+    //    std::cout<<"I AM FINISHED"<<std::endl;    
     return DecaywithAtTracks;
-
+    
   }
   
 

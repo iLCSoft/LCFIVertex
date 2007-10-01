@@ -65,15 +65,15 @@ FlavourTagInputsProcessor::FlavourTagInputsProcessor() : Processor("FlavourTagIn
 			      _IPVertexCollectionName ,
 			      std::string("IPVertex") ) ;
   registerInputCollection( lcio::LCIO::RECONSTRUCTEDPARTICLE,
-			      "DecayChainRPCollection" , 
-			      "Name of the ReconstructedParticle collection that represents decay chains"  ,
-			       _DecayChainRPColName ,
-			      std::string("DecayChains") ) ;
+			   "DecayChainRPCollection" , 
+			   "Name of the ReconstructedParticle collection that represents decay chains"  ,
+			   _DecayChainRPColName ,
+			   std::string("DecayChains") ) ;
   registerOutputCollection( lcio::LCIO::LCFLOATVEC,
-  			      "FlavourTagInputsCollection" , 
-			      "Name of the LCFloatVec Collection that will be created to contain the flavour tag inputs"  ,
-			      _FlavourTagInputsCollectionName,
-			      "FlavourTagInputs" ) ;
+			    "FlavourTagInputsCollection" , 
+			    "Name of the LCFloatVec Collection that will be created to contain the flavour tag inputs"  ,
+			    _FlavourTagInputsCollectionName,
+			    "FlavourTagInputs" ) ;
 
   registerOptionalParameter( "VertexMassMaxMomentumAngle",
 			     "Upper cut on angle between momentum of vertex and the vertex axis",
@@ -88,6 +88,12 @@ FlavourTagInputsProcessor::FlavourTagInputsProcessor() : Processor("FlavourTagIn
 			     _VertexMassMaxMomentumCorrection,
 			     double(2)) ;
 
+
+ registerOptionalParameter( "TrackAttachAllSecondaryTracks",
+			    "Parameter determining whether all tracks from secondary are included in the track attachment"  ,
+			    _TrackAttachAddAllTracksFromSecondary,
+			    bool(false)) ;
+
  registerOptionalParameter( "TrackAttachLoDCutmin",
 			     "Cut determining the minimum L/D for the track attachment"  ,
 			    _TrackAttachLoDCutmin,
@@ -101,10 +107,15 @@ FlavourTagInputsProcessor::FlavourTagInputsProcessor() : Processor("FlavourTagIn
 			    _TrackAttachCloseapproachCut,
 			     double(1.0)) ;
 
+ registerOptionalParameter( "BChargeAllSecondaryTracks",
+			    "Parameter determining whether all tracks from secondary are included in the B-Charge"  ,
+			    _BChargeAddAllTracksFromSecondary,
+			    bool(true)) ;
+
  registerOptionalParameter( "BChargeLoDCutmin",
-			     "Cut determining the minimum L/D for the B-Charge"  ,
+			    "Cut determining the minimum L/D for the B-Charge"  ,
 			    _BChargeLoDCutmin,
-			     double(0.18)) ;
+			    double(0.18)) ;
  registerOptionalParameter( "BChargeLoDCutmax",
 			     "Cut determining the maximum L/D for the B-Charge"  ,
 			    _BChargeLoDCutmax,
@@ -114,6 +125,11 @@ FlavourTagInputsProcessor::FlavourTagInputsProcessor() : Processor("FlavourTagIn
 			    _BChargeCloseapproachCut,
 			     double(1.0)) ;
 
+ registerOptionalParameter( "CChargeAllSecondaryTracks",
+			    "Parameter determining whether all tracks from secondary are included in the C-Charge"  ,
+			    _CChargeAddAllTracksFromSecondary,
+			    bool(false));
+
  registerOptionalParameter( "CChargeLoDCutmin",
 			     "Cut determining the minimum L/D for the C-Charge"  ,
 			    _CChargeLoDCutmin,
@@ -122,6 +138,7 @@ FlavourTagInputsProcessor::FlavourTagInputsProcessor() : Processor("FlavourTagIn
 			     "Cut determining the maximum L/D for the C-Charge"  ,
 			    _CChargeLoDCutmax,
 			     double(2.5)) ;
+
  registerOptionalParameter( "CChargeCloseapproachCut",
 			    "Upper cut on track distance of closest approach to the seed axis for the C-Charge "  ,
 			    _CChargeCloseapproachCut,
@@ -235,18 +252,21 @@ void FlavourTagInputsProcessor::init()
 	
 	_TrackAttach = new TrackAttach();
 	MemoryManager<Algo<DecayChain*, DecayChain*> > ::Run()->registerObject(_TrackAttach);
+	_TrackAttach->setDoubleParameter("AddAllTracksFromSecondary",_TrackAttachAddAllTracksFromSecondary );
 	_TrackAttach->setDoubleParameter("LoDCutmin",_TrackAttachLoDCutmin );
 	_TrackAttach->setDoubleParameter("LoDCutmax",_TrackAttachLoDCutmax );
 	_TrackAttach->setDoubleParameter("CloseapproachCut",_TrackAttachCloseapproachCut );
 		
 	_BAttach = new TrackAttach();
 	MemoryManager<Algo<DecayChain*, DecayChain*> > ::Run()->registerObject(_BAttach);
+	_BAttach->setDoubleParameter("AddAllTracksFromSecondary",_BChargeAddAllTracksFromSecondary );
 	_BAttach->setDoubleParameter("LoDCutmin",_BChargeLoDCutmin );
 	_BAttach->setDoubleParameter("LoDCutmax",_BChargeLoDCutmax );
 	_BAttach->setDoubleParameter("CloseapproachCut",_BChargeCloseapproachCut );
 		
 	_CAttach = new TrackAttach();
 	MemoryManager<Algo<DecayChain*, DecayChain*> > ::Run()->registerObject(_CAttach);
+	_CAttach->setDoubleParameter("AddAllTracksFromSecondary",_CChargeAddAllTracksFromSecondary );
 	_CAttach->setDoubleParameter("LoDCutmin",_CChargeLoDCutmin );
 	_CAttach->setDoubleParameter("LoDCutmax",_CChargeLoDCutmax );
 	_CAttach->setDoubleParameter("CloseapproachCut",_CChargeCloseapproachCut );
@@ -400,8 +420,8 @@ if( isFirstEvent() )
 	}
 	
 	//Create the collection to store the result
-	LCCollectionVec* OutCollection = new LCCollectionVec("LCFloatVec");
-	evt->addCollection(OutCollection,_FlavourTagInputsCollectionName);
+		LCCollectionVec* OutCollection = new LCCollectionVec("LCFloatVec");
+		evt->addCollection(OutCollection,_FlavourTagInputsCollectionName);
 	
 	//Loop over the jets
 	for (vector<Jet*>::const_iterator iJet=MyEvent->jets().begin();iJet != MyEvent->jets().end();++iJet)
@@ -441,9 +461,11 @@ if( isFirstEvent() )
 		FlavourTagInputs.push_back(DecaySignificance[Distance]);
 		FlavourTagInputs.push_back(DecaySignificance[Significance]);
 		//Using cuts attach tracks that were not associated to the decay by vertexing
+	
+
 		DecayChain* AttachedTracksChain = _TrackAttach->calculateFor(DecayChainOf[*iJet]);
 		
-			//Sum momentum of all tracks in decay chain (vertexed and attached)
+		        //Sum momentum of all tracks in decay chain (vertexed and attached)
 			FlavourTagInputs.push_back(_VertexMomentum->calculateFor(AttachedTracksChain));
 			//Vertex momentum corrected mass
 			FlavourTagInputs.push_back(_VertexMass->calculateFor(AttachedTracksChain));
@@ -459,8 +481,10 @@ if( isFirstEvent() )
 		
 		//Assuming a B attach tracks for vertex charge calculation
 		FlavourTagInputs.push_back(_VertexCharge->calculateFor(_BAttach->calculateFor(DecayChainOf[*iJet])));
-		
+
+		//		std::cout<<_VertexCharge->calculateFor(_BAttach->calculateFor(DecayChainOf[*iJet]<<std::endl;
 		//Assuming a C attach tracks for vertex charge calculation
+		
 		FlavourTagInputs.push_back(_VertexCharge->calculateFor(_CAttach->calculateFor(DecayChainOf[*iJet])));
 
 		LCFloatVec* OutVec = new LCFloatVec(FlavourTagInputs);

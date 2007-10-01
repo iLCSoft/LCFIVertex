@@ -86,7 +86,7 @@ namespace vertex_lcfi
 		 DecayChain* calculateFor(DecayChain* MyDecayChain) const;
 		
 	private:
-		 double _LoDCutmin,_LoDCutmax,_CloseapproachCut;
+		 double _LoDCutmin, _LoDCutmax, _CloseapproachCut, _AddAllTracksFromSecondary ;
 		 std::string _Name;
 		 std::vector<std::string> _ParameterNames;
 		 mutable std::vector<std::string> _ParameterValues;

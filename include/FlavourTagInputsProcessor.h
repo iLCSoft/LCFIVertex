@@ -136,12 +136,15 @@ class FlavourTagInputsProcessor : public Processor {
   double _VertexMassMaxMomentumAngle;					     
   double _VertexMassMaxKinematicCorrectionSigma;			     
   double _VertexMassMaxMomentumCorrection;			    
+  bool  _TrackAttachAddAllTracksFromSecondary;
   double _TrackAttachLoDCutmin;
   double _TrackAttachLoDCutmax;
   double _TrackAttachCloseapproachCut;
+  bool _BChargeAddAllTracksFromSecondary;
   double _BChargeLoDCutmin;
   double _BChargeLoDCutmax;
   double _BChargeCloseapproachCut;
+  bool _CChargeAddAllTracksFromSecondary;
   double _CChargeLoDCutmin;
   double _CChargeLoDCutmax;
   double _CChargeCloseapproachCut;
