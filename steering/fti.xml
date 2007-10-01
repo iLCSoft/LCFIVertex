@@ -110,12 +110,16 @@
   <!--parameter name="AllLayersMomentumCut" type="double">1 </parameter-->
   <!--Cut on the minimum momentum if track hits LayersHit minus one-->
   <!--parameter name="AllbutOneLayersMomentumCut" type="double">2 </parameter-->
+  <!--Parameter determining whether all tracks from secondary are included in the B-Charge-->
+  <!--parameter name="BChargeAllSecondaryTracks" type="bool">true </parameter-->
   <!--Upper cut on track distance of closest approach to the seed axis for the B-Charge -->
   <!--parameter name="BChargeCloseapproachCut" type="double">1 </parameter-->
   <!--Cut determining the maximum L/D for the B-Charge-->
   <!--parameter name="BChargeLoDCutmax" type="double">2.5 </parameter-->
   <!--Cut determining the minimum L/D for the B-Charge-->
   <!--parameter name="BChargeLoDCutmin" type="double">0.18 </parameter-->
+  <!--Parameter determining whether all tracks from secondary are included in the C-Charge-->
+  <!--parameter name="CChargeAllSecondaryTracks" type="bool">false </parameter-->
   <!--Upper cut on track distance of closest approach to the seed axis for the C-Charge -->
   <!--parameter name="CChargeCloseapproachCut" type="double">1 </parameter-->
   <!--Cut determining the maximum L/D for the C-Charge-->
@@ -152,6 +156,8 @@
   <!--parameter name="SecondVertexNtrackscut" type="double">1 </parameter-->
   <!--Cut on the Chi Squared of the seed vertex-->
   <!--parameter name="SecondVertexProbChisquarecut" type="double">20 </parameter-->
+  <!--Parameter determining whether all tracks from secondary are included in the track attachment-->
+  <!--parameter name="TrackAttachAllSecondaryTracks" type="bool">false </parameter-->
   <!--Upper cut on track distance of closest approach to the seed axis for the track attachment-->
   <!--parameter name="TrackAttachCloseapproachCut" type="double">1 </parameter-->
   <!--Cut determining the maximum L/D for the track attachment-->
@@ -174,7 +180,7 @@
   <!--drops all collections of the given type from the event-->
   <!--parameter name="DropCollectionTypes" type="StringVec">SimTrackerHit SimCalorimeterHit  </parameter-->
   <!-- name of output file -->
-  <parameter name="LCIOOutputFile" type="string">ftiout.slcio </parameter>
+  <!--parameter name="LCIOOutputFile" type="string">ftiout.slcio </parameter-->
   <!--write mode for output file:  WRITE_APPEND or WRITE_NEW-->
   <parameter name="LCIOWriteMode" type="string">WRITE_NEW </parameter>
   <!--will split output file if size in kB exceeds given value - doesn't work with APPEND and NEW-->
