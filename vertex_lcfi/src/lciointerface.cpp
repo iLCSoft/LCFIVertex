@@ -261,19 +261,6 @@ DecayChain* decayChainFromLCIORP(Jet* LCFIJet, ReconstructedParticle* DecayChain
 
 ReconstructedParticle* addDecayChainToLCIOEvent(LCEvent* MyLCIOEvent, DecayChain* MyDecayChain, std::string VertexCollectionName, std::string TrackRPCollectionName, bool StoreTrackChiSquareds)
 {
-	//Check that the decay chain has vertices
-	if (MyDecayChain->vertices().empty())
-	{
-		//TODO should return emoty RP
-		//We have nothing to do so return
-		return 0;
-	}
-	//Check that the first vertex isPrimary
-	if (!(*MyDecayChain->vertices().begin())->isPrimary())
-	{
-		//Throw something
-	}
-		
 	//Check for cols and add if needed
 	vector<std::string>::const_iterator it = find(MyLCIOEvent->getCollectionNames()->begin(),MyLCIOEvent->getCollectionNames()->end(),VertexCollectionName);
 	if (it == MyLCIOEvent->getCollectionNames()->end())
@@ -292,6 +279,20 @@ ReconstructedParticle* addDecayChainToLCIOEvent(LCEvent* MyLCIOEvent, DecayChain
 	//Get the collections
 	LCCollection* VertexCollection = MyLCIOEvent->getCollection(VertexCollectionName);
 	LCCollection* TrackRPCollection = MyLCIOEvent->getCollection(TrackRPCollectionName);
+	
+	//Check that the decay chain has vertices
+	if (MyDecayChain->vertices().empty())
+	{
+		//We have nothing to do so return a null RP
+		return 0;
+	}
+	
+	//Not needed as the first one is used even if not primary
+	////Check that the first vertex isPrimary
+	//if (!(*MyDecayChain->vertices().begin())->isPrimary())
+	//{
+	//	//Throw something
+	//}
 	
 	//The first vertex is always assumed to be the IP
 	//We need to check to see if the primary vertex is already in the LCIO record
