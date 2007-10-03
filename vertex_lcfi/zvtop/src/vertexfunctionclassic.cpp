@@ -64,22 +64,7 @@ namespace vertex_lcfi { namespace ZVTOP
 		double SumOfSquaredTubes = 0;
 		double dlong,dmag;
 		//TODO make other constants parameters
-		//First check that we aren't outside the cut on distance wrt the Jet axis
-		if (_Ellipsoid)
-			dlong = Point.subtract(_Ellipsoid->ip()->position()).dot(_JetAxis) / _JetAxis.mag();
-		else
-			dlong = Point.subtract(Vector3(0,0,0)).dot(_JetAxis) / _JetAxis.mag();
-		
-		if (dlong < -0.01)    //100 Micron
-			return -1.0;
-		
-		if (_Ellipsoid)
-			dmag = _Ellipsoid->ip()->distanceTo(Point);
-		else
-			dmag = Point.distanceTo(Vector3(0,0,0));
-			
-		double dtran = sqrt(dmag*dmag - dlong*dlong);
-		
+	
 		//Now add up the tubes
 		for (std::vector<GaussTube*>::const_iterator iTube = _Tubes.begin();iTube != _Tubes.end();++iTube)
 		{
@@ -93,6 +78,19 @@ namespace vertex_lcfi { namespace ZVTOP
 		if (_Ellipsoid)
 			IPValue = _Ellipsoid->valueAt(Point);
 		
+		double dtran = 0;
+		//Work out the distance to the jet axis and how far along the jet axis we are
+		if (_Ellipsoid)
+		{
+			dlong = Point.subtract(_Ellipsoid->ip()->position()).dot(_JetAxis) / _JetAxis.mag();
+		
+			if (dlong < -0.01)    //100 Micron behind the ip
+				return -1.0;
+		
+			dmag = _Ellipsoid->ip()->distanceTo(Point);
+			
+			dtran = sqrt(dmag*dmag - dlong*dlong);
+		}
 		//Check if we are outside tube and add on kalpha adjustment if not
 		if (SumOfTubes > 0)
 			if (dtran > 0.005) //50 Micron
