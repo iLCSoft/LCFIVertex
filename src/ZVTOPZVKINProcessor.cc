@@ -183,6 +183,13 @@ void ZVTOPZVKINProcessor::processEvent( LCEvent * evt ) {
 	vertex_lcfi::Event* MyEvent = new vertex_lcfi::Event(IPPos,IPErr);
 	
 	//Create jets from LCIO and add them to the event
+	std::vector<std::string>::const_iterator it = find(evt->getCollectionNames()->begin(),evt->getCollectionNames()->end(),_DecayChainCollectionName);
+		if (it == evt->getCollectionNames()->end())
+		{
+			//Doesn't exist so make collection and add
+			LCCollection* MyCollection = new LCCollectionVec("ReconstructedParticle");
+			evt->addCollection(MyCollection,_DecayChainCollectionName);
+		}
 	int nRCP = JetCollection->getNumberOfElements()  ;
 	for(int i=0; i< nRCP ; i++)
 	{
@@ -197,13 +204,6 @@ void ZVTOPZVKINProcessor::processEvent( LCEvent * evt ) {
 		ReconstructedParticle* LCIOZVTOPResult = addDecayChainToLCIOEvent(evt, ZVTOPResult,_VertexCollectionName, _DecayChainRPTracksCollectionName, _OutputTrackChi2);
 		
 		//Store the RP that holds all the vertexed tracks in LCIO
-		std::vector<std::string>::const_iterator it = find(evt->getCollectionNames()->begin(),evt->getCollectionNames()->end(),_DecayChainCollectionName);
-		if (it == evt->getCollectionNames()->end())
-		{
-			//Doesn't exist so make collection and add
-			LCCollection* MyCollection = new LCCollectionVec("ReconstructedParticle");
-			evt->addCollection(MyCollection,_DecayChainCollectionName);
-		}
 		evt->getCollection(_DecayChainCollectionName)->addElement(LCIOZVTOPResult);
 		
 		//Commented out as we just rely on order
