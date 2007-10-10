@@ -297,11 +297,11 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
 	if(MyJets.size()>0)
 	  {
 
-	    
+
+		int  MCcounter =0;	    
 	    for(std::vector<MCParticle*>::const_iterator iParticle3 = JetMCs.begin(); iParticle3 != JetMCs.end() ;++iParticle3)
 	      {
 		double dist = -999999999; 
-		int  MCcounter =0;
 		int  JetCounter =0;
 		int JetValue =-1;
 		double angle = 0;
@@ -411,8 +411,7 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
        	    std::cout <<jetflavourdata[iii]<< " Parton Charge:    ";
        	    std::cout <<partonchargedata[iii] << "   Hadron Charge:    ";
        	    std::cout <<hadronchargedata[iii] <<std::endl;
-
-	  };
+	    };
 	//Create the collection to store the results
 
 	_nEvt ++ ;
