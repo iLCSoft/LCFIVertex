@@ -46,12 +46,26 @@ vertex_lcfi::Track* trackFromLCIORP(Event* MyEvent, lcio::ReconstructedParticle*
 	Mom.y() = RP->getMomentum()[1];
 	Mom.z() = RP->getMomentum()[2];
 	
-	//TODO Do full cov
 	SymMatrix5x5 Cov;
+
 	// Classic order
 	Cov(0,0)=RPTrack->getCovMatrix()[0]; // d0d0
 	Cov(3,0)=RPTrack->getCovMatrix()[6]; // d0z0
 	Cov(3,3)=RPTrack->getCovMatrix()[9]; // z0z0
+  
+  Cov(1,0)=RPTrack->getCovMatrix()[1];
+  Cov(1,1)=RPTrack->getCovMatrix()[2];
+  Cov(0,2)=RPTrack->getCovMatrix()[3];
+  Cov(1,2)=RPTrack->getCovMatrix()[4];
+  Cov(2,2)=RPTrack->getCovMatrix()[5];
+  Cov(1,3)=RPTrack->getCovMatrix()[7];
+  
+  Cov(2,3)=RPTrack->getCovMatrix()[8];
+  Cov(0,4)=RPTrack->getCovMatrix()[10];
+  Cov(1,4)=RPTrack->getCovMatrix()[11];
+  Cov(2,4)=RPTrack->getCovMatrix()[12];
+  Cov(3,4)=RPTrack->getCovMatrix()[13];
+  Cov(4,4)=RPTrack->getCovMatrix()[14];
 	
 	/*
 	FIXED BY ALEXEI IN CODE OF 070416
