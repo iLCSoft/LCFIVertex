@@ -13,16 +13,19 @@
 
 #include <map>
 #include "../include/VertexFitterKalman.h"
+#include "../include/interactionpoint.h"
 
 namespace vertex_lcfi { namespace ZVTOP {
+
 
   //* Track states will be sorted according to pT
 
   bool pDecreasing(const TState& lhs, const TState& rhs) { 
-    return (fabs(lhs.track()->helixRep().invR()) 
-            < fabs(rhs.track()->helixRep().invR()));
+    return (fabs(lhs.track()->helixRep().invR())
+          < fabs(rhs.track()->helixRep().invR()));
   }
   
+
   //* 
   
   VertexFitterKalman::VertexFitterKalman() : m_useManualSeed(false), fNDF(-3), fChi2(0) {}
@@ -31,10 +34,17 @@ namespace vertex_lcfi { namespace ZVTOP {
                                      InteractionPoint* IP, 
                                      Vector3 & Result, 
                                      Matrix3x3 & ResultError, 
-                                     double & ChiSquaredOfFit) {
+                                     double & ChiSquaredOfFit) {    
+
+    //* Reset vertex position and covariance matrix
     
+    for( int i=0; i<6;  ++i) fP[i] = 0.;
+    for( int i=0; i<21; ++i) fC[i] = 0.;
+    fC[0] = fC[2] = fC[5] = 10000.;
+
     double chi2sum = 0;    
     int    maxIter = 3;
+
 
     //* Convert TrackStates to TStates
     
@@ -47,64 +57,79 @@ namespace vertex_lcfi { namespace ZVTOP {
       fStates.push_back(myState);
     }
     
+
     //* Sort track states according to transverse momentum
     
     std::sort(fStates.begin(), fStates.end(), pDecreasing);
     
+
     //* Set initial vertex position guess (for linearisation)
     
     fVtxGuess[0] = 0.; fVtxGuess[1] = 0.; fVtxGuess[2] = 0.;
     fNDF = -3; fChi2 = 0;
     
 		if (m_useManualSeed) {
-      fVtxGuess[0] = m_manualSeed(0); fP[0] = fVtxGuess[0];
-      fVtxGuess[1] = m_manualSeed(1); fP[1] = fVtxGuess[1];
-      fVtxGuess[2] = m_manualSeed(2); fP[2] = fVtxGuess[2];
+      fVtxGuess[0] = m_manualSeed(0);
+      fVtxGuess[1] = m_manualSeed(1);
+      fVtxGuess[2] = m_manualSeed(2);
 		} 
     else
-		{
+		{    
 			if( fStates.size()>1 ) 
       {
         bool flag = estimateVertex(fVtxGuess);
-        if( flag ) {          
-          fP[0] = fVtxGuess[0];
-          fP[1] = fVtxGuess[1];
-          fP[2] = fVtxGuess[2];       
-        }           
+        if( !flag ) 
+        { 
+          fVtxGuess[0] = 0.; fVtxGuess[1] = 0.; fVtxGuess[2] = 0.; 
+        }
       }    
-			if( fStates.size()==1 )
-			{ 
-        return;      
-        if( IP ) {}
-			}
-			if( fStates.size()==0 ) 
-      {
-        return;        
-      }      
-      // if (IP) Seed = IP->position();			
-		}      
+			if( fStates.size()==1 || fStates.size() == 0 )
+			{
+        if( IP ) {
+          fVtxGuess[0] = IP->position().x();
+          fVtxGuess[1] = IP->position().y();
+          fVtxGuess[2] = IP->position().z();
+          // fill already here for no track case
+          fC[0] = IP->errorMatrix()(0,0);
+          fC[1] = IP->errorMatrix()(0,1);
+          fC[2] = IP->errorMatrix()(1,1);
+          fC[3] = IP->errorMatrix()(0,2);
+          fC[4] = IP->errorMatrix()(1,2);
+          fC[5] = IP->errorMatrix()(2,2);
+        }
+			}		
+		}    
     
     if( fStates.size() == 0 || (fStates.size() == 1 && !IP) ) {
-      Result(0) = fP[0]; Result(1) = fP[1]; Result(2) = fP[2];    
+      Result(0) = fVtxGuess[0]; 
+      Result(1) = fVtxGuess[1]; 
+      Result(2) = fVtxGuess[2];    
       ResultError(0,0) = fC[0];
       ResultError(0,1) = ResultError(1,0) = fC[1];
       ResultError(1,1) = fC[2];
       ResultError(0,2) = ResultError(2,0) = fC[3];
       ResultError(1,2) = ResultError(2,1) = fC[4];
       ResultError(2,2) = fC[5];    
-      ChiSquaredOfFit = fChi2;    
+      ChiSquaredOfFit  = fChi2;    
       return;
-    }   
+    } 
     
-    //* Reset vertex position and covariance matrix
+    //* Initial vertex position
     
-    for( int i=0; i<6;  ++i) fP[i] = 0.;
-    for( int i=0; i<21; ++i) fC[i] = 0.;
-    fC[0] = fC[2] = fC[5] = 10000.;
     fP[0] = fVtxGuess[0]; fP[1] = fVtxGuess[1]; fP[2] = fVtxGuess[2];
     
-    fNDF = -3; fChi2 = 0;      
-      
+    if( IP ) {
+      fP[0] = IP->position().x();
+      fP[1] = IP->position().y();
+      fP[2] = IP->position().z();
+      fC[0] = IP->errorMatrix()(0,0);
+      fC[1] = IP->errorMatrix()(0,1);
+      fC[2] = IP->errorMatrix()(1,1);
+      fC[3] = IP->errorMatrix()(0,2);
+      fC[4] = IP->errorMatrix()(1,2);
+      fC[5] = IP->errorMatrix()(2,2);
+    }       
+
     //* Loop over TStates - add them one by one    
     
     for( std::vector<TState>::iterator it = fStates.begin(); fStates.end() != it; it++ ) 
@@ -214,9 +239,13 @@ namespace vertex_lcfi { namespace ZVTOP {
         fNDF  += 2;
       }
     }
-      
+
+
+    //* Recalculate Chi2 (although Kalman filter Chi2 is fine)      
+
     chi2sum = 0;    
-    fChi2chain.clear();    
+    fChi2chain.clear(); // for potential event re-weighting
+
     for( std::vector<TState>::iterator it = fStates.begin(); 
          fStates.end() != it; it++ ) 
     {
@@ -226,15 +255,19 @@ namespace vertex_lcfi { namespace ZVTOP {
       chi2sum += chi2;      
     }
     
-    
     Result(0) = fP[0]; Result(1) = fP[1]; Result(2) = fP[2];
-    
+
     ResultError(0,0) = fC[0];
     ResultError(0,1) = ResultError(1,0) = fC[1];
     ResultError(1,1) = fC[2];
     ResultError(0,2) = ResultError(2,0) = fC[3];
     ResultError(1,2) = ResultError(2,1) = fC[4];
     ResultError(2,2) = fC[5];
+
+
+    //* Add Chi2 if IP was used
+
+    if( IP ) chi2sum += IP->chi2(Result);
     
     fChi2 = chi2sum;
     ChiSquaredOfFit = fChi2;
@@ -248,6 +281,7 @@ namespace vertex_lcfi { namespace ZVTOP {
     Matrix3x3 ResultError; double ChiSquaredOfFit;    
     this->fitVertex(Tracks, IP, Result, ResultError, ChiSquaredOfFit);    
   }
+
   
   void VertexFitterKalman::fitVertex(const std::vector<TrackState*> & Tracks, 
                                      InteractionPoint* IP, 
@@ -256,6 +290,7 @@ namespace vertex_lcfi { namespace ZVTOP {
     Matrix3x3 ResultError;
     this->fitVertex(Tracks, IP, Result, ResultError, ChiSquaredOfFit);    
   }
+
   
   void VertexFitterKalman::fitVertex(const std::vector<TrackState*> & Tracks, 
                                      InteractionPoint* IP, 
@@ -266,8 +301,10 @@ namespace vertex_lcfi { namespace ZVTOP {
     Matrix3x3 ResultError;
     this->fitVertex(Tracks, IP, Result, ResultError, ChiSquaredOfFit,
                     ChiSquaredOfTrack, ChiSquaredOfIP);
+
   }
   
+
   void VertexFitterKalman::fitVertex(const std::vector<TrackState*> & Tracks, 
                                      InteractionPoint* IP, 
                                      Vector3 & Result, Matrix3x3 & ResultError, 
@@ -287,8 +324,8 @@ namespace vertex_lcfi { namespace ZVTOP {
       ChiSquaredOfTrack.insert( std::pair<TrackState*,double>( (*its), chi2 ) );
     }
     
-    // finish IP chi2
-    
+    if( IP ) ChiSquaredOfIP = IP->chi2(Result);
+
   }  
   
   // -----------------------------------------------------------------------------------
@@ -343,16 +380,13 @@ namespace vertex_lcfi { namespace ZVTOP {
                     +(mS[3]*d[0] + mS[4]*d[1] + mS[5]*d[2])*d[2] ));
   }
   
-
   void VertexFitterKalman::setSeed(Vector3 Seed) 
   { 		
     m_useManualSeed = true;
     m_manualSeed = Seed;
   }
   
-
-  bool VertexFitterKalman::estimateVertex(double vtx[]) 
-  {    
+  bool VertexFitterKalman::estimateVertex(double vtx[]) {    
     std::vector<TState>::iterator it1, it2;
     std::vector<double> vx, vy,vz;    
     for ( it1 = fStates.begin(); fStates.end() != it1+1; it1++ ) {
@@ -380,7 +414,6 @@ namespace vertex_lcfi { namespace ZVTOP {
     return true;
   }
   
-
   double VertexFitterKalman::robustMean(std::vector<double> vec) 
   {
     int size = vec.size();
@@ -406,7 +439,7 @@ namespace vertex_lcfi { namespace ZVTOP {
     rmean /= wsum;    
     return rmean;
   }  
-
+  
  }
 }
 

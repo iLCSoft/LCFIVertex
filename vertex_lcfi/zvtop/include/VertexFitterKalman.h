@@ -59,7 +59,6 @@ namespace vertex_lcfi
       std::vector<TState> fStates;
       std::vector<double> fChi2chain;
       
-      InteractionPoint* m_ip;
       Vector3     m_manualSeed;
       bool        m_useManualSeed;
 
