@@ -49,7 +49,7 @@ using vertex_lcfi::util::histogram_data;
  * <H4>Output</H4>
  * If the USEROOT preprocessor flag was defined when this processor was compiled, then the output
  * will be a root file with the filename specified in the steering file.
- * Otherwise, the efficiency-purity values will be output as comma seperated values to the file
+ * Otherwise, the efficiency-purity values will be output as comma separated values to the file
  * <filename>+".csv", and the jet energies to <filename>+"-JetEnergies.csv".
  *
  * @param JetCollectionName Name of the ReconstructedParticle collection that represents jets.
