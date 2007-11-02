@@ -26,9 +26,10 @@
 * N.B. The code that loads the XML networks is currently a little shaky. <b>If the XML is not properly
 * formed then you may get a segmentation fault or runaway memory allocation leading to Marlin crashing.</b>
 * This is still being looked into.<br>
-* Information on the values used for the tag is (will be-still to do) in the documentation for the
-* NeuralNetTrainerProcessor.  The flavour tag result should be the likelyhood (between 0 and 1), if
-* anything goes wrong (that doesn't produce an exception) then a -1 will be stored instead.
+* For more information on the tagging variables used as input, have a look at the documentation for 
+* FlavourTagInputsProcessor. The flavour tag result will be a likelihood in the range 0 to 1; so to
+* select tagged jets apply a cut on this value (e.g. the b-tag value to tag b-jets).  If anything goes
+* wrong (that doesn't produce an exception) then a -1 will be stored instead.
 *
 * <H4>Input</H4>
 * - 9 previously trained neural networks (trained by NeuralNetTrainerProcessor).<br>
@@ -43,7 +44,7 @@
 * for example, the tags for "pJetCollection->getElementAt(3)" will be in "pFlavourTagCollection->getElementAt(3)".
 * For more details see \ref LCIO "the interface documentation"<br>
 *
-* @param JetCollectionName The name of the collection of ReconstructedParticles that is the jet.
+* @param JetCollectionName The name of the collection of ReconstructedParticles representing the jets.
 * @param FlavourTagInputsCollection The name of the collection of LCFloatVec that is the flavour tag inputs.
 * @param FlavourTagCollection The name of the collection of the flavour tag results that will be created.
 * @param Filename-b_net-1vtx Filename for the 1 vertex b tag network.
