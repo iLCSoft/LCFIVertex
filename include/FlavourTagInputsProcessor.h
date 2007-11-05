@@ -122,7 +122,6 @@ class FlavourTagInputsProcessor : public Processor {
   std::vector<std::string> _JetVariableNames;
   
   vertex_lcfi::Algo<DecayChain*,double>* _VertexMomentum;
-  vertex_lcfi::Algo<DecayChain*,double>* _VertexCharge;
   vertex_lcfi::Algo<DecayChain*,double>* _VertexMass;
   vertex_lcfi::Algo<DecayChain*,int>* _VerticesTrackMultiplicity;
   vertex_lcfi::Algo<DecayChain*,std::map<DecaySignificanceType, double> >* _VertexDecaySignificance;
@@ -140,14 +139,6 @@ class FlavourTagInputsProcessor : public Processor {
   double _TrackAttachLoDCutmin;
   double _TrackAttachLoDCutmax;
   double _TrackAttachCloseapproachCut;
-  bool _BChargeAddAllTracksFromSecondary;
-  double _BChargeLoDCutmin;
-  double _BChargeLoDCutmax;
-  double _BChargeCloseapproachCut;
-  bool _CChargeAddAllTracksFromSecondary;
-  double _CChargeLoDCutmin;
-  double _CChargeLoDCutmax;
-  double _CChargeCloseapproachCut;
   double _SecondVertexProbChisquarecut;
   double _SecondVertexNtrackscut;
   double _LayersHit;

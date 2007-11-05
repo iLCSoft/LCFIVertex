@@ -19,7 +19,6 @@
 #include <inc/algo.h>
 #include <inc/vertex.h>
 #include <algo/inc/vertexmomentum.h>
-#include <algo/inc/vertexcharge.h>
 #include <algo/inc/vertexmass.h>
 #include <algo/inc/vertexmultiplicity.h>
 #include <algo/inc/decaysignificance.h>
@@ -106,43 +105,6 @@ FlavourTagInputsProcessor::FlavourTagInputsProcessor() : Processor("FlavourTagIn
 			     "Upper cut on track distance of closest approach to the seed axis for the track attachment"  ,
 			    _TrackAttachCloseapproachCut,
 			     double(1.0)) ;
-
- registerOptionalParameter( "BChargeAllSecondaryTracks",
-			    "Parameter determining whether all tracks from secondary are included in the B-Charge"  ,
-			    _BChargeAddAllTracksFromSecondary,
-			    bool(true)) ;
-
- registerOptionalParameter( "BChargeLoDCutmin",
-			    "Cut determining the minimum L/D for the B-Charge"  ,
-			    _BChargeLoDCutmin,
-			    double(0.18)) ;
- registerOptionalParameter( "BChargeLoDCutmax",
-			     "Cut determining the maximum L/D for the B-Charge"  ,
-			    _BChargeLoDCutmax,
-			     double(2.5)) ;
- registerOptionalParameter( "BChargeCloseapproachCut",
-			     "Upper cut on track distance of closest approach to the seed axis for the B-Charge "   ,
-			    _BChargeCloseapproachCut,
-			     double(1.0)) ;
-
- registerOptionalParameter( "CChargeAllSecondaryTracks",
-			    "Parameter determining whether all tracks from secondary are included in the C-Charge"  ,
-			    _CChargeAddAllTracksFromSecondary,
-			    bool(false));
-
- registerOptionalParameter( "CChargeLoDCutmin",
-			     "Cut determining the minimum L/D for the C-Charge"  ,
-			    _CChargeLoDCutmin,
-			     double(0.5)) ;
- registerOptionalParameter( "CChargeLoDCutmax",
-			     "Cut determining the maximum L/D for the C-Charge"  ,
-			    _CChargeLoDCutmax,
-			     double(2.5)) ;
-
- registerOptionalParameter( "CChargeCloseapproachCut",
-			    "Upper cut on track distance of closest approach to the seed axis for the C-Charge "  ,
-			    _CChargeCloseapproachCut,
-			    double(1.0)) ;
 
  registerOptionalParameter( "SecondVertexProbChisquarecut",
 			    "Cut on the Chi Squared of the seed vertex",
@@ -235,8 +197,6 @@ void FlavourTagInputsProcessor::init()
 	_VertexMomentum = new VertexMomentum();
 	MemoryManager<Algo<DecayChain*,double> >::Run()->registerObject(_VertexMomentum);
 	
-	_VertexCharge = new VertexCharge();
-	MemoryManager<Algo<DecayChain*,double> >::Run()->registerObject(_VertexCharge);
 
 	_VertexMass = new VertexMass();
 	MemoryManager<Algo<DecayChain*,double> >::Run()->registerObject(_VertexMass);  
@@ -257,20 +217,6 @@ void FlavourTagInputsProcessor::init()
 	_TrackAttach->setDoubleParameter("LoDCutmax",_TrackAttachLoDCutmax );
 	_TrackAttach->setDoubleParameter("CloseapproachCut",_TrackAttachCloseapproachCut );
 		
-	_BAttach = new TrackAttach();
-	MemoryManager<Algo<DecayChain*, DecayChain*> > ::Run()->registerObject(_BAttach);
-	_BAttach->setDoubleParameter("AddAllTracksFromSecondary",_BChargeAddAllTracksFromSecondary );
-	_BAttach->setDoubleParameter("LoDCutmin",_BChargeLoDCutmin );
-	_BAttach->setDoubleParameter("LoDCutmax",_BChargeLoDCutmax );
-	_BAttach->setDoubleParameter("CloseapproachCut",_BChargeCloseapproachCut );
-		
-	_CAttach = new TrackAttach();
-	MemoryManager<Algo<DecayChain*, DecayChain*> > ::Run()->registerObject(_CAttach);
-	_CAttach->setDoubleParameter("AddAllTracksFromSecondary",_CChargeAddAllTracksFromSecondary );
-	_CAttach->setDoubleParameter("LoDCutmin",_CChargeLoDCutmin );
-	_CAttach->setDoubleParameter("LoDCutmax",_CChargeLoDCutmax );
-	_CAttach->setDoubleParameter("CloseapproachCut",_CChargeCloseapproachCut );
-	
 	_SecVertexProb = new SecVertexProb();
 	MemoryManager<Algo<DecayChain*, double > > ::Run()->registerObject(_SecVertexProb);
 	_SecVertexProb->setDoubleParameter("Chisquarecut",_SecondVertexProbChisquarecut);
@@ -332,8 +278,7 @@ void FlavourTagInputsProcessor::processRunHeader( LCRunHeader* run) {
 	_JetVariableNames.push_back("SecondaryVertexProbability");
 	_JetVariableNames.push_back("NumVertices");
 	_JetVariableNames.push_back("DecayLength(SeedToIP)");
-	_JetVariableNames.push_back("BQVtx");
-	_JetVariableNames.push_back("CQVtx");
+
 	
 	run->parameters().setValues(_FlavourTagInputsCollectionName, _JetVariableNames);
 	
@@ -479,14 +424,6 @@ if( isFirstEvent() )
 		//TODO De-obfuscate and upgrade to moveable IP
 		FlavourTagInputs.push_back((*(--(DecayChainOf[*iJet]->vertices().end())))->position().mag());
 		
-		//Assuming a B attach tracks for vertex charge calculation
-		FlavourTagInputs.push_back(_VertexCharge->calculateFor(_BAttach->calculateFor(DecayChainOf[*iJet])));
-
-		//		std::cout<<_VertexCharge->calculateFor(_BAttach->calculateFor(DecayChainOf[*iJet]<<std::endl;
-		//Assuming a C attach tracks for vertex charge calculation
-		
-		FlavourTagInputs.push_back(_VertexCharge->calculateFor(_CAttach->calculateFor(DecayChainOf[*iJet])));
-
 		LCFloatVec* OutVec = new LCFloatVec(FlavourTagInputs);
 		OutCollection->addElement(OutVec);
 		
