@@ -1,7 +1,7 @@
 <marlin>
  <execute>
-  <processor name="MyAIDAProcessor"/>
   <processor name="MyPlot"/>
+  <processor name="MyAIDAProcessor"/>
   <processor name="MyLCFIAIDAPlot"/>
  </execute>
 

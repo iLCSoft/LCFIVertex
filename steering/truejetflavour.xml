@@ -15,7 +15,7 @@
   <parameter name="LCIOInputFiles"> cheatout.slcio  </parameter>
   <!-- limit the number of processed records (run+evt): -->  
   <!-- parameter name="MaxRecordNumber" value="500" /-->  
-  <parameter name="SkipNEvents" value="0" />  
+  <!-- parameter name="SkipNEvents" value="0" /-->  
   <parameter name="SupressCheck" value="false" />  
   </global>
 
