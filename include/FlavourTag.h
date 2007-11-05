@@ -27,7 +27,7 @@
 * formed then you may get a segmentation fault or runaway memory allocation leading to Marlin crashing.</b>
 * This is still being looked into.<br>
 * For more information on the tagging variables used as input, have a look at the documentation for 
-* FlavourTagInputsProcessor. The flavour tag result will be a likelihood in the range 0 to 1; so to
+* FlavourTagInputsProcessor. The flavour tag result will be in the range 0 to 1; so to
 * select tagged jets apply a cut on this value (e.g. the b-tag value to tag b-jets).  If anything goes
 * wrong (that doesn't produce an exception) then a -1 will be stored instead.
 *
