@@ -1,7 +1,7 @@
 /*
-
-  Kalman filter based vertex fitter 
   
+  Kalman filter based vertex fitter 
+
   Math implementation was adapted from S.Gorbunov and I.Kisel
   For details see CBM-SOFT note 2007-003
 
@@ -14,15 +14,16 @@
 #include <map>
 #include "../include/VertexFitterKalman.h"
 #include "../include/interactionpoint.h"
+#include "../include/vertexfitterlsm.h"
 
 namespace vertex_lcfi { namespace ZVTOP {
-
-
+  
+  
   //* Track states will be sorted according to pT
-
+  
   bool pDecreasing(const TState& lhs, const TState& rhs) { 
-    return (fabs(lhs.track()->helixRep().invR())
-          < fabs(rhs.track()->helixRep().invR()));
+    return( fabs(lhs.track()->helixRep().invR())
+          < fabs(rhs.track()->helixRep().invR()) );
   }
   
 
@@ -34,14 +35,14 @@ namespace vertex_lcfi { namespace ZVTOP {
                                      InteractionPoint* IP, 
                                      Vector3 & Result, 
                                      Matrix3x3 & ResultError, 
-                                     double & ChiSquaredOfFit) {    
-
+                                     double & ChiSquaredOfFit) {
+    
     //* Reset vertex position and covariance matrix
     
     for( int i=0; i<6;  ++i) fP[i] = 0.;
     for( int i=0; i<21; ++i) fC[i] = 0.;
     fC[0] = fC[2] = fC[5] = 10000.;
-
+    
     double chi2sum = 0;    
     int    maxIter = 3;
 
@@ -56,12 +57,36 @@ namespace vertex_lcfi { namespace ZVTOP {
       TState myState(state);      
       fStates.push_back(myState);
     }
+
+
+    //* For less than two tracks call LSM fitter
+    //           - due to IP default error issue
+
+    if( Tracks.size() < 2 ) 
+    {  
+      VertexFitterLSM fitterLSM;
+      if( m_useManualSeed ) fitterLSM.setSeed(m_manualSeed);
+      std::map<TrackState*,double> ChiSquaredOfTracks;
+      double ChiSquaredOfIP;      
+      fitterLSM.fitVertex(Tracks, IP, Result, ResultError, 
+                          ChiSquaredOfFit, ChiSquaredOfTracks, ChiSquaredOfIP);      
+      fP[0] = Result.x();
+      fP[1] = Result.y();
+      fP[2] = Result.z();
+      fC[0] = ResultError(0,0);
+      fC[1] = ResultError(0,1);
+      fC[2] = ResultError(1,1);
+      fC[3] = ResultError(0,2);
+      fC[4] = ResultError(1,2);
+      fC[5] = ResultError(2,2);
+      return;
+    }    
     
 
     //* Sort track states according to transverse momentum
     
-    std::sort(fStates.begin(), fStates.end(), pDecreasing);
-    
+    std::sort( fStates.begin(), fStates.end(), pDecreasing );    
+
 
     //* Set initial vertex position guess (for linearisation)
     
@@ -239,13 +264,13 @@ namespace vertex_lcfi { namespace ZVTOP {
         fNDF  += 2;
       }
     }
-
-
+    
+    
     //* Recalculate Chi2 (although Kalman filter Chi2 is fine)      
-
+    
     chi2sum = 0;    
     fChi2chain.clear(); // for potential event re-weighting
-
+    
     for( std::vector<TState>::iterator it = fStates.begin(); 
          fStates.end() != it; it++ ) 
     {
@@ -266,7 +291,7 @@ namespace vertex_lcfi { namespace ZVTOP {
 
 
     //* Add Chi2 if IP was used
-
+    
     if( IP ) chi2sum += IP->chi2(Result);
     
     fChi2 = chi2sum;
@@ -324,6 +349,7 @@ namespace vertex_lcfi { namespace ZVTOP {
       ChiSquaredOfTrack.insert( std::pair<TrackState*,double>( (*its), chi2 ) );
     }
     
+    ChiSquaredOfIP = 0;    
     if( IP ) ChiSquaredOfIP = IP->chi2(Result);
 
   }  
@@ -388,17 +414,17 @@ namespace vertex_lcfi { namespace ZVTOP {
   
   bool VertexFitterKalman::estimateVertex(double vtx[]) {    
     std::vector<TState>::iterator it1, it2;
-    std::vector<double> vx, vy,vz;    
+    std::vector<double> vx, vy, vz;    
     for ( it1 = fStates.begin(); fStates.end() != it1+1; it1++ ) {
       TState* state1 = &(*it1);
       for ( it2 = it1+1; fStates.end() != it2; it2++ ) {
         TState* state2 = &(*it2);        
-        double ds1,ds2;                
+        double ds1, ds2;         
         bool flag = state1->GetDStoTStateBz(state2, ds1, ds2);
         if( !flag ) continue;
         double m1[6], m2[6], V1[25], V2[25];
-        state1->TransportBz( -ds1, m1, V1 );
-        state2->TransportBz( -ds2, m2, V2 );        
+        state1->TransportBz( ds1, m1, V1 );
+        state2->TransportBz( ds2, m2, V2 );        
         double xg = .5*( m1[0] + m2[0] );
         double yg = .5*( m1[1] + m2[1] );
         double zg = .5*( m1[2] + m2[2] );
