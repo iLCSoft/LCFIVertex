@@ -180,7 +180,7 @@
   <!--drops all collections of the given type from the event-->
   <!--parameter name="DropCollectionTypes" type="StringVec">SimTrackerHit SimCalorimeterHit  </parameter-->
   <!-- name of output file -->
-  <!--parameter name="LCIOOutputFile" type="string">ftiout.slcio </parameter-->
+  <parameter name="LCIOOutputFile" type="string">ftiout.slcio </parameter>
   <!--write mode for output file:  WRITE_APPEND or WRITE_NEW-->
   <parameter name="LCIOWriteMode" type="string">WRITE_NEW </parameter>
   <!--will split output file if size in kB exceeds given value - doesn't work with APPEND and NEW-->
