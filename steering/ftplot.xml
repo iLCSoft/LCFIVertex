@@ -23,12 +23,28 @@
 </processor>
 
 
+ <processor name="MyAIDAProcessor" type="AIDAProcessor">
+ <!--Processor that handles AIDA files. Creates on directory per processor.  Processors only need to create and fill the histograms, clouds and tuples. Needs to be the first ActiveProcessor-->
+  <!-- compression of output file 0: false >0: true (default) -->
+  <parameter name="Compress" type="int">0 </parameter>
+  <!-- filename without extension-->
+  <parameter name="FileName" type="string">MyAida </parameter>
+  <!-- type of output file xml (default) or root ( only OpenScientist)-->
+  <parameter name="FileType" type="string">xml</parameter>
+</processor>
+
+
+
  <processor name="MyLCFIAIDAPlot" type="LCFIAIDAPlot">
  <!--Creates an AIDA plot of the efficiency purity values and various other things. Make sure that MarlinAIDAProcessor is run before this.-->
   <!--Cut determining the Neural Net cut used to select B-Jets-->
   <!--parameter name="BTagNNCut" type="double">0.7 </parameter-->
+  <!--Name of collection containing the vertex charge of the jets, assuming they are B-jets-->
+  <parameter name="BVertexChargeCollection" type="string">BCharge </parameter>
   <!--Cut determining the Neural Net cut used to select C-Jets-->
   <!--parameter name="CTagNNCut" type="double">0.7 </parameter-->
+  <!--Name of collection containing the vertex charge of the jets, assuming they are C-jets-->
+  <parameter name="CVertexChargeCollection" type="string">CCharge </parameter>
   <!--Cut determining the maximum cos(theta) of the jet.  Default: |cos(theta)|<0.9-->
   <!--parameter name="CosThetaJetMax" type="double">0.9 </parameter-->
   <!--Cut determining the minimum cos(theta) of the jet.  Default: no lower cut.-->
@@ -36,7 +52,7 @@
   <!--Names of the LCFloatVec Collections that contain the flavour tags (one purity efficiency plot per tag) (in same order as jet collection)-->
   <parameter name="FlavourTagCollections" type="StringVec">FlavourTag  </parameter>
   <!--Name of the collection of ReconstructedParticles that is the jet-->
-  <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">SGVJets </parameter>
+  <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
   <!--Name of the collection that holds all MC particles. -->
   <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticle </parameter>
   <!--Set true to make a tuple of the flavour tag input variables.  Default is true.-->
