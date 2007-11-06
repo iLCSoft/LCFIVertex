@@ -182,7 +182,7 @@ void NeuralNetTrainerProcessor::processRunHeader( LCRunHeader* pRun )
 	RequiredNames.insert( "Momentum2");	
 	RequiredNames.insert( "DecayLengthSignificance");
 	RequiredNames.insert( "DecayLength");
-	RequiredNames.insert( "PTMassCorrection");
+	RequiredNames.insert( "PTCorrectedMass");
 	RequiredNames.insert( "RawMomentum");
 	RequiredNames.insert( "NumTracksInVertices" );
 	RequiredNames.insert( "SecondaryVertexProbability");
@@ -304,7 +304,7 @@ void NeuralNetTrainerProcessor::processEvent( lcio::LCEvent* pEvent )
 			{
 				inputs.push_back( std::tanh(Inputs[_IndexOf["DecayLengthSignificance"]]/Norm_DecayLengthSignificance) );
 				inputs.push_back( std::tanh((Inputs[_IndexOf["DecayLength"]]/10.0)/Norm_DecayLength));
-				inputs.push_back( std::tanh(Inputs[_IndexOf["PTMassCorrection"]]/Norm_PTMassCorrection) );
+				inputs.push_back( std::tanh(Inputs[_IndexOf["PTCorrectedMass"]]/Norm_PTMassCorrection) );
 				inputs.push_back( std::tanh(Inputs[_IndexOf["RawMomentum"]]/Norm_RawMomentum) );
 				inputs.push_back( Inputs[_IndexOf["JointProbRPhi"]] );
 				inputs.push_back( Inputs[_IndexOf["JointProbZ"]] );

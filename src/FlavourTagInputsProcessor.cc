@@ -274,7 +274,7 @@ void FlavourTagInputsProcessor::processRunHeader( LCRunHeader* run) {
 	_JetVariableNames.push_back("DecayLength");
 	_JetVariableNames.push_back("DecayLengthSignificance");
 	_JetVariableNames.push_back("RawMomentum");
-	_JetVariableNames.push_back("PTMassCorrection");
+	_JetVariableNames.push_back("PTCorrectedMass");
 	_JetVariableNames.push_back("SecondaryVertexProbability");
 	_JetVariableNames.push_back("NumVertices");
 	_JetVariableNames.push_back("DecayLength(SeedToIP)");

@@ -171,7 +171,7 @@ void FlavourTagProcessor::processRunHeader( LCRunHeader* pRun )
 	RequiredNames.insert( "Momentum2");	
 	RequiredNames.insert( "DecayLengthSignificance");
 	RequiredNames.insert( "DecayLength");
-	RequiredNames.insert( "PTMassCorrection");
+	RequiredNames.insert( "PTCorrectedMass");
 	RequiredNames.insert( "RawMomentum");
 	RequiredNames.insert( "NumTracksInVertices" );
 	RequiredNames.insert( "SecondaryVertexProbability");
@@ -274,7 +274,7 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 		{
 			inputs.push_back( std::tanh((*FTInputs)[_IndexOf["DecayLengthSignificance"]]/Norm_DecayLengthSignificance) );
 			inputs.push_back( std::tanh(((*FTInputs)[_IndexOf["DecayLength"]]/10.0)/Norm_DecayLength));
-			inputs.push_back( std::tanh((*FTInputs)[_IndexOf["PTMassCorrection"]]/Norm_PTMassCorrection) );
+			inputs.push_back( std::tanh((*FTInputs)[_IndexOf["PTCorrectedMass"]]/Norm_PTMassCorrection) );
 			inputs.push_back( std::tanh((*FTInputs)[_IndexOf["RawMomentum"]]/Norm_RawMomentum) );
 			inputs.push_back( (*FTInputs)[_IndexOf["JointProbRPhi"]] );
 			inputs.push_back( (*FTInputs)[_IndexOf["JointProbZ"]] );
