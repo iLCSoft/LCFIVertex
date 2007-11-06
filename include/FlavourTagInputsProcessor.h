@@ -40,7 +40,7 @@ using vertex_lcfi::DecaySignificanceType;
  * <br> JointProbZ -  ^ calculated in vertex_lcfi::JointProb 
  * <br> DecayLengthSignificance - calculated in vertex_lcfi::VertexDecaySignificance
  * <br> DecayLength - calculated in vertex_lcfi::VertexDecaySignificance
- * <br> PTMassCorrection - * calculated in vertex_lcfi::VertexMass
+ * <br> PTCorrectedMass - * calculated in vertex_lcfi::VertexMass
  * <br> RawMomentum - * calculated in vertex_lcfi::VertexMomentum
  * <br> NumTracksInVertices - calculated in vertex_lcfi::VertexMultiplicity
  * <br> SecondaryVertexProbability - * calculated in vertex_lcfi::SecVertexProb 
