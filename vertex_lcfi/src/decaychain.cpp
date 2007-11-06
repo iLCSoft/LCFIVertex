@@ -21,6 +21,19 @@ namespace vertex_lcfi
 	DecayChain::DecayChain(const DecayChain & OldDecayChain)
 	:_OwnerJet(OldDecayChain.jet()),_AttachedTracks(OldDecayChain.attachedTracks()),_Vertices(OldDecayChain.vertices())
 	{
+		//To make a copy of the decay chain we need to copy the constituant vertices
+		//However we keep the same tracks as the decay chains methods cannot effect them.
+		//The current vertices are in our list aleady from construction
+		std::vector<Vertex*> OldVerts =  _Vertices;
+		_Vertices.clear();
+		for (std::vector<Vertex*>::const_iterator iVertex = OldVerts.begin();iVertex!=OldVerts.end();++iVertex)
+		{
+			//Make a copy
+			Vertex* NewVert = new Vertex(**iVertex);
+			//Add it to our list
+			_Vertices.push_back(NewVert);
+		}
+		
 		std::sort(_AttachedTracks.begin(),_AttachedTracks.end(),Trackd0Ascending);
 		std::sort(_Vertices.begin(),_Vertices.end(),Vertexd0Ascending);
 		//Ensure cache is not used
