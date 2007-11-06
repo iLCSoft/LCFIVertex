@@ -28,7 +28,7 @@
  * If 2 or more vertices are found
  * \f[tanh\left( \frac{DecayLengthSignificance}{6\times E} \right)\f]
  * \f[tanh\left( \frac{DecayLength}{10} \right)\f]
- * \f[tanh\left( \frac{PTMassCorrection}{5} \right)\f]
+ * \f[tanh\left( \frac{PTCorrectedMass}{5} \right)\f]
  * \f[tanh\left( \frac{RawMomentum}{E} \right)\f]
  * \f[JointProbRPhi\f]
  * \f[JointProbZ\f]
