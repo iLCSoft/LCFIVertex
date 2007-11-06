@@ -59,13 +59,13 @@ LCFIAIDAPlot aLCFIAIDAPlot;
 LCFIAIDAPlot::LCFIAIDAPlot() : marlin::Processor( "LCFIAIDAPlot" ) 
 { 
 
-  _description="Creates an AIDA plot of the efficiency purity values and various other things. Make sure that MarlinAIDAProcessor is run before this.";
+  _description="Creates an AIDA plot of the LCFIVertex tagging efficiency-purity values and various other things.  Make sure that MarlinAIDAProcessor is run before this.";
   
   registerInputCollection( LCIO::RECONSTRUCTEDPARTICLE,
 			   "JetCollectionName" , 
 			   "Name of the collection of ReconstructedParticles that is the jet"  ,
 			   _JetCollectionName ,
-			   std::string("SGVJets") );
+			   std::string("FTSelectedJets") );
   
   std::vector<std::string> FlavourTagCollectionNamesDefault;
   FlavourTagCollectionNamesDefault.push_back("FlavourTag");
@@ -109,6 +109,19 @@ LCFIAIDAPlot::LCFIAIDAPlot() : marlin::Processor( "LCFIAIDAPlot" )
 			   "Name of the collection that holds the Verticies",
 			   _VertexColName,
 			   std::string("ZVRESVertices") ) ;
+
+  registerInputCollection(LCIO::LCFLOATVEC,
+			  "CVertexChargeCollection",
+			  "Name of collection containing the vertex charge of the jets, assuming they are C-jets",
+			  _CVertexChargeCollection,
+			  std::string("CCharge") );
+  
+  registerInputCollection( LCIO::LCFLOATVEC,
+			   "BVertexChargeCollection",
+			   "Name of collection containing the vertex charge of the jets, assuming they are B-jets",
+			   _BVertexChargeCollection,
+			   std::string("BCharge") ) ;
+  
 
   FlavourTagCollectionNamesDefault.clear();
   FlavourTagCollectionNamesDefault.push_back("FlavourTagInputs");
@@ -162,8 +175,10 @@ LCFIAIDAPlot::LCFIAIDAPlot() : marlin::Processor( "LCFIAIDAPlot" )
 			     _BTagNNCut,
 			     double(0.7));
 
-  
-
+  registerOptionalParameter( "UseFlavourTagCollectionForVertexCharge",
+			     "Integer parameter determing which FlavourTag Collection to use the determine C-Jets and B-Jets in Vertex Charge Plots",
+			     _iVertexChargeTagCollection,
+			     int(0));
 
 } 
 
@@ -175,6 +190,13 @@ void LCFIAIDAPlot::init()
 {
 
   
+  if (_iVertexChargeTagCollection >=  int(_FlavourTagCollectionNames.size()) || _iVertexChargeTagCollection < 0) {
+    std::cerr << " In " << __FILE__ << "(" << __LINE__ << "): Invalid parameter for UseFlavourTagCollectionForVertexCharge.  Setting to 0." << std::endl;
+    _myVertexChargeTagCollection = 0;
+  } else {
+    _myVertexChargeTagCollection = _iVertexChargeTagCollection;
+  }
+
   _ZoomedVarNames.push_back("D0Significance1"); 
   _ZoomedVarNames.push_back("D0Significance2");
   _ZoomedVarNames.push_back("Z0Significance1");
@@ -192,8 +214,6 @@ void LCFIAIDAPlot::init()
   _NumVertexCatDir[2]="TwoVerticies";
   _NumVertexCatDir[3]="ThreeOrMoreVerticies";
   _NumVertexCatDir[0]="AnyNumberOfVerticies";
-  //start the directory names with "A_" so they appear first in the menu
-
 
 
   _numberOfPoints=100;
@@ -215,9 +235,7 @@ void LCFIAIDAPlot::init()
   _pCTagBackgroundValues.resize( _FlavourTagCollectionNames.size() );
   _pBCTagBackgroundValues.resize( _FlavourTagCollectionNames.size() );
 
-  _pBJetCharge.resize( _FlavourTagCollectionNames.size() );
-  _pCJetCharge.resize( _FlavourTagCollectionNames.size() );
-  
+ 
   
   for (unsigned int iTagCollection=0; iTagCollection < _FlavourTagCollectionNames.size(); ++iTagCollection )
     { 
@@ -255,21 +273,27 @@ void LCFIAIDAPlot::init()
 	pTree->cd( "/" + name() + "/");
       }
       
+ 
+      //some plots of vertex charge
+      if (!pTree->cd("/" + name() + "/VertexChargePlots/")) {
+	pTree->mkdirs("/" + name() + "/VertexChargePlots/");
+	pTree->cd( "/" + name() + "/VertexChargePlots/");
+      }
+      
+      _pBJetCharge2D = pHistogramFactory->createHistogram2D( "B Jets: Reconstructed Vertex Charge vs True Jet Charge",7,-3.5,+3.5,7,-3.5,+3.5);
+      _pCJetCharge2D = pHistogramFactory->createHistogram2D( "C Jets: Reconstructed Vertex Charge vs True Jet Charge",7,-3.5,+3.5,7,-3.5,+3.5);
+      
+      _pBJetVertexCharge = pHistogramFactory->createHistogram1D( "B Jets: Reconstructed Vertex Charge",9,-4.5,+4.5);
+      _pCJetVertexCharge = pHistogramFactory->createHistogram1D( "C Jets: Reconstructed Vertex Charge",9,-4.5,+4.5);
+      
+      _pCJetLeakageRate = pHistogramFactory->createHistogram1D("C Jets: Charged Leakage Rate  (DON'T TRUST ERRORS)", N_JETANGLE_BINS,0.,1.);
+      _pBJetLeakageRate = pHistogramFactory->createHistogram1D("B Jets: Charged Leakage Rate  (DON'T TRUST ERRORS)", N_JETANGLE_BINS,0.,1.);
+      
+      
+      
       
       for (unsigned int iTagCollection=0; iTagCollection < _FlavourTagCollectionNames.size(); ++iTagCollection )
 	{
-	  
-	  if (!pTree->cd(_FlavourTagCollectionNames[iTagCollection] + "/VertexChargePlots/")) {
-	    pTree->mkdirs(_FlavourTagCollectionNames[iTagCollection] + "/VertexChargePlots/");
-	    pTree->cd(_FlavourTagCollectionNames[iTagCollection] + "/VertexChargePlots/");
-	  }
-	  
-	  _pBJetCharge[iTagCollection] = pHistogramFactory->createHistogram2D( "B Jets: Reconstructed Jet Charge vs True Jet Charge",7,-3.5,+3.5,7,-3.5,+3.5);
-	  _pCJetCharge[iTagCollection] = pHistogramFactory->createHistogram2D( "C Jets: Reconstructed Jet Charge vs True Jet Charge",7,-3.5,+3.5,7,-3.5,+3.5);
-	  
-	  
-	  _pCJetLeakageRate = pHistogramFactory->createHistogram1D("C Jets: Charged Leakage Rate  (DON'T TRUST ERRORS)", N_JETANGLE_BINS,0.,1.);
-	  _pBJetLeakageRate = pHistogramFactory->createHistogram1D("B Jets: Charged Leakage Rate  (DON'T TRUST ERRORS)", N_JETANGLE_BINS,0.,1.);
 	  
 	  
 	  for (unsigned int iVertexCat=0;  iVertexCat <=  N_VERTEX_CATEGORIES; ++iVertexCat ){
@@ -298,7 +322,7 @@ void LCFIAIDAPlot::init()
 	    
 	    //make the ntuple
 	    //this breaks the paradigm of reading these in from the flavour tag collections themselves
-	    std::string columnNames="int TrueJetFlavour=-1, int BQVtx=-10, int CQVtx=-10, int NumberOfVertices=-1, int NumberOfTracksInVertices=-1, float D0Significance1 = -999., float D0Significance2 = -999., float DecayLength = -999., float DecayLength_SeedToIP= -999., float DecayLengthSignificance= -999., float JointProbRPhi= -999., float JointProbZ= -999., float Momentum1= -999.,float Momentum2= -999., float PTMassCorrection= -999., float RawMomentum= -999., float SecondaryVertexProbability= -999., float Z0Significance1= -999., float Z0Significance2= -999.";
+	    std::string columnNames="int TrueJetFlavour=-1,  int NumberOfVertices=-1, int NumberOfTracksInVertices=-1, float D0Significance1 = -999., float D0Significance2 = -999., float DecayLength = -999., float DecayLength_SeedToIP= -999., float DecayLengthSignificance= -999., float JointProbRPhi= -999., float JointProbZ= -999., float Momentum1= -999.,float Momentum2= -999., float PTMassCorrection= -999., float RawMomentum= -999., float SecondaryVertexProbability= -999., float Z0Significance1= -999., float Z0Significance2= -999., int BQVtx=-10, int CQVtx=-10";
 	    
 	    if( !pTree->cd(  "/"  + name() + "/" + _FlavourTagInputsCollectionNames[iTagCollection]  + "/TupleDir/"))
 	      {	 
@@ -363,11 +387,6 @@ void LCFIAIDAPlot::init()
   _zoomedInputsHistogramsCJets.resize( _FlavourTagInputsCollectionNames.size() );
   _zoomedInputsHistogramsUDSJets.resize( _FlavourTagInputsCollectionNames.size() );
   
-  _cJet_truePlus2.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_truePlus.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueMinus2.resize(_FlavourTagInputsCollectionNames.size() );
 
   InternalVectorInitialisation();
   
@@ -619,7 +638,7 @@ void LCFIAIDAPlot::processEvent( LCEvent* pEvent )
   
   
   //apply any cuts on the event here
-  if( _passesEventCuts(pEvent) )
+  if( PassesEventCuts(pEvent) )
     {
 
       ReconstructedParticle* pJet;
@@ -629,10 +648,10 @@ void LCFIAIDAPlot::processEvent( LCEvent* pEvent )
 	  pJet=jetCollection.getElementAt(jetNumber);
 	  
 	  //only do anything if the jet passes the jet cuts
-	  if( _passesJetCuts(pJet) )
+	  if( PassesJetCuts(pJet) )
 	    {
-	      _fillTagPlots( pEvent, jetNumber );
-	      _fillInputsPlots( pEvent, jetNumber );
+	      FillTagPlots( pEvent, jetNumber );
+	      FillInputsPlots( pEvent, jetNumber );
 	    }
 	}
    
@@ -862,48 +881,14 @@ void LCFIAIDAPlot::end()
 	CreateXYPlot(_pCJetCTagEfficiency, _pLightJetBCTagLeakage,  pDataPointSetFactory->create("Leakage Rate (Light into BC) Efficiency for BC-Tag  ("+ nvname +")",2), 1, 1);
 	
       }
-    
-      //create vertex charge leakage rate plots
-      pTree->cd( "/" + name() + "/" + _FlavourTagCollectionNames[iTagCollection]+ "/VertexChargePlots/");
-      AIDA::IDataPointSet* pBJetVtxChargeDPS = pDataPointSetFactory->create("B-Jets: Vertex Charge Leakage",2);	
-      AIDA::IDataPointSet* pCJetVtxChargeDPS = pDataPointSetFactory->create("C-Jets: Vertex Charge Leakage",2);
-      
-      for (int j = 0 ; j < N_JETANGLE_BINS ; j++) {
-	
-	double c_numerator   = _cJet_truePlus2_recoPlus_angle[iTagCollection][j]+_cJet_truePlus_recoPlus_angle[iTagCollection][j]
-	  +_cJet_trueMinus2_recoMinus_angle[iTagCollection][j]+_cJet_trueMinus_recoMinus_angle[iTagCollection][j];
-	double c_domininator = _cJet_truePlus2_angle[iTagCollection][j]         +_cJet_truePlus_angle[iTagCollection][j]         
-	  +_cJet_trueMinus2_angle[iTagCollection][j]          +_cJet_trueMinus_angle[iTagCollection][j];
-	
-	double b_numerator   = _bJet_truePlus2_recoPlus_angle[iTagCollection][j]+_bJet_truePlus_recoPlus_angle[iTagCollection][j]
-	  +_bJet_trueMinus2_recoMinus_angle[iTagCollection][j]+_bJet_trueMinus_recoMinus_angle[iTagCollection][j];
-	double b_domininator = _bJet_truePlus2_angle[iTagCollection][j]         +_bJet_truePlus_angle[iTagCollection][j]         
-	  +_bJet_trueMinus2_angle[iTagCollection][j]          +_bJet_trueMinus_angle[iTagCollection][j];
-	
-	double b_leakage = 1. - b_numerator/b_domininator;
-	double c_leakage = 1. - c_numerator/c_domininator;
-	
-	double b_leakage_error = sqrt( b_leakage * (1. -  b_leakage) / b_domininator);
-	double c_leakage_error = sqrt( c_leakage * (1. -  c_leakage) / c_domininator);
-	
-	
-	pBJetVtxChargeDPS->addPoint();
-	pBJetVtxChargeDPS->point(j)->coordinate(0)->setValue(_pBJetLeakageRate->axis().binLowerEdge(j)+_pBJetLeakageRate->axis().binWidth(j)/2.);
-	pBJetVtxChargeDPS->point(j)->coordinate(1)->setValue(b_leakage);
-	pBJetVtxChargeDPS->point(j)->coordinate(1)->setErrorPlus(b_leakage_error);
-	pBJetVtxChargeDPS->point(j)->coordinate(1)->setErrorMinus(b_leakage_error);
-	
-	
-	pCJetVtxChargeDPS->addPoint();
-	pCJetVtxChargeDPS->point(j)->coordinate(0)->setValue(_pCJetLeakageRate->axis().binLowerEdge(j)+_pCJetLeakageRate->axis().binWidth(j)/2.);
-	pCJetVtxChargeDPS->point(j)->coordinate(1)->setValue(c_leakage);
-	pCJetVtxChargeDPS->point(j)->coordinate(1)->setErrorPlus(c_leakage_error);
-	pCJetVtxChargeDPS->point(j)->coordinate(1)->setErrorMinus(c_leakage_error);
-	
-	_pCJetLeakageRate->fill(_pCJetLeakageRate->axis().binLowerEdge(j)+_pCJetLeakageRate->axis().binWidth(j)/2.,c_leakage); 
-	_pBJetLeakageRate->fill(_pBJetLeakageRate->axis().binLowerEdge(j)+_pBJetLeakageRate->axis().binWidth(j)/2.,b_leakage);
-      }
     }
+      //create vertex charge leakage rate plots
+  pTree->cd( "/" + name() + "/VertexChargePlots/");
+  AIDA::IDataPointSet* pBJetVtxChargeDPS = pDataPointSetFactory->create("B-Jets: Vertex Charge Leakage",2);	
+  AIDA::IDataPointSet* pCJetVtxChargeDPS = pDataPointSetFactory->create("C-Jets: Vertex Charge Leakage",2);
+  
+  CreateVertexChargeLeakagePlot(pBJetVtxChargeDPS, pCJetVtxChargeDPS);
+  
   
   if (_PrintNeuralNetOutput) PrintNNOutput();
 
@@ -911,7 +896,7 @@ void LCFIAIDAPlot::end()
 
 // IMPORTANT - If you change the cuts make sure you change the line below to show the changes in the docs
 /*! Currently applies no cuts at all*/
-bool LCFIAIDAPlot::_passesEventCuts( LCEvent* pEvent )
+bool LCFIAIDAPlot::PassesEventCuts( LCEvent* pEvent )
 {
   //
   // No event cuts at present
@@ -922,7 +907,7 @@ bool LCFIAIDAPlot::_passesEventCuts( LCEvent* pEvent )
 }
 // IMPORTANT - If you change the cuts make sure you change the line below to show the changes in the docs
 
-bool LCFIAIDAPlot::_passesJetCuts( ReconstructedParticle* pJet )
+bool LCFIAIDAPlot::PassesJetCuts( ReconstructedParticle* pJet )
 {
   //
   // This cut added on the suggestion of Sonja Hillert 12/Jan/07.
@@ -950,11 +935,14 @@ bool LCFIAIDAPlot::_passesJetCuts( ReconstructedParticle* pJet )
   return true;
 }
 
-void LCFIAIDAPlot::_fillInputsPlots( LCEvent* pEvent, unsigned int jetNumber )
+void LCFIAIDAPlot::FillInputsPlots( LCEvent* pEvent, unsigned int jetNumber )
 {
    
 	int jetType=FindJetType( pEvent, jetNumber );
 	if( jetType==0 ) return;
+
+	int CQVtx =  FindCQVtx(pEvent, jetNumber);
+	int BQVtx =  FindBQVtx(pEvent, jetNumber);
 
 	for (unsigned int iInputsCollection=0; iInputsCollection < _FlavourTagInputsCollectionNames.size(); ++iInputsCollection )
 	{
@@ -979,8 +967,6 @@ void LCFIAIDAPlot::_fillInputsPlots( LCEvent* pEvent, unsigned int jetNumber )
 		    
 		    //this could probably be done automatically
 		    
-		    int  BQVtx = int((*pInputs)[_InputsIndex[iInputsCollection]["BQVtx"]]);
-		    int  CQVtx = int((*pInputs)[_InputsIndex[iInputsCollection]["CQVtx"]]);
 		    int  NumVertices = int((*pInputs)[_InputsIndex[iInputsCollection]["NumVertices"]]);
 		    int  NumTracksInVertices = int((*pInputs)[_InputsIndex[iInputsCollection] ["NumTracksInVertices"]]);
 		    float D0Significance1=(*pInputs)[_InputsIndex[iInputsCollection]     ["D0Significance1"]];
@@ -999,24 +985,26 @@ void LCFIAIDAPlot::_fillInputsPlots( LCEvent* pEvent, unsigned int jetNumber )
 		    float Z0Significance2=(*pInputs)[_InputsIndex[iInputsCollection]     ["Z0Significance2"]];
 		    
 		    _pMyTuple->fill( 0, jetType );
-		    _pMyTuple->fill( 1, BQVtx );
-		    _pMyTuple->fill( 2, CQVtx );
-		    _pMyTuple->fill( 3, NumVertices );
-		    _pMyTuple->fill( 4, NumTracksInVertices );
-		    _pMyTuple->fill( 5, D0Significance1);
-		    _pMyTuple->fill( 6, D0Significance2);
-		    _pMyTuple->fill( 7, DecayLength);
-		    _pMyTuple->fill( 8, DecayLength_SeedToIP);
-		    _pMyTuple->fill( 9, DecayLengthSignificance);
-		    _pMyTuple->fill( 10, JointProbRPhi);
-		    _pMyTuple->fill( 11, JointProbZ);
-		    _pMyTuple->fill( 12, Momentum1);
-		    _pMyTuple->fill( 13, Momentum2);
-		    _pMyTuple->fill( 14, PTMassCorrection);
-		    _pMyTuple->fill( 15, RawMomentum);
-		    _pMyTuple->fill( 16, SecondaryVertexProbability);
-		    _pMyTuple->fill( 17, Z0Significance1);
-		    _pMyTuple->fill( 18 ,Z0Significance2);
+		    _pMyTuple->fill( 1, NumVertices );
+		    _pMyTuple->fill( 2, NumTracksInVertices );
+		    _pMyTuple->fill( 3, D0Significance1);
+		    _pMyTuple->fill( 4, D0Significance2);
+		    _pMyTuple->fill( 5, DecayLength);
+		    _pMyTuple->fill( 6, DecayLength_SeedToIP);
+		    _pMyTuple->fill( 7, DecayLengthSignificance);
+		    _pMyTuple->fill( 8, JointProbRPhi);
+		    _pMyTuple->fill( 9, JointProbZ);
+		    _pMyTuple->fill( 10, Momentum1);
+		    _pMyTuple->fill( 11, Momentum2);
+		    _pMyTuple->fill( 12, PTMassCorrection);
+		    _pMyTuple->fill( 13, RawMomentum);
+		    _pMyTuple->fill( 14, SecondaryVertexProbability);
+		    _pMyTuple->fill( 15, Z0Significance1);
+		    _pMyTuple->fill( 16 ,Z0Significance2);
+
+		    _pMyTuple->fill( 17, BQVtx );
+		    _pMyTuple->fill( 18, CQVtx );
+		    
 		    _pMyTuple->addRow();
 		  }
 		  
@@ -1055,7 +1043,7 @@ void LCFIAIDAPlot::_fillInputsPlots( LCEvent* pEvent, unsigned int jetNumber )
 	}
 }
 
-void LCFIAIDAPlot::_fillTagPlots( LCEvent* pEvent, unsigned int jetNumber)
+void LCFIAIDAPlot::FillTagPlots( LCEvent* pEvent, unsigned int jetNumber)
 {
   int jetType=FindJetType( pEvent, jetNumber );
   if( jetType==0 ) return;
@@ -1088,8 +1076,8 @@ void LCFIAIDAPlot::_fillTagPlots( LCEvent* pEvent, unsigned int jetNumber)
 	      double cTag= (*pJetFlavourTags)[_IndexOfForEachTag[iTagCollection]["CTag"]];
 	      double cTagBBack= (*pJetFlavourTags)[_IndexOfForEachTag[iTagCollection]["BCTag"]];
 	      unsigned int NumVertices = FindNumVertex(pEvent, jetNumber, iTagCollection);
-	      int CQVtx =  FindCQVtx(pEvent, jetNumber, iTagCollection);
-	      int BQVtx =  FindBQVtx(pEvent, jetNumber, iTagCollection);
+	      int CQVtx =  FindCQVtx(pEvent, jetNumber);
+	      int BQVtx =  FindBQVtx(pEvent, jetNumber);
 	      int trueJetCharge = int(FindJetHadronCharge(pEvent,jetNumber));
 	      
 	      std::string nvname = _VertexCatNames[ (NumVertices>=N_VERTEX_CATEGORIES) ? (N_VERTEX_CATEGORIES) : (NumVertices)];
@@ -1179,153 +1167,156 @@ void LCFIAIDAPlot::_fillTagPlots( LCEvent* pEvent, unsigned int jetNumber)
 		  }
 	      }
 	      
+	      if (int(iTagCollection) == _myVertexChargeTagCollection) {
 
+		//vertex charge plots
+		if( jetType==C_JET && cTag > _CTagNNCut) {
+		  
+		  int bin = _pCJetLeakageRate->coordToIndex(fabs(cosTheta));
+		  
+		  if (trueJetCharge==+2)   _cJet_truePlus2++;
+		  if (trueJetCharge==+1)   _cJet_truePlus++;
+		  if (trueJetCharge==0)    _cJet_trueNeut++;
+		  if (trueJetCharge==-1)   _cJet_trueMinus++;
+		  if (trueJetCharge==-2)   _cJet_trueMinus2++;
+		  
+		  if (trueJetCharge==+2){ 
+		    if(CQVtx>0)  _cJet_truePlus2_recoPlus++; 
+		    if(CQVtx==0) _cJet_truePlus2_recoNeut++;
+		    if(CQVtx<0)  _cJet_truePlus2_recoMinus++;
+		  }
+		  if (trueJetCharge==+1){ 
+		    if(CQVtx>0)  _cJet_truePlus_recoPlus++; 
+		    if(CQVtx==0) _cJet_truePlus_recoNeut++;
+		    if(CQVtx<0)  _cJet_truePlus_recoMinus++;
+		  }
+		  if (trueJetCharge==0) { 
+		    if(CQVtx>0)  _cJet_trueNeut_recoPlus++; 
+		    if(CQVtx==0) _cJet_trueNeut_recoNeut++;
+		    if(CQVtx<0)  _cJet_trueNeut_recoMinus++;
+		  }
+		  if (trueJetCharge==-1)  { 
+		    if(CQVtx>0)  _cJet_trueMinus_recoPlus++; 
+		    if(CQVtx==0) _cJet_trueMinus_recoNeut++;
+		    if(CQVtx<0)  _cJet_trueMinus_recoMinus++;
+		  }
+		  if (trueJetCharge==-2) { 
+		    if(CQVtx>0)  _cJet_trueMinus2_recoPlus++; 
+		    if(CQVtx==0) _cJet_trueMinus2_recoNeut++;
+		    if(CQVtx<0)  _cJet_trueMinus2_recoMinus++;
+		  }
+		  
+		  _pCJetVertexCharge->fill(CQVtx);
+		  _pCJetCharge2D->fill(trueJetCharge,CQVtx);
 
-	      //vertex charge plots
-	      if( jetType==C_JET && cTag > _CTagNNCut) {
-		
-		int bin = _pCJetLeakageRate->coordToIndex(fabs(cosTheta));
-		
-		if (trueJetCharge==+2)   _cJet_truePlus2[iTagCollection]++;
-		if (trueJetCharge==+1)   _cJet_truePlus[iTagCollection]++;
-		if (trueJetCharge==0)    _cJet_trueNeut[iTagCollection]++;
-		if (trueJetCharge==-1)   _cJet_trueMinus[iTagCollection]++;
-		if (trueJetCharge==-2)   _cJet_trueMinus2[iTagCollection]++;
-		
-		if (trueJetCharge==+2){ 
-		  if(CQVtx>0)  _cJet_truePlus2_recoPlus[iTagCollection]++; 
-		  if(CQVtx==0) _cJet_truePlus2_recoNeut[iTagCollection]++;
-		  if(CQVtx<0)  _cJet_truePlus2_recoMinus[iTagCollection]++;
+		  if (trueJetCharge==+2)   _cJet_truePlus2_angle[bin]++;
+		  if (trueJetCharge==+1)   _cJet_truePlus_angle[bin]++;
+		  if (trueJetCharge==0)    _cJet_trueNeut_angle[bin]++;
+		  if (trueJetCharge==-1)   _cJet_trueMinus_angle[bin]++;
+		  if (trueJetCharge==-2)   _cJet_trueMinus2_angle[bin]++;
+		  
+		  if (trueJetCharge==+2){ 
+		    if(CQVtx>0)  _cJet_truePlus2_recoPlus_angle[bin]++; 
+		    if(CQVtx==0) _cJet_truePlus2_recoNeut_angle[bin]++;
+		    if(CQVtx<0)  _cJet_truePlus2_recoMinus_angle[bin]++;
+		  }
+		  if (trueJetCharge==+1){ 
+		    if(CQVtx>0)  _cJet_truePlus_recoPlus_angle[bin]++; 
+		    if(CQVtx==0) _cJet_truePlus_recoNeut_angle[bin]++;
+		    if(CQVtx<0)  _cJet_truePlus_recoMinus_angle[bin]++;
+		  }
+		  if (trueJetCharge==0) { 
+		    if(CQVtx>0)  _cJet_trueNeut_recoPlus_angle[bin]++; 
+		    if(CQVtx==0) _cJet_trueNeut_recoNeut_angle[bin]++;
+		    if(CQVtx<0)  _cJet_trueNeut_recoMinus_angle[bin]++;
+		  }
+		  if (trueJetCharge==-1)  { 
+		    if(CQVtx>0)  _cJet_trueMinus_recoPlus_angle[bin]++; 
+		    if(CQVtx==0) _cJet_trueMinus_recoNeut_angle[bin]++;
+		    if(CQVtx<0)  _cJet_trueMinus_recoMinus_angle[bin]++;
+		  }
+		  if (trueJetCharge==-2) { 
+		    if(CQVtx>0)  _cJet_trueMinus2_recoPlus_angle[bin]++; 
+		    if(CQVtx==0) _cJet_trueMinus2_recoNeut_angle[bin]++;
+		    if(CQVtx<0)  _cJet_trueMinus2_recoMinus_angle[bin]++;
+		  }    
+		  
+		} else if ( jetType==B_JET && bTag > _BTagNNCut) {
+		  
+		  int bin = _pBJetLeakageRate->coordToIndex(fabs(cosTheta));
+		  
+		  if (trueJetCharge==+2)   _bJet_truePlus2++;
+		  if (trueJetCharge==+1)   _bJet_truePlus++;
+		  if (trueJetCharge==0)    _bJet_trueNeut++;
+		  if (trueJetCharge==-1)   _bJet_trueMinus++;
+		  if (trueJetCharge==-2)   _bJet_trueMinus2++;
+		  
+		  if (trueJetCharge==+2){ 
+		    if(BQVtx>0)  _bJet_truePlus2_recoPlus++; 
+		    if(BQVtx==0) _bJet_truePlus2_recoNeut++;
+		    if(BQVtx<0)  _bJet_truePlus2_recoMinus++;
+		  }
+		  if (trueJetCharge==+1){ 
+		    if(BQVtx>0)  _bJet_truePlus_recoPlus++; 
+		    if(BQVtx==0) _bJet_truePlus_recoNeut++;
+		    if(BQVtx<0)  _bJet_truePlus_recoMinus++;
+		  }
+		  if (trueJetCharge==0) { 
+		    if(BQVtx>0)  _bJet_trueNeut_recoPlus++; 
+		    if(BQVtx==0) _bJet_trueNeut_recoNeut++;
+		    if(BQVtx<0)  _bJet_trueNeut_recoMinus++;
+		  }
+		  if (trueJetCharge==-1)  { 
+		    if(BQVtx>0)  _bJet_trueMinus_recoPlus++; 
+		    if(BQVtx==0) _bJet_trueMinus_recoNeut++;
+		    if(BQVtx<0)  _bJet_trueMinus_recoMinus++;
+		  }
+		  if (trueJetCharge==-2) { 
+		    if(BQVtx>0)  _bJet_trueMinus2_recoPlus++; 
+		    if(BQVtx==0) _bJet_trueMinus2_recoNeut++;
+		    if(BQVtx<0)  _bJet_trueMinus2_recoMinus++;
+		  }
+		  
+		  
+		  if (trueJetCharge==+2) _bJet_truePlus2_angle[bin]++;
+		  if (trueJetCharge==+1) _bJet_truePlus_angle[bin]++;	
+		  if (trueJetCharge==0)  _bJet_trueNeut_angle[bin]++;	
+		  if (trueJetCharge==-1) _bJet_trueMinus_angle[bin]++;	
+		  if (trueJetCharge==-2) _bJet_trueMinus2_angle[bin]++;
+		  
+		  if (trueJetCharge==+2){ 
+		    if(BQVtx>0)  _bJet_truePlus2_recoPlus_angle[bin]++; 
+		    if(BQVtx==0) _bJet_truePlus2_recoNeut_angle[bin]++;
+		    if(BQVtx<0)  _bJet_truePlus2_recoMinus_angle[bin]++;
+		  }
+		  if (trueJetCharge==+1){ 
+		    if(BQVtx>0)  _bJet_truePlus_recoPlus_angle[bin]++; 
+		    if(BQVtx==0) _bJet_truePlus_recoNeut_angle[bin]++;
+		    if(BQVtx<0)  _bJet_truePlus_recoMinus_angle[bin]++;
+		  }
+		  if (trueJetCharge==0) { 
+		    if(BQVtx>0) _bJet_trueNeut_recoPlus_angle[bin]++; 
+		    if(BQVtx==0) _bJet_trueNeut_recoNeut_angle[bin]++;
+		    if(BQVtx<0) _bJet_trueNeut_recoMinus_angle[bin]++;
 		}
-		if (trueJetCharge==+1){ 
-		  if(CQVtx>0)  _cJet_truePlus_recoPlus[iTagCollection]++; 
-		  if(CQVtx==0) _cJet_truePlus_recoNeut[iTagCollection]++;
-		  if(CQVtx<0)  _cJet_truePlus_recoMinus[iTagCollection]++;
+		  if (trueJetCharge==-1)  { 
+		    if(BQVtx>0) _bJet_trueMinus_recoPlus_angle[bin]++; 
+		    if(BQVtx==0) _bJet_trueMinus_recoNeut_angle[bin]++;
+		    if(BQVtx<0) _bJet_trueMinus_recoMinus_angle[bin]++;
+		  }
+		  if (trueJetCharge==-2) { 
+		    if(BQVtx>0) _bJet_trueMinus2_recoPlus_angle[bin]++; 
+		    if(BQVtx==0) _bJet_trueMinus2_recoNeut_angle[bin]++;
+		    if(BQVtx<0) _bJet_trueMinus2_recoMinus_angle[bin]++;
+		  }
+		  
+		  _pBJetVertexCharge->fill(BQVtx);
+		  _pBJetCharge2D->fill(trueJetCharge,BQVtx);
 		}
-		if (trueJetCharge==0) { 
-		  if(CQVtx>0)  _cJet_trueNeut_recoPlus[iTagCollection]++; 
-		  if(CQVtx==0) _cJet_trueNeut_recoNeut[iTagCollection]++;
-		  if(CQVtx<0)  _cJet_trueNeut_recoMinus[iTagCollection]++;
-		}
-		if (trueJetCharge==-1)  { 
-		  if(CQVtx>0)  _cJet_trueMinus_recoPlus[iTagCollection]++; 
-		  if(CQVtx==0) _cJet_trueMinus_recoNeut[iTagCollection]++;
-		  if(CQVtx<0)  _cJet_trueMinus_recoMinus[iTagCollection]++;
-		}
-		if (trueJetCharge==-2) { 
-		  if(CQVtx>0)  _cJet_trueMinus2_recoPlus[iTagCollection]++; 
-		  if(CQVtx==0) _cJet_trueMinus2_recoNeut[iTagCollection]++;
-		  if(CQVtx<0)  _cJet_trueMinus2_recoMinus[iTagCollection]++;
-		}
-		
-		_pCJetCharge[iTagCollection]->fill(trueJetCharge,CQVtx);
-		
-		if (trueJetCharge==+2)   _cJet_truePlus2_angle[iTagCollection][bin]++;
-		if (trueJetCharge==+1)   _cJet_truePlus_angle[iTagCollection][bin]++;
-		if (trueJetCharge==0)    _cJet_trueNeut_angle[iTagCollection][bin]++;
-		if (trueJetCharge==-1)   _cJet_trueMinus_angle[iTagCollection][bin]++;
-		if (trueJetCharge==-2)   _cJet_trueMinus2_angle[iTagCollection][bin]++;
-		
-		if (trueJetCharge==+2){ 
-		  if(CQVtx>0)  _cJet_truePlus2_recoPlus_angle[iTagCollection][bin]++; 
-		  if(CQVtx==0) _cJet_truePlus2_recoNeut_angle[iTagCollection][bin]++;
-		  if(CQVtx<0)  _cJet_truePlus2_recoMinus_angle[iTagCollection][bin]++;
-		}
-		if (trueJetCharge==+1){ 
-		  if(CQVtx>0)  _cJet_truePlus_recoPlus_angle[iTagCollection][bin]++; 
-		  if(CQVtx==0) _cJet_truePlus_recoNeut_angle[iTagCollection][bin]++;
-		  if(CQVtx<0)  _cJet_truePlus_recoMinus_angle[iTagCollection][bin]++;
-		}
-		if (trueJetCharge==0) { 
-		  if(CQVtx>0)  _cJet_trueNeut_recoPlus_angle[iTagCollection][bin]++; 
-		  if(CQVtx==0) _cJet_trueNeut_recoNeut_angle[iTagCollection][bin]++;
-		  if(CQVtx<0)  _cJet_trueNeut_recoMinus_angle[iTagCollection][bin]++;
-		}
-		if (trueJetCharge==-1)  { 
-		  if(CQVtx>0)  _cJet_trueMinus_recoPlus_angle[iTagCollection][bin]++; 
-		  if(CQVtx==0) _cJet_trueMinus_recoNeut_angle[iTagCollection][bin]++;
-		  if(CQVtx<0)  _cJet_trueMinus_recoMinus_angle[iTagCollection][bin]++;
-		}
-		if (trueJetCharge==-2) { 
-		  if(CQVtx>0)  _cJet_trueMinus2_recoPlus_angle[iTagCollection][bin]++; 
-		  if(CQVtx==0) _cJet_trueMinus2_recoNeut_angle[iTagCollection][bin]++;
-		  if(CQVtx<0)  _cJet_trueMinus2_recoMinus_angle[iTagCollection][bin]++;
-		}    
-		
-	      } else if ( jetType==B_JET && bTag > _BTagNNCut) {
-		
-		int bin = _pBJetLeakageRate->coordToIndex(fabs(cosTheta));
-		
-		if (trueJetCharge==+2)   _bJet_truePlus2[iTagCollection]++;
-		if (trueJetCharge==+1)   _bJet_truePlus[iTagCollection]++;
-		if (trueJetCharge==0)    _bJet_trueNeut[iTagCollection]++;
-		if (trueJetCharge==-1)   _bJet_trueMinus[iTagCollection]++;
-		if (trueJetCharge==-2)   _bJet_trueMinus2[iTagCollection]++;
-		
-		if (trueJetCharge==+2){ 
-		  if(BQVtx>0)  _bJet_truePlus2_recoPlus[iTagCollection]++; 
-		  if(BQVtx==0) _bJet_truePlus2_recoNeut[iTagCollection]++;
-		  if(BQVtx<0)  _bJet_truePlus2_recoMinus[iTagCollection]++;
-		}
-		if (trueJetCharge==+1){ 
-		  if(BQVtx>0)  _bJet_truePlus_recoPlus[iTagCollection]++; 
-		  if(BQVtx==0) _bJet_truePlus_recoNeut[iTagCollection]++;
-		  if(BQVtx<0)  _bJet_truePlus_recoMinus[iTagCollection]++;
-		}
-		if (trueJetCharge==0) { 
-		  if(BQVtx>0)  _bJet_trueNeut_recoPlus[iTagCollection]++; 
-		  if(BQVtx==0) _bJet_trueNeut_recoNeut[iTagCollection]++;
-		  if(BQVtx<0)  _bJet_trueNeut_recoMinus[iTagCollection]++;
-		}
-		if (trueJetCharge==-1)  { 
-		  if(BQVtx>0)  _bJet_trueMinus_recoPlus[iTagCollection]++; 
-		  if(BQVtx==0) _bJet_trueMinus_recoNeut[iTagCollection]++;
-		  if(BQVtx<0)  _bJet_trueMinus_recoMinus[iTagCollection]++;
-		}
-		if (trueJetCharge==-2) { 
-		  if(BQVtx>0)  _bJet_trueMinus2_recoPlus[iTagCollection]++; 
-		  if(BQVtx==0) _bJet_trueMinus2_recoNeut[iTagCollection]++;
-		  if(BQVtx<0)  _bJet_trueMinus2_recoMinus[iTagCollection]++;
-		}
-		
-		
-		if (trueJetCharge==+2) _bJet_truePlus2_angle[iTagCollection][bin]++;
-		if (trueJetCharge==+1) _bJet_truePlus_angle[iTagCollection][bin]++;	
-		if (trueJetCharge==0)  _bJet_trueNeut_angle[iTagCollection][bin]++;	
-		if (trueJetCharge==-1) _bJet_trueMinus_angle[iTagCollection][bin]++;	
-		if (trueJetCharge==-2) _bJet_trueMinus2_angle[iTagCollection][bin]++;
-		
-		if (trueJetCharge==+2){ 
-		  if(BQVtx>0)  _bJet_truePlus2_recoPlus_angle[iTagCollection][bin]++; 
-		  if(BQVtx==0) _bJet_truePlus2_recoNeut_angle[iTagCollection][bin]++;
-		  if(BQVtx<0)  _bJet_truePlus2_recoMinus_angle[iTagCollection][bin]++;
-		}
-		if (trueJetCharge==+1){ 
-		  if(BQVtx>0)  _bJet_truePlus_recoPlus_angle[iTagCollection][bin]++; 
-		  if(BQVtx==0) _bJet_truePlus_recoNeut_angle[iTagCollection][bin]++;
-		  if(BQVtx<0)  _bJet_truePlus_recoMinus_angle[iTagCollection][bin]++;
-		}
-		if (trueJetCharge==0) { 
-		  if(BQVtx>0) _bJet_trueNeut_recoPlus_angle[iTagCollection][bin]++; 
-		  if(BQVtx==0) _bJet_trueNeut_recoNeut_angle[iTagCollection][bin]++;
-		  if(BQVtx<0) _bJet_trueNeut_recoMinus_angle[iTagCollection][bin]++;
-		}
-		if (trueJetCharge==-1)  { 
-		  if(BQVtx>0) _bJet_trueMinus_recoPlus_angle[iTagCollection][bin]++; 
-		  if(BQVtx==0) _bJet_trueMinus_recoNeut_angle[iTagCollection][bin]++;
-		  if(BQVtx<0) _bJet_trueMinus_recoMinus_angle[iTagCollection][bin]++;
-		}
-		if (trueJetCharge==-2) { 
-		  if(BQVtx>0) _bJet_trueMinus2_recoPlus_angle[iTagCollection][bin]++; 
-		  if(BQVtx==0) _bJet_trueMinus2_recoNeut_angle[iTagCollection][bin]++;
-		  if(BQVtx<0) _bJet_trueMinus2_recoMinus_angle[iTagCollection][bin]++;
-		}
-		_pBJetCharge[iTagCollection]->fill(trueJetCharge,BQVtx);
 	      }
 	    }
 	}
     }
-  
 }
 
 
@@ -1337,6 +1328,7 @@ int LCFIAIDAPlot::FindJetPDGCode( LCEvent* pEvent, unsigned int jetNumber )
 	TypesafeCollection<lcio::LCIntVec> trueJetPDGCodeCollection( pEvent, _TrueJetPDGCodeColName );
 	if( !trueJetPDGCodeCollection.is_valid() )
 	{
+	  std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetPDGCodeColName << " is not valid " << std::endl;
 	  //		_log->message<marlin::ERROR>( trueJetFlavourCollection.last_error() );
 		return 0; //can't do anything without this collection
 	}
@@ -1373,7 +1365,7 @@ float LCFIAIDAPlot::FindJetPartonCharge( LCEvent* pEvent, unsigned int jetNumber
 	TypesafeCollection<lcio::LCFloatVec> trueJetPartonChargeCollection( pEvent, _TrueJetPartonChargeColName );
 	if( !trueJetPartonChargeCollection.is_valid() )
 	{
-	  std::cout << " trueJetPartonChargeCollection isn't valid " << std::endl;
+	  std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetPartonChargeColName << " is not valid " << std::endl;
 	  //		_log->message<marlin::ERROR>( trueJetPartonChargeCollection.last_error() );
 		return 0; //can't do anything without this collection
 	}
@@ -1411,7 +1403,7 @@ int LCFIAIDAPlot::FindJetType( LCEvent* pEvent, unsigned int jetNumber )
 	TypesafeCollection<lcio::LCIntVec> trueJetFlavourCollection( pEvent, _TrueJetFlavourColName );
 	if( !trueJetFlavourCollection.is_valid() )
 	  {
-	    std::cout << " trueJetFlavourCollection isn't valid " << std::endl;
+	    std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetFlavourColName << " is not valid " << std::endl;
 	  //		_log->message<marlin::ERROR>( trueJetFlavourCollection.last_error() );
 		return 0; //can't do anything without this collection
 	}
@@ -1445,13 +1437,13 @@ int LCFIAIDAPlot::FindJetType( LCEvent* pEvent, unsigned int jetNumber )
 
 float LCFIAIDAPlot::FindJetHadronCharge( LCEvent* pEvent, unsigned int jetNumber )
 {
-	TypesafeCollection<lcio::LCFloatVec> trueJetHadronChargeCollection( pEvent, _TrueJetHadronChargeColName );
-	if( !trueJetHadronChargeCollection.is_valid() )
-	{
-	  std::cout << " trueJetHadronChargeCollection isn't valid " << std::endl;
-	  //		_log->message<marlin::ERROR>( trueJetHadronChargeCollection.last_error() );
-		return 0; //can't do anything without this collection
-	}
+  TypesafeCollection<lcio::LCFloatVec> trueJetHadronChargeCollection( pEvent, _TrueJetHadronChargeColName );
+  if( !trueJetHadronChargeCollection.is_valid() )
+    {
+      std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " << _TrueJetHadronChargeColName << " is not valid " << std::endl;
+      //		_log->message<marlin::ERROR>( trueJetHadronChargeCollection.last_error() );
+      return -99; //can't do anything without this collection
+    }
 
 	float hadronCharge;
 	lcio::LCFloatVec* pTrueJetChargeVector=trueJetHadronChargeCollection.getElementAt( jetNumber );
@@ -1465,7 +1457,7 @@ float LCFIAIDAPlot::FindJetHadronCharge( LCEvent* pEvent, unsigned int jetNumber
 					<< _TrueJetHadronChargeColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
 					<< " is not of size 1.";
 			//			_log->message<marlin::ERROR>( _myStringStream.str() );
-			return 0; //can't fill any plots if we don't know the true flavour
+			return -99; 
 		}
 	}
 	else
@@ -1505,57 +1497,71 @@ int LCFIAIDAPlot::FindNumVertex( LCEvent* pEvent, unsigned int jetNumber, unsign
   return 0;
 }
 
-int LCFIAIDAPlot::FindCQVtx( LCEvent* pEvent, unsigned int jetNumber, unsigned int iInputsCollection)
+int LCFIAIDAPlot::FindBQVtx( LCEvent* pEvent, unsigned int jetNumber) 
 {
-
-  TypesafeCollection<lcio::LCFloatVec> inputsCollection( pEvent, _FlavourTagInputsCollectionNames[iInputsCollection] );
-  if( !inputsCollection.is_valid() )
-    {
-      //		_log->message<marlin::ERROR>( trueJetFlavourCollection.last_error() );
-      return -999; //can't do anything without this collection 
-    }
-  else
-    {
-      //Do stuff...
-      lcio::LCFloatVec* pInputs=inputsCollection.getElementAt( jetNumber );
-      if( !pInputs )
-	{
-	}
-      else
-	{
-	  return  int((*pInputs)[_InputsIndex[iInputsCollection]["CQVtx"]]);
-	}
+  
+  TypesafeCollection<lcio::LCFloatVec> inputsCollection( pEvent, _BVertexChargeCollection);
+  
+  if( !inputsCollection.is_valid() )  {
+    
+    std::cerr << "In " << __FILE__ << "(" << __LINE__ << "): Cannot find collection " << _BVertexChargeCollection << "  for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << " BQVtx will be invalid" << std::endl;
+    return -99;
+    
+  } else { //inputsCollection.is_valid() 
+    
+    float bqvtx;
+    lcio::LCFloatVec* pBVtxChargeVector =inputsCollection.getElementAt( jetNumber );
+    
+    //bool evaluation is done left to right...
+    if( pBVtxChargeVector && pBVtxChargeVector->size() == 1) {
       
+      bqvtx = pBVtxChargeVector->back();
+      
+    } else {
+      
+      std::cerr << "In " << __FILE__ << "(" << __LINE__ << "): Cannot find collection element in  " << _BVertexChargeCollection << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << " corresponding to jet number: " << jetNumber << " BQVtx will be invalid" << std::endl;
+      return -99;
     }
-  return -999;
+    
+    return int(bqvtx);
+  }
+  //should never get here
+  return -99;
 }
 
 
-
-int LCFIAIDAPlot::FindBQVtx( LCEvent* pEvent, unsigned int jetNumber, unsigned int iInputsCollection)
+int LCFIAIDAPlot::FindCQVtx( LCEvent* pEvent, unsigned int jetNumber) 
 {
-
-  TypesafeCollection<lcio::LCFloatVec> inputsCollection( pEvent, _FlavourTagInputsCollectionNames[iInputsCollection] );
-  if( !inputsCollection.is_valid() )
-    {
-      //		_log->message<marlin::ERROR>( trueJetFlavourCollection.last_error() );
-      return -999; //can't do anything without this collection 
-    }
-  else
-    {
-      //Do stuff...
-      lcio::LCFloatVec* pInputs=inputsCollection.getElementAt( jetNumber );
-      if( !pInputs )
-	{
-	}
-      else
-	{
-	  return int((*pInputs)[_InputsIndex[iInputsCollection]["BQVtx"]]);
-	}
+  
+  TypesafeCollection<lcio::LCFloatVec> inputsCollection( pEvent, _CVertexChargeCollection);
+  
+  if( !inputsCollection.is_valid() )  {
+    
+    std::cerr << "In " << __FILE__ << "(" << __LINE__ << "): Cannot find collection " << _CVertexChargeCollection << "  for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << " CQVtx will be invalid" << std::endl;
+    return -99;
+    
+  } else { //inputsCollection.is_valid() 
+    
+    float cqvtx;
+    lcio::LCFloatVec* pCVtxChargeVector =inputsCollection.getElementAt( jetNumber );
+    
+    //bool evaluation is done left to right...
+    if( pCVtxChargeVector && pCVtxChargeVector->size() == 1) {
       
+      cqvtx = pCVtxChargeVector->back();
+      
+    } else {
+      
+      std::cerr << "In " << __FILE__ << "(" << __LINE__ << "): Cannot find collection element in  " << _CVertexChargeCollection << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << " corresponding to jet number: " << jetNumber << " CQVtx will be invalid" << std::endl;
+      return -99;
     }
-  return -999;
+    
+    return int(cqvtx);
+  }
+  //should never get here
+  return -99;
 }
+
 
 
 AIDA::IDataPointSet* LCFIAIDAPlot::CreateEfficiencyPlot(const AIDA::IHistogram1D* pSignal, AIDA::IDataPointSet* pDataPointSet)
@@ -1718,11 +1724,48 @@ AIDA::IDataPointSet* LCFIAIDAPlot::CreateXYPlot(const AIDA::IDataPointSet* pData
   return xyPointSet;
 }
 
+void LCFIAIDAPlot::CreateVertexChargeLeakagePlot(AIDA::IDataPointSet* pBJetVtxChargeDPS, AIDA::IDataPointSet* pCJetVtxChargeDPS)
+{
+  
+  for (int j = 0 ; j < N_JETANGLE_BINS ; j++) {
+    
+    double c_numerator   = _cJet_truePlus2_recoPlus_angle[j]+_cJet_truePlus_recoPlus_angle[j]
+      +_cJet_trueMinus2_recoMinus_angle[j]+_cJet_trueMinus_recoMinus_angle[j];
+    double c_domininator = _cJet_truePlus2_angle[j]         +_cJet_truePlus_angle[j]         
+      +_cJet_trueMinus2_angle[j]          +_cJet_trueMinus_angle[j];
+    
+    double b_numerator   = _bJet_truePlus2_recoPlus_angle[j]+_bJet_truePlus_recoPlus_angle[j]
+      +_bJet_trueMinus2_recoMinus_angle[j]+_bJet_trueMinus_recoMinus_angle[j];
+    double b_domininator = _bJet_truePlus2_angle[j]         +_bJet_truePlus_angle[j]         
+      +_bJet_trueMinus2_angle[j]          +_bJet_trueMinus_angle[j];
+    
+    double b_leakage = 1. - b_numerator/b_domininator;
+    double c_leakage = 1. - c_numerator/c_domininator;
+    
+    double b_leakage_error = sqrt( b_leakage * (1. -  b_leakage) / b_domininator);
+    double c_leakage_error = sqrt( c_leakage * (1. -  c_leakage) / c_domininator);
+    
+    
+    pBJetVtxChargeDPS->addPoint();
+    pBJetVtxChargeDPS->point(j)->coordinate(0)->setValue(_pBJetLeakageRate->axis().binLowerEdge(j)+_pBJetLeakageRate->axis().binWidth(j)/2.);
+    pBJetVtxChargeDPS->point(j)->coordinate(1)->setValue(b_leakage);
+    pBJetVtxChargeDPS->point(j)->coordinate(1)->setErrorPlus(b_leakage_error);
+    pBJetVtxChargeDPS->point(j)->coordinate(1)->setErrorMinus(b_leakage_error);
+    
+    
+    pCJetVtxChargeDPS->addPoint();
+    pCJetVtxChargeDPS->point(j)->coordinate(0)->setValue(_pCJetLeakageRate->axis().binLowerEdge(j)+_pCJetLeakageRate->axis().binWidth(j)/2.);
+    pCJetVtxChargeDPS->point(j)->coordinate(1)->setValue(c_leakage);
+    pCJetVtxChargeDPS->point(j)->coordinate(1)->setErrorPlus(c_leakage_error);
+    pCJetVtxChargeDPS->point(j)->coordinate(1)->setErrorMinus(c_leakage_error);
+    
+    _pCJetLeakageRate->fill(_pCJetLeakageRate->axis().binLowerEdge(j)+_pCJetLeakageRate->axis().binWidth(j)/2.,c_leakage); 
+    _pBJetLeakageRate->fill(_pBJetLeakageRate->axis().binLowerEdge(j)+_pBJetLeakageRate->axis().binWidth(j)/2.,b_leakage);
+  }
+}
 
 
-
-
-float  LCFIAIDAPlot::_calculateDistance(const float* pos1, const float* pos2){
+float  LCFIAIDAPlot::CalculateDistance(const float* pos1, const float* pos2){
   return sqrt(pow((pos1[0]-pos2[0]),2)+pow((pos1[1]-pos2[1]),2)+pow((pos1[2]-pos2[2]),2));
 }
 
@@ -1837,180 +1880,138 @@ void LCFIAIDAPlot::InternalVectorInitialisation()
 {
   //sets the size of some vectors and initialises some counters to zero
 
-  _cJet_truePlus2_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _cJet_truePlus2_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_truePlus2_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_truePlus_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _cJet_truePlus_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_truePlus_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueNeut_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _cJet_trueNeut_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueNeut_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueMinus_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _cJet_trueMinus_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueMinus_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueMinus2_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _cJet_trueMinus2_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _cJet_trueMinus2_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
+  _cJet_truePlus2_angle.resize(N_JETANGLE_BINS);
+  _cJet_truePlus_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueNeut_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueMinus_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueMinus2_angle.resize(N_JETANGLE_BINS);
   
-  _bJet_truePlus2.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_truePlus.resize(_FlavourTagInputsCollectionNames.size() );	
-  _bJet_trueNeut.resize(_FlavourTagInputsCollectionNames.size() );	
-  _bJet_trueMinus.resize(_FlavourTagInputsCollectionNames.size() );	
-  _bJet_trueMinus2.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_truePlus2_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _bJet_truePlus2_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_truePlus2_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_truePlus_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _bJet_truePlus_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_truePlus_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_trueNeut_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _bJet_trueNeut_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_trueNeut_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_trueMinus_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _bJet_trueMinus_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_trueMinus_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_trueMinus2_recoPlus.resize(_FlavourTagInputsCollectionNames.size() ); 
-  _bJet_trueMinus2_recoNeut.resize(_FlavourTagInputsCollectionNames.size() );
-  _bJet_trueMinus2_recoMinus.resize(_FlavourTagInputsCollectionNames.size() );
-
-  _cJet_truePlus2_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_truePlus_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueMinus2_angle.resize(_FlavourTagCollectionNames.size());
+  _cJet_truePlus2_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _cJet_truePlus2_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _cJet_truePlus2_recoMinus_angle.resize(N_JETANGLE_BINS);
+  _cJet_truePlus_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _cJet_truePlus_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _cJet_truePlus_recoMinus_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueNeut_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _cJet_trueNeut_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueNeut_recoMinus_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueMinus_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _cJet_trueMinus_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueMinus_recoMinus_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueMinus2_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _cJet_trueMinus2_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _cJet_trueMinus2_recoMinus_angle.resize(N_JETANGLE_BINS);
   
-  _cJet_truePlus2_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _cJet_truePlus2_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_truePlus2_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_truePlus_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _cJet_truePlus_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_truePlus_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueNeut_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _cJet_trueNeut_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueNeut_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueMinus_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _cJet_trueMinus_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueMinus_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueMinus2_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _cJet_trueMinus2_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _cJet_trueMinus2_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  
-  _bJet_truePlus2_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_truePlus_angle.resize(_FlavourTagCollectionNames.size());	
-  _bJet_trueNeut_angle.resize(_FlavourTagCollectionNames.size());	
-  _bJet_trueMinus_angle.resize(_FlavourTagCollectionNames.size());	
-  _bJet_trueMinus2_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_truePlus2_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _bJet_truePlus2_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_truePlus2_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_truePlus_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _bJet_truePlus_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_truePlus_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_trueNeut_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _bJet_trueNeut_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_trueNeut_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_trueMinus_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _bJet_trueMinus_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_trueMinus_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_trueMinus2_recoPlus_angle.resize(_FlavourTagCollectionNames.size()); 
-  _bJet_trueMinus2_recoNeut_angle.resize(_FlavourTagCollectionNames.size());
-  _bJet_trueMinus2_recoMinus_angle.resize(_FlavourTagCollectionNames.size());
+  _bJet_truePlus2_angle.resize(N_JETANGLE_BINS);
+  _bJet_truePlus_angle.resize(N_JETANGLE_BINS);	
+  _bJet_trueNeut_angle.resize(N_JETANGLE_BINS);	
+  _bJet_trueMinus_angle.resize(N_JETANGLE_BINS);	
+  _bJet_trueMinus2_angle.resize(N_JETANGLE_BINS);
+  _bJet_truePlus2_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _bJet_truePlus2_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _bJet_truePlus2_recoMinus_angle.resize(N_JETANGLE_BINS);
+  _bJet_truePlus_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _bJet_truePlus_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _bJet_truePlus_recoMinus_angle.resize(N_JETANGLE_BINS);
+  _bJet_trueNeut_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _bJet_trueNeut_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _bJet_trueNeut_recoMinus_angle.resize(N_JETANGLE_BINS);
+  _bJet_trueMinus_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _bJet_trueMinus_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _bJet_trueMinus_recoMinus_angle.resize(N_JETANGLE_BINS);
+  _bJet_trueMinus2_recoPlus_angle.resize(N_JETANGLE_BINS); 
+  _bJet_trueMinus2_recoNeut_angle.resize(N_JETANGLE_BINS);
+  _bJet_trueMinus2_recoMinus_angle.resize(N_JETANGLE_BINS);
  
 
-  for (unsigned int iTagCollection=0; iTagCollection < _FlavourTagCollectionNames.size(); ++iTagCollection )
-    {
-      
-      for (int j = 0 ; j < N_JETANGLE_BINS ; j++) {
-	_cJet_truePlus2_angle[iTagCollection][j]=0;	       
-	_cJet_truePlus_angle[iTagCollection][j]=0;	       
-	_cJet_trueNeut_angle[iTagCollection][j]=0;	       
-	_cJet_trueMinus_angle[iTagCollection][j]=0;	       
-	_cJet_trueMinus2_angle[iTagCollection][j]=0;	       
-	
-	_cJet_truePlus2_recoPlus_angle[iTagCollection][j]=0;  
-	_cJet_truePlus2_recoNeut_angle[iTagCollection][j]=0;  
-	_cJet_truePlus2_recoMinus_angle[iTagCollection][j]=0; 
-	_cJet_truePlus_recoPlus_angle[iTagCollection][j]=0;   
-	_cJet_truePlus_recoNeut_angle[iTagCollection][j]=0;   
-	_cJet_truePlus_recoMinus_angle[iTagCollection][j]=0;  
-	_cJet_trueNeut_recoPlus_angle[iTagCollection][j]=0;   
-	_cJet_trueNeut_recoNeut_angle[iTagCollection][j]=0;   
-	_cJet_trueNeut_recoMinus_angle[iTagCollection][j]=0;  
-	_cJet_trueMinus_recoPlus_angle[iTagCollection][j]=0;  
-	_cJet_trueMinus_recoNeut_angle[iTagCollection][j]=0;  
-	_cJet_trueMinus_recoMinus_angle[iTagCollection][j]=0; 
-	_cJet_trueMinus2_recoPlus_angle[iTagCollection][j]=0; 
-	_cJet_trueMinus2_recoNeut_angle[iTagCollection][j]=0; 
-	_cJet_trueMinus2_recoMinus_angle[iTagCollection][j]=0;
-	
-	_bJet_truePlus2_angle[iTagCollection][j]=0;	       
-	_bJet_truePlus_angle[iTagCollection][j]=0;	       
-	_bJet_trueNeut_angle[iTagCollection][j]=0;	       
-	_bJet_trueMinus_angle[iTagCollection][j]=0;	       
-	_bJet_trueMinus2_angle[iTagCollection][j]=0;	       
-	_bJet_truePlus2_recoPlus_angle[iTagCollection][j]=0;  
-	_bJet_truePlus2_recoNeut_angle[iTagCollection][j]=0;  
-	_bJet_truePlus2_recoMinus_angle[iTagCollection][j]=0; 
-	_bJet_truePlus_recoPlus_angle[iTagCollection][j]=0;   
-	_bJet_truePlus_recoNeut_angle[iTagCollection][j]=0;   
-	_bJet_truePlus_recoMinus_angle[iTagCollection][j]=0;  
-	_bJet_trueNeut_recoPlus_angle[iTagCollection][j]=0;   
-	_bJet_trueNeut_recoNeut_angle[iTagCollection][j]=0;   
-	_bJet_trueNeut_recoMinus_angle[iTagCollection][j]=0;  
-	_bJet_trueMinus_recoPlus_angle[iTagCollection][j]=0;  
-	_bJet_trueMinus_recoNeut_angle[iTagCollection][j]=0;  
-	_bJet_trueMinus_recoMinus_angle[iTagCollection][j]=0; 
-	_bJet_trueMinus2_recoPlus_angle[iTagCollection][j]=0; 
-	_bJet_trueMinus2_recoNeut_angle[iTagCollection][j]=0; 
-	_bJet_trueMinus2_recoMinus_angle[iTagCollection][j]=0;
-      }
-    }
-  
-  for (unsigned int iTag=0; iTag < _FlavourTagCollectionNames.size(); ++iTag) {
-    _cJet_truePlus2[iTag]=0;
-    _cJet_truePlus[iTag]=0;
-    _cJet_trueNeut[iTag]=0;
-    _cJet_trueMinus[iTag]=0;
-    _cJet_trueMinus2[iTag]=0;
+  for (int j = 0 ; j < N_JETANGLE_BINS ; j++) {
+    _cJet_truePlus2_angle[j]=0;	       
+    _cJet_truePlus_angle[j]=0;	       
+    _cJet_trueNeut_angle[j]=0;	       
+    _cJet_trueMinus_angle[j]=0;	       
+    _cJet_trueMinus2_angle[j]=0;	       
     
-    _cJet_truePlus2_recoPlus[iTag]=0; 
-    _cJet_truePlus2_recoNeut[iTag]=0;
-    _cJet_truePlus2_recoMinus[iTag]=0;
-    _cJet_truePlus_recoPlus[iTag]=0; 
-    _cJet_truePlus_recoNeut[iTag]=0;
-    _cJet_truePlus_recoMinus[iTag]=0;
-    _cJet_trueNeut_recoPlus[iTag]=0; 
-    _cJet_trueNeut_recoNeut[iTag]=0;
-    _cJet_trueNeut_recoMinus[iTag]=0;
-    _cJet_trueMinus_recoPlus[iTag]=0; 
-    _cJet_trueMinus_recoNeut[iTag]=0;
-    _cJet_trueMinus_recoMinus[iTag]=0;
-    _cJet_trueMinus2_recoPlus[iTag]=0; 
-    _cJet_trueMinus2_recoNeut[iTag]=0;
-    _cJet_trueMinus2_recoMinus[iTag]=0;
+    _cJet_truePlus2_recoPlus_angle[j]=0;  
+    _cJet_truePlus2_recoNeut_angle[j]=0;  
+    _cJet_truePlus2_recoMinus_angle[j]=0; 
+    _cJet_truePlus_recoPlus_angle[j]=0;   
+    _cJet_truePlus_recoNeut_angle[j]=0;   
+    _cJet_truePlus_recoMinus_angle[j]=0;  
+    _cJet_trueNeut_recoPlus_angle[j]=0;   
+    _cJet_trueNeut_recoNeut_angle[j]=0;   
+    _cJet_trueNeut_recoMinus_angle[j]=0;  
+    _cJet_trueMinus_recoPlus_angle[j]=0;  
+    _cJet_trueMinus_recoNeut_angle[j]=0;  
+    _cJet_trueMinus_recoMinus_angle[j]=0; 
+    _cJet_trueMinus2_recoPlus_angle[j]=0; 
+    _cJet_trueMinus2_recoNeut_angle[j]=0; 
+    _cJet_trueMinus2_recoMinus_angle[j]=0;
     
-    _bJet_truePlus2[iTag]=0;
-    _bJet_truePlus[iTag]=0;	
-    _bJet_trueNeut[iTag]=0;	
-    _bJet_trueMinus[iTag]=0;	
-    _bJet_trueMinus2[iTag]=0;
-    _bJet_truePlus2_recoPlus[iTag]=0; 
-    _bJet_truePlus2_recoNeut[iTag]=0;
-    _bJet_truePlus2_recoMinus[iTag]=0;
-    _bJet_truePlus_recoPlus[iTag]=0; 
-    _bJet_truePlus_recoNeut[iTag]=0;
-    _bJet_truePlus_recoMinus[iTag]=0;
-    _bJet_trueNeut_recoPlus[iTag]=0; 
-    _bJet_trueNeut_recoNeut[iTag]=0;
-    _bJet_trueNeut_recoMinus[iTag]=0;
-    _bJet_trueMinus_recoPlus[iTag]=0; 
-    _bJet_trueMinus_recoNeut[iTag]=0;
-    _bJet_trueMinus_recoMinus[iTag]=0;
-    _bJet_trueMinus2_recoPlus[iTag]=0; 
-    _bJet_trueMinus2_recoNeut[iTag]=0;
-    _bJet_trueMinus2_recoMinus[iTag]=0;
+    _bJet_truePlus2_angle[j]=0;	       
+    _bJet_truePlus_angle[j]=0;	       
+    _bJet_trueNeut_angle[j]=0;	       
+    _bJet_trueMinus_angle[j]=0;	       
+    _bJet_trueMinus2_angle[j]=0;	       
+    _bJet_truePlus2_recoPlus_angle[j]=0;  
+    _bJet_truePlus2_recoNeut_angle[j]=0;  
+    _bJet_truePlus2_recoMinus_angle[j]=0; 
+    _bJet_truePlus_recoPlus_angle[j]=0;   
+    _bJet_truePlus_recoNeut_angle[j]=0;   
+    _bJet_truePlus_recoMinus_angle[j]=0;  
+    _bJet_trueNeut_recoPlus_angle[j]=0;   
+    _bJet_trueNeut_recoNeut_angle[j]=0;   
+    _bJet_trueNeut_recoMinus_angle[j]=0;  
+    _bJet_trueMinus_recoPlus_angle[j]=0;  
+    _bJet_trueMinus_recoNeut_angle[j]=0;  
+    _bJet_trueMinus_recoMinus_angle[j]=0; 
+    _bJet_trueMinus2_recoPlus_angle[j]=0; 
+    _bJet_trueMinus2_recoNeut_angle[j]=0; 
+    _bJet_trueMinus2_recoMinus_angle[j]=0;
   }
+  
+  _cJet_truePlus2=0;
+  _cJet_truePlus=0;
+  _cJet_trueNeut=0;
+  _cJet_trueMinus=0;
+  _cJet_trueMinus2=0;
+  
+  _cJet_truePlus2_recoPlus=0; 
+  _cJet_truePlus2_recoNeut=0;
+  _cJet_truePlus2_recoMinus=0;
+  _cJet_truePlus_recoPlus=0; 
+  _cJet_truePlus_recoNeut=0;
+  _cJet_truePlus_recoMinus=0;
+  _cJet_trueNeut_recoPlus=0; 
+  _cJet_trueNeut_recoNeut=0;
+  _cJet_trueNeut_recoMinus=0;
+  _cJet_trueMinus_recoPlus=0; 
+  _cJet_trueMinus_recoNeut=0;
+  _cJet_trueMinus_recoMinus=0;
+  _cJet_trueMinus2_recoPlus=0; 
+  _cJet_trueMinus2_recoNeut=0;
+  _cJet_trueMinus2_recoMinus=0;
+  
+  _bJet_truePlus2=0;
+  _bJet_truePlus=0;	
+  _bJet_trueNeut=0;	
+  _bJet_trueMinus=0;	
+  _bJet_trueMinus2=0;
+  _bJet_truePlus2_recoPlus=0; 
+  _bJet_truePlus2_recoNeut=0;
+  _bJet_truePlus2_recoMinus=0;
+  _bJet_truePlus_recoPlus=0; 
+  _bJet_truePlus_recoNeut=0;
+  _bJet_truePlus_recoMinus=0;
+  _bJet_trueNeut_recoPlus=0; 
+  _bJet_trueNeut_recoNeut=0;
+  _bJet_trueNeut_recoMinus=0;
+  _bJet_trueMinus_recoPlus=0; 
+  _bJet_trueMinus_recoNeut=0;
+  _bJet_trueMinus_recoMinus=0;
+  _bJet_trueMinus2_recoPlus=0; 
+  _bJet_trueMinus2_recoNeut=0;
+  _bJet_trueMinus2_recoMinus=0;
+  
   return;
 }
 

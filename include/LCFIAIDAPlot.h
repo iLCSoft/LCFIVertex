@@ -1,3 +1,16 @@
+//===========================================================================================================
+// LCFIAIDAPlot Class - make plots of the LCFI flavour tag and vertex charge code
+// 
+// Please note that as of the time of writing (November 2007)  LCFIAIDAPlot will only compile with AIDAJNI 
+// and not RAIDA - this is as not all of the methods required are defined in RAIDA v01-03
+//
+// To compile with cmake you may need to add  -DBUILD_WITH="ROOT;AIDAJNI" -DAIDAJNI_HOME=${AIDAJNI_HOME} to your 
+//
+//
+
+
+
+
 #ifndef MARLIN_USE_AIDA
 // This check is in the C++ file, but do it again just in case this is
 // included elsewhere for whatever reason.
@@ -137,6 +150,8 @@ protected:
 	std::string _TrueJetPartonChargeColName;
 	std::string _JetCollectionName;
 	std::string _VertexColName;
+	std::string _CVertexChargeCollection;
+	std::string _BVertexChargeCollection;
 
 	double _CosThetaJetMax;
 	double _CosThetaJetMin;
@@ -147,6 +162,9 @@ protected:
 
 	bool _PrintNeuralNetOutput;
 	bool _MakeTuple;
+
+	int _iVertexChargeTagCollection;
+	int _myVertexChargeTagCollection;
 	std::string _NeuralNetOutputFile;
 
 	std::vector<std::string> _VertexCatNames;
@@ -154,11 +172,13 @@ protected:
 	std::vector<std::string> _ZoomedVarNames;
 	std::string _MCParticleColName;
 
-	std::vector<AIDA::IHistogram2D*> _pBJetCharge;
-	std::vector<AIDA::IHistogram2D*> _pCJetCharge;
+	AIDA::IHistogram2D* _pBJetCharge2D;
+	AIDA::IHistogram2D* _pCJetCharge2D;
 
 	AIDA::IHistogram1D* _pBJetLeakageRate;
 	AIDA::IHistogram1D* _pCJetLeakageRate;
+	AIDA::IHistogram1D* _pBJetVertexCharge;
+	AIDA::IHistogram1D* _pCJetVertexCharge;
 
 	std::stringstream _myStringStream; ///< Just a string stream for knocking up error/warning messages. Only implemented as a member because it's used a lot.
 	std::vector< std::map<std::string,unsigned int> > _IndexOfForEachTag;
@@ -204,10 +224,10 @@ protected:
 	int _lastRunHeaderProcessed;
 	int _suppressOutputForRun;
 
-	bool _passesEventCuts( LCEvent* pEvent );
-	bool _passesJetCuts( ReconstructedParticle* pJet );
-	void _fillInputsPlots( LCEvent* pEvent, unsigned int jetNumber );
-	void _fillTagPlots( LCEvent* pEvent, unsigned int jetNumber );
+	bool PassesEventCuts( LCEvent* pEvent );
+	bool PassesJetCuts( ReconstructedParticle* pJet );
+	void FillInputsPlots( LCEvent* pEvent, unsigned int jetNumber );
+	void FillTagPlots( LCEvent* pEvent, unsigned int jetNumber );
 	
 	static const int B_JET=5;
 	static const int C_JET=4;
@@ -216,21 +236,17 @@ protected:
 	//number of different vertex categories we want to look at: 1 vertex, 2 verticies, >=3 verticies
 	static const unsigned int N_VERTEX_CATEGORIES=3;  
 	
-	float _calculateDistance(const float* pos1, const float* pos2);
+	float CalculateDistance(const float* pos1, const float* pos2);
 	int FindJetType( LCEvent* pEvent, unsigned int jetNumber );
 	float FindJetHadronCharge(LCEvent* pEvent, unsigned int jetNumber);
 	int FindJetPDGCode( LCEvent* pEvent, unsigned int jetNumber );
 	float FindJetPartonCharge(LCEvent* pEvent, unsigned int jetNumber);
 	
 	int FindNumVertex( LCEvent* pEvent, unsigned int jetNumber, unsigned int iInputsCollection);
-	int FindCQVtx( LCEvent* pEvent, unsigned int jetNumber, unsigned int iInputsCollection);
-	int FindBQVtx( LCEvent* pEvent, unsigned int jetNumber, unsigned int iInputsCollection);
+	int FindCQVtx( LCEvent* pEvent, unsigned int jetNumber);
+	int FindBQVtx( LCEvent* pEvent, unsigned int jetNumber);
 	void PrintNNOutput();
 	void InternalVectorInitialisation();
-
-	AIDA::IDataPointSet* _createEfficiencyPurityPlot( const AIDA::IHistogram1D* pSignal, const AIDA::IHistogram1D* pBackground, AIDA::IDataPointSet* pDataPointSet );
-	AIDA::IDataPointSet* _createLeakageRatePlot(const AIDA::IHistogram1D* pNN, AIDA::IDataPointSet* pLeakage);
-	AIDA::IDataPointSet* _createLeakageRateEfficiencyPlot(const AIDA::IHistogram1D* pSignal, const AIDA::IHistogram1D* pBackground, AIDA::IDataPointSet* pDataPointSet);
 
 	AIDA::IDataPointSet* CreateEfficiencyPlot(const AIDA::IHistogram1D* pSignal, AIDA::IDataPointSet* pDataPointSet);
 	AIDA::IDataPointSet* CreateIntegralPlot(const AIDA::IHistogram1D* pNN, AIDA::IDataPointSet* pIntegral);
@@ -239,6 +255,8 @@ protected:
 	
 	AIDA::IDataPointSet* CreateXYPlot(const AIDA::IDataPointSet* pDataPointSet0, const AIDA::IDataPointSet* pDataPointSet1, AIDA::IDataPointSet* xyPointSet, const int dim0=0, const int dim1=0 );
 	AIDA::IHistogram1D* CreateIntegralHistogram(const AIDA::IHistogram1D* pNN, AIDA::IHistogram1D* pIntegral);
+
+	void CreateVertexChargeLeakagePlot(AIDA::IDataPointSet* pBJetVtxChargeDPS, AIDA::IDataPointSet* pCJetVtxChargeDPS);
 
 
 	AIDA::IHistogram1D* _pVertexDistanceFromIP;
@@ -254,90 +272,90 @@ protected:
 	AIDA::IHistogram1D* _pPrimaryVertexPositionZ;
 	
 
-	std::vector<int> _cJet_truePlus2;
-	std::vector<int> _cJet_truePlus;
-	std::vector<int> _cJet_trueNeut;
-	std::vector<int> _cJet_trueMinus;
-	std::vector<int> _cJet_trueMinus2;
-	std::vector<int> _cJet_truePlus2_recoPlus; 
-	std::vector<int> _cJet_truePlus2_recoNeut;
-	std::vector<int> _cJet_truePlus2_recoMinus;
-	std::vector<int> _cJet_truePlus_recoPlus; 
-	std::vector<int> _cJet_truePlus_recoNeut;
-	std::vector<int> _cJet_truePlus_recoMinus;
-	std::vector<int> _cJet_trueNeut_recoPlus; 
-	std::vector<int> _cJet_trueNeut_recoNeut;
-	std::vector<int> _cJet_trueNeut_recoMinus;
-	std::vector<int> _cJet_trueMinus_recoPlus; 
-	std::vector<int> _cJet_trueMinus_recoNeut;
-	std::vector<int> _cJet_trueMinus_recoMinus;
-	std::vector<int> _cJet_trueMinus2_recoPlus; 
-	std::vector<int> _cJet_trueMinus2_recoNeut;
-	std::vector<int> _cJet_trueMinus2_recoMinus;
-	std::vector<int> _bJet_truePlus2;
-	std::vector<int> _bJet_truePlus;	
-	std::vector<int> _bJet_trueNeut;	
-	std::vector<int> _bJet_trueMinus;	
-	std::vector<int> _bJet_trueMinus2;
-	std::vector<int> _bJet_truePlus2_recoPlus; 
-	std::vector<int> _bJet_truePlus2_recoNeut;
-	std::vector<int> _bJet_truePlus2_recoMinus;
-	std::vector<int> _bJet_truePlus_recoPlus; 
-	std::vector<int> _bJet_truePlus_recoNeut;
-	std::vector<int> _bJet_truePlus_recoMinus;
-	std::vector<int> _bJet_trueNeut_recoPlus; 
-	std::vector<int> _bJet_trueNeut_recoNeut;
-	std::vector<int> _bJet_trueNeut_recoMinus;
-	std::vector<int> _bJet_trueMinus_recoPlus; 
-	std::vector<int> _bJet_trueMinus_recoNeut;
-	std::vector<int> _bJet_trueMinus_recoMinus;
-	std::vector<int> _bJet_trueMinus2_recoPlus; 
-	std::vector<int> _bJet_trueMinus2_recoNeut;
-	std::vector<int> _bJet_trueMinus2_recoMinus;
+	int _cJet_truePlus2;
+	int _cJet_truePlus;
+	int _cJet_trueNeut;
+	int _cJet_trueMinus;
+	int _cJet_trueMinus2;
+	int _cJet_truePlus2_recoPlus; 
+	int _cJet_truePlus2_recoNeut;
+	int _cJet_truePlus2_recoMinus;
+	int _cJet_truePlus_recoPlus; 
+	int _cJet_truePlus_recoNeut;
+	int _cJet_truePlus_recoMinus;
+	int _cJet_trueNeut_recoPlus; 
+	int _cJet_trueNeut_recoNeut;
+	int _cJet_trueNeut_recoMinus;
+	int _cJet_trueMinus_recoPlus; 
+	int _cJet_trueMinus_recoNeut;
+	int _cJet_trueMinus_recoMinus;
+	int _cJet_trueMinus2_recoPlus; 
+	int _cJet_trueMinus2_recoNeut;
+	int _cJet_trueMinus2_recoMinus;
+	int _bJet_truePlus2;
+	int _bJet_truePlus;	
+	int _bJet_trueNeut;	
+	int _bJet_trueMinus;	
+	int _bJet_trueMinus2;
+	int _bJet_truePlus2_recoPlus; 
+	int _bJet_truePlus2_recoNeut;
+	int _bJet_truePlus2_recoMinus;
+	int _bJet_truePlus_recoPlus; 
+	int _bJet_truePlus_recoNeut;
+	int _bJet_truePlus_recoMinus;
+	int _bJet_trueNeut_recoPlus; 
+	int _bJet_trueNeut_recoNeut;
+	int _bJet_trueNeut_recoMinus;
+	int _bJet_trueMinus_recoPlus; 
+	int _bJet_trueMinus_recoNeut;
+	int _bJet_trueMinus_recoMinus;
+	int _bJet_trueMinus2_recoPlus; 
+	int _bJet_trueMinus2_recoNeut;
+	int _bJet_trueMinus2_recoMinus;
 
 
-	std::vector< std::map<  int, unsigned int> >  _cJet_truePlus2_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_truePlus_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueMinus2_angle;
-			             
-	std::vector< std::map<  int, unsigned int> >  _cJet_truePlus2_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _cJet_truePlus2_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_truePlus2_recoMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_truePlus_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _cJet_truePlus_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_truePlus_recoMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueNeut_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueNeut_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueNeut_recoMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueMinus_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueMinus_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueMinus_recoMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueMinus2_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueMinus2_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _cJet_trueMinus2_recoMinus_angle;
-			             
-	std::vector< std::map<  int, unsigned int> >  _bJet_truePlus2_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_truePlus_angle;	
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueNeut_angle;	
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueMinus_angle;	
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueMinus2_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_truePlus2_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _bJet_truePlus2_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_truePlus2_recoMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_truePlus_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _bJet_truePlus_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_truePlus_recoMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueNeut_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueNeut_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueNeut_recoMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueMinus_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueMinus_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueMinus_recoMinus_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueMinus2_recoPlus_angle; 
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueMinus2_recoNeut_angle;
-	std::vector< std::map<  int, unsigned int> >  _bJet_trueMinus2_recoMinus_angle;
+	std::vector< unsigned int>  _cJet_truePlus2_angle;
+	std::vector< unsigned int>  _cJet_truePlus_angle;
+	std::vector< unsigned int>  _cJet_trueNeut_angle;
+	std::vector< unsigned int>  _cJet_trueMinus_angle;
+	std::vector< unsigned int>  _cJet_trueMinus2_angle;
+		     
+	std::vector< unsigned int>  _cJet_truePlus2_recoPlus_angle; 
+	std::vector< unsigned int>  _cJet_truePlus2_recoNeut_angle;
+	std::vector< unsigned int>  _cJet_truePlus2_recoMinus_angle;
+	std::vector< unsigned int>  _cJet_truePlus_recoPlus_angle; 
+	std::vector< unsigned int>  _cJet_truePlus_recoNeut_angle;
+	std::vector< unsigned int>  _cJet_truePlus_recoMinus_angle;
+	std::vector< unsigned int>  _cJet_trueNeut_recoPlus_angle; 
+	std::vector< unsigned int>  _cJet_trueNeut_recoNeut_angle;
+	std::vector< unsigned int>  _cJet_trueNeut_recoMinus_angle;
+	std::vector< unsigned int>  _cJet_trueMinus_recoPlus_angle; 
+	std::vector< unsigned int>  _cJet_trueMinus_recoNeut_angle;
+	std::vector< unsigned int>  _cJet_trueMinus_recoMinus_angle;
+	std::vector< unsigned int>  _cJet_trueMinus2_recoPlus_angle; 
+	std::vector< unsigned int>  _cJet_trueMinus2_recoNeut_angle;
+	std::vector< unsigned int>  _cJet_trueMinus2_recoMinus_angle;
+		     
+	std::vector< unsigned int>  _bJet_truePlus2_angle;
+	std::vector< unsigned int>  _bJet_truePlus_angle;	
+	std::vector< unsigned int>  _bJet_trueNeut_angle;	
+	std::vector< unsigned int>  _bJet_trueMinus_angle;	
+	std::vector< unsigned int>  _bJet_trueMinus2_angle;
+	std::vector< unsigned int>  _bJet_truePlus2_recoPlus_angle; 
+	std::vector< unsigned int>  _bJet_truePlus2_recoNeut_angle;
+	std::vector< unsigned int>  _bJet_truePlus2_recoMinus_angle;
+	std::vector< unsigned int>  _bJet_truePlus_recoPlus_angle; 
+	std::vector< unsigned int>  _bJet_truePlus_recoNeut_angle;
+	std::vector< unsigned int>  _bJet_truePlus_recoMinus_angle;
+	std::vector< unsigned int>  _bJet_trueNeut_recoPlus_angle; 
+	std::vector< unsigned int>  _bJet_trueNeut_recoNeut_angle;
+	std::vector< unsigned int>  _bJet_trueNeut_recoMinus_angle;
+	std::vector< unsigned int>  _bJet_trueMinus_recoPlus_angle; 
+	std::vector< unsigned int>  _bJet_trueMinus_recoNeut_angle;
+	std::vector< unsigned int>  _bJet_trueMinus_recoMinus_angle;
+	std::vector< unsigned int>  _bJet_trueMinus2_recoPlus_angle; 
+	std::vector< unsigned int>  _bJet_trueMinus2_recoNeut_angle;
+	std::vector< unsigned int>  _bJet_trueMinus2_recoMinus_angle;
 	 
 }; 
 
