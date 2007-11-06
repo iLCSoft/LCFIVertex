@@ -62,7 +62,8 @@ namespace vertex_lcfi { namespace ZVTOP
 	{
 		double SumOfTubes = 0;
 		double SumOfSquaredTubes = 0;
-		double dlong,dmag;
+		double dlong = 0;
+		double dmag = 0;
 		//TODO make other constants parameters
 	
 		//Now add up the tubes
