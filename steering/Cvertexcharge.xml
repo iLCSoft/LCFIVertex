@@ -15,7 +15,7 @@
   <!-- limit the number of processed records (run+evt): -->  
   <!--parameter name="MaxRecordNumber" value="5001" /-->  
   <parameter name="SupressCheck" value="false" />  
-  <!--- parameter name="GearXMLFile"> gear_ldc.xml </parameter> -->  
+  <!--- parameter name="GearXMLFile"> GearOutput.xml </parameter> -->  
  </global>
 
  <processor name="MyVertexChargeProcessor" type="VertexChargeProcessor">

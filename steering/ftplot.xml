@@ -11,7 +11,7 @@
   <!-- parameter name="MaxRecordNumber" value="1000000000" /-->  
   <!-- parameter name="SkipNEvents" value="0" /-->  
   <parameter name="SupressCheck" value="false" />  
-  <!--- parameter name="GearXMLFile"> gear_ldc.xml </parameter> -->  
+  <!--- parameter name="GearXMLFile"> GearOutput.xml </parameter> -->  
  </global>
 
  <processor name="MyPlot" type="Plot">
