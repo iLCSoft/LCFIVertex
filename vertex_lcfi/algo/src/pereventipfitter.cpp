@@ -6,7 +6,7 @@
 #include <util/inc/memorymanager.h>
 #include <zvtop/include/candidatevertex.h>
 #include <zvtop/include/vertexfunction.h>
-#include <zvtop/include/vertexfitterlsm.h>
+#include <zvtop/include/VertexFitterKalman.h>
 #include <zvtop/include/interactionpoint.h>
 #include <inc/event.h>
 #include <util/inc/string.h>
@@ -20,7 +20,7 @@ namespace vertex_lcfi
 {
 	using vertex_lcfi::ZVTOP::CandidateVertex;
 	using vertex_lcfi::ZVTOP::VertexFunction;
-	using vertex_lcfi::ZVTOP::VertexFitterLSM;
+	using vertex_lcfi::ZVTOP::VertexFitterKalman;
 	using vertex_lcfi::ZVTOP::InteractionPoint;
 	
 	PerEventIPFitter::PerEventIPFitter()
@@ -76,9 +76,9 @@ namespace vertex_lcfi
 			TrackStates.push_back((*iTrack)->makeState());
 		}
 		
-		VertexFitterLSM MyFitter;
-		MyFitter.setSeed(MyEvent->interactionPoint());
-		MyFitter.setInitialStep(1.0/1000.0);
+		VertexFitterKalman MyFitter;
+		//MyFitter.setSeed(MyEvent->interactionPoint());
+		//MyFitter.setInitialStep(1.0/1000.0);
 		
 		CandidateVertex CVertex(TrackStates, /*VertexFunction*/ 0, &MyFitter);
 		CVertex.trimByProb(_ProbThreshold);
