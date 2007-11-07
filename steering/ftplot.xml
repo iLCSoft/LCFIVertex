@@ -6,7 +6,7 @@
  </execute>
 
  <global>
-  <parameter name="LCIOInputFiles"> flavourtagout.slcio </parameter>
+  <parameter name="LCIOInputFiles"> vertexchargeout.slcio </parameter>
   <!-- limit the number of processed records (run+evt): -->  
   <!-- parameter name="MaxRecordNumber" value="1000000000" /-->  
   <!-- parameter name="SkipNEvents" value="0" /-->  
