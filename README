@@ -16,12 +16,13 @@ releases:
 
    - LCFIAIDAPlotProcessor: new processor providing diagnostics for flavour tag
      (Victoria Martin)
+     Please note -BUILD_WITH="AIDAJNI" must be specified to cmake to build LCFIAIDAPlotProcessor
    - LCFIVertex/macro/FlavourTagInputsOverlay.py: python script to create plots from 
      output of LCFIAIDAPlotProcessor (Victoria Martin)
    - LCFIVertex/macro/MakePurityVsEfficiencyRootPlot.C: root macro to plot purity vs
      efficiency graphs that can be written out by PlotProcessor, if compiling with root 
      option; permits results from different runs (e.g. with different settings) to be 
-     compared (Kristian Harder)
+     compared (Kristian Harder) 
 
    - vertex charge calculation: correction of algorithm to agree with the procedure developed
      with fast MC (Erik Devetak)
@@ -30,7 +31,6 @@ releases:
      (Erik Devetak)
 
 For further details on these changes, please see the documentation.
-
 
 (Sonja Hillert, S.Hillert1@physics.ox.ac.uk)
 
