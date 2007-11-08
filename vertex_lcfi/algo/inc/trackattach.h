@@ -18,8 +18,9 @@ namespace vertex_lcfi
 	//! Track attachment algorithm. Calculates the seed vertex and the Tracks attached to it. 
 	/*! 
 	 The algorithm firstly chooses the seed vertex, defined as the secondary vertex furthest from the IP and then decides which Tracks to attach to this vertex. This algorithm was originally devised to recover tracks from 1-prong decays that are not assigned to any ZVRES vertex, but may contribute to variables one wishes to reconstruct, such as the mass of the decaying heavy flavour particle in a jet.  The algorithm returns a vertex_lcfi::DecayChain with Tracks attached to the seed vertex and all other Tracks removed. 
-	 The algorithm has the following input parameters:
-	\param LoDCutmin cut on the minimum L/D of the track to be attached to the seed vertex
+	 The algorithm has the following input parameters:	
+	 \param AddAllTracksFromSecondary determines whether to include or exclude inner vertices.
+	 \param LoDCutmin cut on the minimum L/D of the track to be attached to the seed vertex
 	\param LoDCutmax cut on the maximum L/D of the track to be attached to the seed vertex
 	\param CloseapproachCut cut on the maximum of the distance of closest approach of a Track wrt the seed axis 
 	\author Erik Devetak (e.devetak1@physics.ox.ac.uk)
