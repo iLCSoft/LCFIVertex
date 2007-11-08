@@ -48,15 +48,14 @@ using vertex_lcfi::DecaySignificanceType;
  * <br> For more information about the algorithms themselves please consult the specific algorithm documentation pages.  
  * The processor also uses the following algorithms: 
  * <br> vertex_lcfi::TwoTrackPid - algorithm that calulates the id of two charged tracks by using mass considerations. This algorithm removes 
- * tracks consistent with the assuption that they have been generated from Ks and gamma. This algorithm is not used in ZVTOPZVRESProcessor or ZVTOPZVKINProcessor
+ * tracks consistent with the hypothesis that they have been generated from Ks and gamma. This algorithm is not used in ZVTOPZVRESProcessor or ZVTOPZVKINProcessor
  * <br> vertex_lcfi::TrackAttach - algorithm that adds tracks close to the seed vertex. 
- * <br> vertex_lcfi::VertexCharge - this calculates the charge of the seed vertex which is an output of vertex_lcfi::TrackAttach
  *
  * <H4>Input</H4>
  * - A collection of ReconstructedParticles that represents the jets in the event (obtained from a jet
  * finder, say SatoruJetFinderProcessor).
- * - A collection of vertices that contains the per event primary vertices; one for each event. (optional) These collection is filled in the vertex_lcfi::PerEventIPFitter processor.
- * - A collection of decay chaines as filled by the the ZVTOPZVRESProcessor or ZVTOPZVKINProcessor. 
+ * - A collection of vertices that contains the per event primary vertices; one for each event. (optional) This collection is filled in the vertex_lcfi::PerEventIPFitter processor.
+ * - A collection of decay chains as filled by the the ZVTOPZVRESProcessor or ZVTOPZVKINProcessor. 
  *
  *
  * <H4>Output</H4>
@@ -64,22 +63,16 @@ using vertex_lcfi::DecaySignificanceType;
  * The default name of the output collection is FlavourTagInputs.For more details see \ref LCIO "the interface documentation".
  *
  * @param JetRPCollection Name of the ReconstructedParticle collection that represents jets.
- * @param IPVertexCollection Name of the Vertex collection that contains the primary verteces (optional)
+ * @param IPVertexCollection Name of the Vertex collection that contains the primary vertices (optional)
  * @param FlavourTagInputsCollection Name of the LCFloatVec Collection that will be created to contain the flavour tag inputs
  *
  * <br>  The following parameters are parameters for the algorithms used by the processor.These parameters are all optional.
  *  @param LayersHit Momentum cuts will be applied on number of LayersHit and LayersHit minus one, used by vertex_lcfi::ParameterSignificance
  *  @param AllLayersMomentumCut Cut on the minimum momentum if track hits LayersHit, used by  vertex_lcfi::ParameterSignificance
  *  @param AllbutOneLayersMomentumCut Cut on the minimum momentum if track hits LayersHit minus one, used by  vertex_lcfi::ParameterSignificance
- *  @param BChargeCloseapproachCut upper cut on track distance of closest approach to the seed axis in the calculation of the b-jet vertex charge variable B-Charge, used by vertex_lcfi::TrackAttach (when calculating b charge), by B-Charge we imply the charge of the b quark 
- *  @param BChargeLoDCutmax Cut determining the maximum L/D for the B-Charge, used by vertex_lcfi::TrackAttach (when calculating b charge)
- *  @param BChargeLoDCutmin Cut determining the minimum L/D for the B-Charge, used by vertex_lcfi::TrackAttach (when calculating b charge)
- *  @param CChargeCloseapproachCut upper cut on track distance of closest approach to the seed axis in the calculation of the b-jet vertex charge variable C-Charge, used by vertex_lcfi::TrackAttach (when calculating c charge), by C-Charge we imply the charge of the c quark 
- *  @param CChargeLoDCutmax Cut determining the maximum L/D for the C-Charge, used by vertex_lcfi::TrackAttach (when calculating c charge)
- *  @param CChargeLoDCutmin Cut determining the minimum L/D for the C-Charge, used by vertex_lcfi::TrackAttach (when calculating c charge)
  *  @param JProbMaxD0Significance Maximum d0 significance of tracks used to calculate the joint probability, used in vertex_lcfi::JointProb
  *  @param JProbMaxD0andZ0 Maximum d0 and z0 of tracks used to calculate the joint probability, used in vertex_lcfi::JointProb
- *  @param PIDChi2Cut Cut on the Chi squared of the two tracks beinig in the same vertex, used by vertex_lcfi::TwoTrackPid
+ *  @param PIDChi2Cut Cut on the Chi squared of two tracks being in the same vertex, used by vertex_lcfi::TwoTrackPid
  *  @param PIDMaxGammaMass Cut on the upper limit of the photon candidate mass, used by vertex_lcfi::TwoTrackPid
  *  @param PIDMaxKsMass Cut on the upper limit of the Ks candidate mass, used by vertex_lcfi::TwoTrackPid
  *  @param PIDMinKsMass Cut on the lower limit of the Ks candidate mass, used by vertex_lcfi::TwoTrackPid
@@ -87,6 +80,7 @@ using vertex_lcfi::DecaySignificanceType;
  *  @param PIDSignificanceCut Cut on the minimum RPhi significance of the tracks, used by vertex_lcfi::TwoTrackPid
  *  @param SecondVertexNtrackscut Cut on the minimum number of tracks in the seed vertex, used by vertex_lcfi::SecVertexProb
  *  @param SecondVertexProbChisquarecut Cut on the Chi Squared of the seed vertex, used by vertex_lcfi::SecVertexProb
+ *  @param TrackAttachAllSecondaryTracks include or exclude tracks in the inner vertices for the track attachment.
  *  @param TrackAttachCloseapproachCut upper cut on track distance of closest approach to the seed axis used by vertex_lcfi::TrackAttach (when used for * flagged variables)
  *  @param TrackAttachLoDCutmax Cut determining the maximum L/D for the track attachment, used by vertex_lcfi::TrackAttach (when used for * flagged variables)
  *  @param TrackAttachLoDCutmin Cut determining the minimum L/D for the track attachment, used by vertex_lcfi::TrackAttach (when used for * flagged variables)
@@ -94,10 +88,10 @@ using vertex_lcfi::DecaySignificanceType;
  *  @param VertexMassMaxMomentumAngleCut Upper cut on angle between momentum of vertex and the vertex axis, used by  vertex_lcfi::VertexMass
  *  @param VertexMassMaxMomentumCorrection Maximum factor, by which vertex mass can be corrected, used by  vertex_lcfi::VertexMass
  *
- *  As a final remark one should notice that two additional values are stored in the Outputted LC Collection. 
+ *  As a final remark one should notice that two additional values are stored in the Output LC Collection. 
  *  These are: 
- *  <br> NumVertices - number of vertices in the jet; used to determine what variables to use in the following flavour tag processor. CCalculated in the processor.
- *  <br> DecayLength(SeedToIP)- length from the vertex seed in the trackattach processor to the IP. This veriable can be used for further analysis, but it is not used in flavour tagging. Calculated in the processor.
+ *  <br> NumVertices - number of vertices in the jet; used to determine what variables to use in the following flavour tag processor. Calculated in the processor.
+ *  <br> DecayLength(SeedToIP)- distance from the vertex seed in the trackattach processor and IP. This veriable can be used for further analysis, but it is not used in flavour tagging. Calculated in the processor.
  *  @author Erik Devetak(erik.devetak1@physics.ox.ac.uk), 
  *  <br> interface by Ben Jeffery (ben.jeffery1@physics.ox.ac.uk)
 */

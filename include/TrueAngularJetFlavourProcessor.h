@@ -19,9 +19,9 @@ using EVENT::MCParticle;
 
 /**  Determine MC Jet Flavour by angular matching of heavy quarks to jets, also determine hadronic and partonic charge of jet. 
  * 
- *  The processor looks at all the PDG codes of all MC particles and recognises recognises all particles containing b- and c-quarks.
+ *  The processor looks at all the PDG codes of all MC particles and recognises all particles containing b- and c-quarks.
  *  It then looks at the momentum of the heavy MC particles and at the momentum of the jets.
- *  The association is done by matching matching heavy flavour hadrons to the jet that is angularly closest. 
+ *  The association is done by  matching heavy flavour hadrons to the jet that is closest in agle. 
  *  More than one heavy particle can therefore be associated with the same jet. If this happens the jet flavour is 
  *  the flavour of the first particle in the parent-daughter chain associated with the jet.
  *  The pdg code of particle is subsequently used to determine the hadronic charge of the jet and the partonic charge of the heavy particle.  
@@ -39,9 +39,9 @@ using EVENT::MCParticle;
  * @param MCParticleColName Name of the MCParticle collection.
  * @param JetRPColName Name of the ReconstructedParticle collection that represents jets.
  * @param TrueJetFlavourCollection Name of the output collection where the jet flavours will be stored. 
- * @param TrueJetPDGCodeCollection Name of the output collection where the jet flavours will be stored. 
- * @param TrueJetHadronChargeCollection Name of the output collection where the jet flavours will be stored. 
- * @param TrueJetPartonChargeCollection Name of the output collection where the jet flavours will be stored. 
+ * @param TrueJetPDGCodeCollection Name of the output collection where the PDG of the heavy particle associated to the jet is stored. 
+ * @param TrueJetHadronChargeCollection Name of the output collection where the hadronic charge is stroed. 
+ * @param TrueJetPartonChargeCollection Name of the output collection where the parton charge (charmness, bottomnes) is stored. 
  * @param MaximumAngle Maximum value allowed between MCParticle and jet momentum expressed in degrees.
  * If the closest jet is at a wider angle than MaximumAngle the MC particle does not get assigned.
  *

@@ -19,6 +19,25 @@ using vertex_lcfi::Jet;
 using vertex_lcfi::util::Projection;
 
 /** Calculates the Vertex Charge. 
+ *  The processor calculated the vertex charge of a Decay Chain by using the tracks and the verteces present in the chain. Two logically slightly
+ * different algorithms are used depending on the hypothesis of a B or C quark Vertex. In the B hypothesis we include the inner verteces, in the C we do not include them. This choice is controlled by the parameter ChargeAllSecondaryTracks.  
+ * 
+ * <H4>Input</H4>
+ * - A collection of ReconstructedParticles that represents the jets in the event (obtained from a jet
+ * finder, say SatoruJetFinderProcessor, although in order not to break the reconstruction chain we suggest you run this after the flavour tagging. In this way the LCFI chain remains intact).
+ * - A collection of vertices that contains the per event primary vertices; one for each event. (optional) This collection is filled in the vertex_lcfi::PerEventIPFitter processor.
+ * - A collection of decay chains as filled by the the ZVTOPZVRESProcessor or ZVTOPZVKINProcessor. 
+ *
+ * <H4>Output</H4>
+ * The processor writes into the selected lcio output file. All the values calculated by the processor are saved in the same LCFloatVec collection.
+ * The default name of the output collection is Charge.Although this is changed in the steering files to something more appropriate, depending on B or C calculation. For more details see \ref LCIO "the interface documentation".
+ *
+   @param VertexChargeCollection collection where results will be stored. 
+ * @param ChargeAllSecondaryTracks include or exclude tracks in the inner vertices for the track attachment.
+*  @param ChargeCloseapproachCut upper cut on track distance of closest approach to the seed axis in the calculation of the vertex charge variable, used by vertex_lcfi::TrackAttach.
+ *  @param ChargeLoDCutmax Cut determining the maximum L/D for the Charge, used by vertex_lcfi::TrackAttach (when calculating C-Charge)
+ *  @param ChargeLoDCutmin Cut determining the minimum L/D for the Charge, used by vertex_lcfi::TrackAttach (when calculating C-Charge)
+ *
  *
  *  @author Erik Devetak(erik.devetak1@physics.ox.ac.uk)
 */
