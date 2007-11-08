@@ -77,8 +77,8 @@ namespace vertex_lcfi
 		}
 		
 		VertexFitterKalman MyFitter;
-		//MyFitter.setSeed(MyEvent->interactionPoint());
-		//MyFitter.setInitialStep(1.0/1000.0);
+		MyFitter.setSeed(MyEvent->interactionPoint());
+		// MyFitter.setInitialStep(1.0/1000.0);
 		
 		CandidateVertex CVertex(TrackStates, /*VertexFunction*/ 0, &MyFitter);
 		CVertex.trimByProb(_ProbThreshold);
