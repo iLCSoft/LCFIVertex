@@ -68,8 +68,8 @@ file are geometry specific, the default detector geometry assumed in this exampl
 <li><a href="../trainNeuralNets.xmlsteer">trainNeuralNets.xml</a> (optional, only needed for special training run 
 to obain new flavour tag neural nets)</li>
 <li><a href="../ft.xmlsteer">ft.xml</a></li>
-<li><a href="../Bvertexcharge.xmlsteer">ft.xml</a>Bvertexcharge.xml</li>
-<li><a href="../Cvertexcharge.xmlsteer">ft.xml</a>Cvertexcharge.xml</li>
+<li><a href="../Bvertexcharge.xmlsteer">Bvertexcharge.xml</a></li>
+<li><a href="../Cvertexcharge.xmlsteer">Cvertexcharge.xml</a></li>
 <li><a href="../ftplot.xmlsteer">ftplot.xml</a></li>
 </ul>
 
