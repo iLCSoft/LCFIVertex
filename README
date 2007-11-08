@@ -1,6 +1,41 @@
 The LCFI Vertex Package
 
 releases:
+
+ ----------
+| v00-02-02|
+ ----------
+
+   - LCFIVertex/vertex_lcfi/algo/src/pereventipfitter.cpp changed to use Kalman filter for
+     vertex fitting (reduces run time for PerEventIPFitter.cc by about a factor 100) 
+     (Kalman filter developed by S. Gorbunov, I. Kisel, 
+     Vertex Package interface: Tomas Lastovicka)
+
+   - RPCutProcessor: for suppression of hadronic interactions using MC information this 
+     processor is now updated to support arbitrary detector geometries (Kristian Harder)
+
+   - LCFIAIDAPlotProcessor: new processor providing diagnostics for flavour tag
+     (Victoria Martin)
+   - LCFIVertex/macro/FlavourTagInputsOverlay.py: python script to create plots from 
+     output of LCFIAIDAPlotProcessor (Victoria Martin)
+   - LCFIVertex/macro/MakePurityVsEfficiencyRootPlot.C: root macro to plot purity vs
+     efficiency graphs that can be written out by PlotProcessor, if compiling with root 
+     option; permits results from different runs (e.g. with different settings) to be 
+     compared (Kristian Harder)
+
+   - vertex charge calculation: correction of algorithm to agree with the procedure developed
+     with fast MC (Erik Devetak)
+   - separate VertexChargeProcessor, storing results in separate LCFloatVec collections;
+     this used to be done in FlavourTagInputsProcessor
+     (Erik Devetak)
+
+For further details on these changes, please see the documentation.
+
+
+(Sonja Hillert, S.Hillert1@physics.ox.ac.uk)
+
+-------------------------------------------------------------
+
  ----------
 | v00-01-01|
  ----------
