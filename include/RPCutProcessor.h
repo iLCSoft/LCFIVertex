@@ -4,6 +4,14 @@
 #include <EVENT/ReconstructedParticle.h>
 #include <UTIL/LCRelationNavigator.h>
 
+#include <gear/VXDParameters.h>
+#include <gear/GearParameters.h>
+#ifdef MCFAIL_DIAGNOSTICS
+#include "TH1.h"
+#include "TH2.h"
+#include "TFile.h"
+#endif
+
 #include "marlin/Processor.h"
 #include "lcio.h"
 #include <string>
@@ -134,6 +142,19 @@ class RPCutProcessor : public Processor {
   std::vector<std::string> _DetectorNames;
   
   bool _MCVertexEnable;
+  const gear::VXDParameters* _VxdPar;
+  double _BeamPipeInnerRadius;
+  double _BeamPipeOuterRadius;
+  double _BeamPipeHalfZ;
+  double _CutDistance;
+
+#ifdef MCFAIL_DIAGNOSTICS
+  TH2F *_diaghist_mat_xy;
+  TH2F *_diaghist_nomat_xy;
+  TH2F *_diaghist_mat_rz;
+  TH2F *_diaghist_nomat_rz;
+  TH1F *_diaghist_dist;
+#endif
   
   int _nRun ;
   int _nEvt ;

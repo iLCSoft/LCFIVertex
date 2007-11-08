@@ -12,6 +12,10 @@
 #include "../vertex_lcfi/inc/lciointerface.h"
 #include "util/inc/memorymanager.h"
 
+#include <marlin/Global.h>
+#include <gear/GEAR.h>
+#include <gearimpl/Vector3D.h>
+
 #include <vector>
 #include <string>
 
@@ -216,6 +220,32 @@ void RPCutProcessor::init() {
 
   _nRun = 0 ;
   _nEvt = 0 ;
+
+  _VxdPar = &(Global::GEAR->getVXDParameters());
+  const gear::GearParameters& BeamPipePar
+                      = Global::GEAR->getGearParameters("BeamPipe");
+  _BeamPipeInnerRadius=BeamPipePar.getDoubleVal("BeamPipeRadius");
+  _BeamPipeOuterRadius=_BeamPipeInnerRadius
+                      +BeamPipePar.getDoubleVal("BeamPipeThickness");
+  _BeamPipeHalfZ=BeamPipePar.getDoubleVal("BeamPipeHalfZ");
+
+  // tracks originating from anywhere closer than the following value
+  // to a ladder or to the beam pipe will be removed if the user selects
+  // hadronic interaction suppression. The unit is mm.
+  _CutDistance=0.000;
+
+  // widen beam pipe size parameters accordingly
+  _BeamPipeInnerRadius-=_CutDistance;
+  _BeamPipeOuterRadius+=_CutDistance;
+  _BeamPipeHalfZ+=_CutDistance;
+
+#ifdef MCFAIL_DIAGNOSTICS
+  _diaghist_mat_xy = new TH2F("mathist_xy","xy distribution of track origins supposedly in material",1000,-60,60,1000,-60,60);
+  _diaghist_nomat_xy = new TH2F("nomathist_xy","xy distribution of track origins supposedly outside of material",1000,-60,60,1000,-60,60);
+  _diaghist_mat_rz = new TH2F("mathist_rz","rz distribution of track origins supposedly in material",1000,-300,300,1000,0,60);
+  _diaghist_nomat_rz = new TH2F("nomathist_rz","rz distribution of track origins supposedly outside of material",1000,-300,300,1000,0,60);
+  _diaghist_dist = new TH1F("disthist","distance of track origins from nearest ladder",100,0.0,0.1);
+#endif     
 }
 
 void RPCutProcessor::processRunHeader( LCRunHeader* run) { 
@@ -395,7 +425,17 @@ void RPCutProcessor::check( LCEvent * evt ) {
 
 
 void RPCutProcessor::end(){ 
-  
+
+#ifdef MCFAIL_DIAGNOSTICS  
+        TFile dumpfile((name()+std::string(".root")).c_str(),"RECREATE");
+	_diaghist_mat_xy->Write();
+	_diaghist_nomat_xy->Write();
+	_diaghist_mat_rz->Write();
+	_diaghist_nomat_rz->Write();
+	_diaghist_dist->Write();
+	dumpfile.Close();
+#endif
+
 	std::cout << "RPCutProcessor::end()  " << name() 
  	    << " processed " << _nEvt << " events in " << _nRun << " runs "
  	    << std::endl ;
@@ -557,25 +597,44 @@ bool  RPCutProcessor::_MCVertexFail(lcio::ReconstructedParticle* RPTrack, UTIL::
 	{
 		MCParticle* mcp = dynamic_cast<MCParticle*> (objectVec[0]);
 		const double * Vert = mcp->getVertex();
+		gear::Vector3D VertVec(Vert[0],Vert[1],Vert[2]);
+
+		// is this track originating in beam pipe material? (this check
+		// is the fastest one, so we do it first and have some chance
+		// of being able to skip the VXD material check later)
 		double radius = sqrt((Vert[0] * Vert[0])+(Vert[1] * Vert[1]));
-				//Beampipe
-		if (radius > 10.0 && radius <10.5)
-			return true;
-		//1st VTX Layer
-		if (radius > 15.5 && radius <15.82)// && fabs(Vert[3]) < 50.0 )
-			return true;
-		//Higher layers
-		if (radius > 27.0 && radius <27.32)// && fabs(Vert[3]) < 125.0 )
-			return true;
-		if (radius > 38.0 && radius <38.32)// && fabs(Vert[3]) < 125.0 )
-			return true;
-		if (radius > 49.0 && radius <49.32)// && fabs(Vert[3]) < 125.0 )
-			return true;
-		if (radius > 60.0 && radius <60.32)// && fabs(Vert[3]) < 125.0 )
-			return true;	
+		if (radius >=_BeamPipeInnerRadius
+		    && radius <=_BeamPipeOuterRadius
+		    && fabs(Vert[2])<=_BeamPipeHalfZ) {
+#ifdef MCFAIL_DIAGNOSTICS
+		  _diaghist_mat_xy->Fill(Vert[0],Vert[1]);
+		  _diaghist_mat_rz->Fill(Vert[2],radius);
+#endif
+		  return true;
+		} else {
+		  // next check: are we in VXD ladder material?
+#ifdef MCFAIL_DIAGNOSTICS
+		  double dist=_VxdPar->distanceToNearestLadder(VertVec).r();
+		  _diaghist_dist->Fill(dist);
+#endif
+		  //if (dist<=_CutDistance) { // does not seem to work yet
+		  if (_VxdPar->isPointInLadder(VertVec)) {
+#ifdef MCFAIL_DIAGNOSTICS
+		    _diaghist_mat_xy->Fill(Vert[0],Vert[1]);
+		    _diaghist_mat_rz->Fill(Vert[2],radius);
+#endif
+		    return true;
+		  } else {
+#ifdef MCFAIL_DIAGNOSTICS
+		    _diaghist_nomat_xy->Fill(Vert[0],Vert[1]);
+		    _diaghist_nomat_rz->Fill(Vert[2],radius);
+#endif
+		    return false;
+		  }
+		}
 	}
 	else
-		std::cerr << "Warning RPCutProcessor::578 No MCParticle information" << std::endl;
+		std::cerr << "Warning RPCutProcessor::637 No MCParticle information" << std::endl;
 	return false;	
 }
 
