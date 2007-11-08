@@ -27,9 +27,12 @@ cheater functionality to provide the input required by the Vertex Package.
 \image latex VtxPackageDirStruct.eps "Vertex Package directory structure" width=\textwidth
 
 Directories of the package are organised as follows: the top-level directories contain 
-the Marlin processors (src) and the include- and steering files they require.
-These provide an interface to the main part of the code, which is located in the directory 
-%vertex_lcfi. The Marlin processors access a set of algorithm classes for ZVTOP, flavour tag 
+the Marlin processors (src) and the include- and steering files they require, as well as macros
+(macro) that can be run on output created by some of the processors. For example, a root macro
+is provided to make comparison plots of purity vs efficiency obtained from two subsequent runs of
+the PlotProcessor. (Note, that the package provides root output only if compiled with root option).
+The top-level directories provide an interface to the main part of the code, which is located in the 
+directory %vertex_lcfi. The Marlin processors access a set of algorithm classes for ZVTOP, flavour tag 
 and vertex charge calculation which can be found in the subdirectory algo. These algorithm 
 classes all inherit from a simple interface Algo, providing parameters and the method 
 "calculateFor", returning the output of the algorithm. Input to the algorithm classes are objects 
@@ -41,26 +44,32 @@ directory vertex_lcfi/zvtop. The neural network code is kept in the directory ve
 The following Marlin processors are provided:
 <ul>
 <li> TrueAngularJetFlavourProcessor: provides the true jet flavour using MC information </li>
-<li> PerEventIPFitterProcessor: determines the event vertex (IP) - PLEASE BE PATIENT: this processor needs some time to run </li>
+<li> PerEventIPFitterProcessor: determines the event vertex (IP)</li>
 <li> RPCutProcessor: flexible processor for applying various track selection cuts </li>
 <li> ZVTOPZVRESProcessor: find vertices running the ZVRES branch of ZVTOP </li>
 <li> ZVTOPZVKINProcessor: find vertices running the ZVKIN branch of ZVTOP (ghost track algorithm) </li>
 <li> FlavourTagInputsProcessor: calculate input variables for the flavour tag neural net and the vertex charge </li>
 <li> NeuralNetTrainerProcessor: train neural networks for flavour tag </li>
 <li> FlavourTagProcessor: use pretrained neural nets to obtain flavour tag </li>
+<li> VertexChargeProcessor: calculate vertex charge for b- and/or c-jets </li>
 <li> PlotProcessor: calculate purity and efficiency and produce performance plot (if compiled with root) </li>
+<li> LCFIAIDAPlotProcessor: diagnostic plots and tables for flavour tag inputs and outputs </li>
 </ul>
 
 The example steering files provided show how the package could be run in a typical analysis. 
 The order in which the steering files would be called is as follows:
 <ul>
-<li><a href="../cheattracks+jetfind.xmlsteer">cheattracks+jetfind.xml</a></li>
+<li><a href="../cheattracks+jetfind.xmlsteer">cheattracks+jetfind.xml</a> - note that hit collection names in this 
+file are geometry specific, the default detector geometry assumed in this example file is LDC01_05Sc.</li>
 <li><a href="../truejetflavour.xmlsteer">truejetflavour.xml</a></li>
 <li><a href="../ipfit.xmlsteer">ipfit.xml</a></li>
 <li><a href="../zvres.xmlsteer">zvres.xml</a></li>
 <li><a href="../fti.xmlsteer">fti.xml</a></li>
-<li><a href="../trainNeuralNets.xmlsteer">trainNeuralNets.xml</a> (optional, only needed for special training run to obain new flavour tag neural nets)</li>
+<li><a href="../trainNeuralNets.xmlsteer">trainNeuralNets.xml</a> (optional, only needed for special training run 
+to obain new flavour tag neural nets)</li>
 <li><a href="../ft.xmlsteer">ft.xml</a></li>
+<li><a href="../Bvertexcharge.xmlsteer">ft.xml</a>Bvertexcharge.xml</li>
+<li><a href="../Cvertexcharge.xmlsteer">ft.xml</a>Cvertexcharge.xml</li>
 <li><a href="../ftplot.xmlsteer">ftplot.xml</a></li>
 </ul>
 
@@ -98,6 +107,11 @@ A form for providing training information can be found in the same directory in 
 ILC physics studies more transparent and ease comparisons of analyses performed within different 
 groups, frameworks or detector concepts.<br><br>
 
+<b> Summary of changes in release versions: </b>
+<ul>
+<li>\ref ReleaseNotesv00-02-01 "v00-02-01"</li>
+</ul>
+
 \anchor LitList1 [1] D. Jackson, NIM A 388 (1997) 247<br>
 \anchor LitList2 [2] R. Hawkings, LC-PHSM-2000-021<br>
 \anchor LitList3 [3] J. Thom, SLAC-R-585 (2002), T. Wright, SLAC-R-602 (2002) <br>
@@ -108,8 +122,13 @@ development and maintenance team:
 
 Erik Devetak (mailto:E.Devetak1@physics.ox.ac.uk)<br>
 Mark Grimes (mailto:Mark.Grimes@bristol.ac.uk)<br>
+Kristian Harder (mailto:K.Harder@rl.ac.uk)<br>
 Sonja Hillert (mailto:S.Hillert1@physics.ox.ac.uk)<br>
+Talini Pinto Jayawardena (mailto:T.S.Pinto.Jayawardena@rl.ac.uk)<br>
 Ben Jeffery (mailto:B.Jeffery1@physics.ox.ac.uk)<br>
+Tomas Lastovicka (mailto:T.Lastovicka1@physics.ox.ac.uk)<br>
+Clare Lynch (mailto:Clare.Lynch@bristol.ac.uk)<br>
 Victoria Martin (mailto:victoria.martin@ed.ac.uk)<br>
+Roberval Walsh (mailto:r.walsh@ed.ac.uk)<br>
 
 */
