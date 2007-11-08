@@ -1,73 +1,3 @@
-/** LCFIAIDAPlotProcessor Class - make plots of the LCFI flavour tag and vertex charge code.
-*
-* <b> Please note that LCFIAIDAPlotProcessor will not compile with RAIDA v01-03 
-* To use LCFIAIDAPlotProcessor please use AIDAJNI for the implementation of AIDA
-* run  "cmake -DBUILD_WITH="ROOT;AIDAJNI" -DAIDAJNI_HOME=${AIDAJNI_HOME}"  </b>
-* The reason is that not all functions in AIDA are defined in RAIDA v01-03 
-*
-* LCFIAIDAPlotProcessor must be run with AIDAProcessor.
-*
-* LCFIAIDAPlotProcessor reads in one (or more) FlavourTagCollections, e.g. from FlavourTag and one (or more) TagInputCollections.
-* Histograms/plots are made of the neural net outputs, the purity and leakage rate of the flavour tag.
-* These are split into sub-samples based on the number of vertices found in the jets.
-* Plots are also made of the inputs to the FlavourTagCollections - split into sub-samples based on
-* the true (MC) flavour of the jet.
-
-* Options are given to make a tuple of the flavour tag inputs and to print out a text file
-* of the different flavour tag neural net outputs. 
-* 
-* (When providing more than one FlavourTagCollection and/or TagInputCollection plots for each collection will be made in different directories.)
-*
-* In addition LCFIAIDAPlotProcessor also requires a jet collection, and the following collections, which should refer to the <i>same</i> jet collection.
-*
-*  BVertexChargeCollection  -- calculated in VertexChargeProcessor
-*  CVertexChargeCollection  -- calculated in VertexChargeProcessor
-*  TrueJetFlavourCollection  -- calculated in TrueAngularJetFlavourProcessor
-*  TrueJetHadronChargeCollection  -- calculated in TrueAngularJetFlavourProcessor
-*  TrueJetPDGCodeCollection -- calculated in TrueAngularJetFlavourProcessor
-*  TrueJetPartonChargeCollection -- calculated in TrueAngularJetFlavourProcessor
-*     
-*
-* <H4>Input</H4>
-* 
-* The following collections must be available:
-*
-* @param FlavourTagCollections  StringVec of LCFloatVec names representing the flavour tag inputs collections - may be more than one collection.
-* @param TagInputsCollections   StringVec of LCFloatVec names the flavour tag input collections - may be more than one collection.
-* @param JetCollectionName   Name of ReconstructedParticleCollection representing the jets.
-* @param VertexCollectionName   Name of VertexCollection representing the Vertex collection of the jets.
-* @param BVertexChargeCollection Name of LCFloatVector of the vertex charge of the jet collection
-*  - assuming the jets are b-jets  (calculated in VertexChargeProcessor)
-* @param CVertexChargeCollection  Name of LCFloatVector of the vertex charge of the jet collection
-*  - assuming the jets are c-jets  (calculated in VertexChargeProcessor)
-* @param TrueJetFlavourCollection  Name of LCIntVector of the true (MC) flavour of the jets (calculated in TrueAngularJetFlavourProcessor)
-* @param TrueJetHadronChargeCollection  Name of LCFloatVector of the true (MC) charge of the hadron initiating the jets (calculated in TrueAngularJetFlavourProcessor)
-* @param TrueJetPDGCodeCollection   Name of LCIntVector of the true (MC) PDG code of the hadron initiating the jets (calculated in TrueAngularJetFlavourProcessor)
-* @param TrueJetPartonChargeCollection  Name of LCFloatVector of the true (MC) charge of the parton (quark) initiating the jets (calculated in TrueAngularJetFlavourProcessor)
-*
-* @param VertexCollectionName  Name of VertexCollection representing the vertices.
-* @param BTagNNCut Double reprsenting the lower cut on the b-tag NN value for some of the plots.
-* @param CTagNNCut Double reprsenting the lower cut on the c-tag NN value for some of the plots.
-* @param CosThetaJetMax  Double representing upper cut on cos(theta) of the jets for the plots.
-* @param CosThetaJetMin  Double representing lower cut on cos(theta) of the jets for the plots.
-* @param PJetMax   Double representing upper cut on momentum of the jet for the plots.
-* @param PJetMin   Double representing lower cut on momentum of the jet for the plots.
-* @param MakeTuple   Bool set true if you want to make a tuple of the TagInputCollection variables.
-* @param NeuralNetOutputFile  String representing name of text file of neural net values to.  
-*    Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out
-* @param PrintNeuralNetOutput  Bool set true if you want to make a text file of the neural net values (useful for some scripts).
-* <H4>Output</H4>
-* - An aida (or root??) file containing the histograms, plots and tuples.
-* - (Optionally) a text file containing some of the neural net tagging output
-*  
-* @author Victoria Martin (victoria.martin@ed.ac.uk)
-*/
-
-//===========================================================================================================
-// LCFIAIDAPlotProcessor Class - make plots of the LCFI flavour tag and vertex charge input and output variables
-//=========================================================================================================== 
-
-
 #ifndef MARLIN_USE_AIDA
 // This check is in the C++ file, but do it again just in case this is
 // included elsewhere for whatever reason.
@@ -78,6 +8,79 @@
 
 #ifndef LCFIAIDAPlotProcessor_h 
 #define LCFIAIDAPlotProcessor_h 
+
+
+//===============================================================================================================
+// LCFIAIDAPlotProcessor Class - make plots of the LCFI flavour tag and vertex charge input and output variables
+//=============================================================================================================== 
+
+
+/** LCFIAIDAPlotProcessor Class - make plots of the LCFI flavour tag and vertex charge code.
+ * <b> Please note that LCFIAIDAPlotProcessor will not compile with RAIDA v01-03 
+ * To use LCFIAIDAPlotProcessor please use AIDAJNI for the implementation of AIDA
+ * run  "cmake -DBUILD_WITH="ROOT;AIDAJNI" -DAIDAJNI_HOME=${AIDAJNI_HOME}"  </b>
+ * The reason is that not all functions in AIDA are defined in RAIDA v01-03 
+ *<br>
+ * LCFIAIDAPlotProcessor must be run with AIDAProcessor.<br>
+ *
+ * LCFIAIDAPlotProcessor reads in one (or more) FlavourTagCollections, e.g. from FlavourTag and one (or more) TagInputCollections.
+ * Histograms/plots are made of the neural net outputs, the purity and leakage rate of the flavour tag.
+ * These are split into sub-samples based on the number of vertices found in the jets.
+ * Plots are also made of the inputs to the FlavourTagCollections - split into sub-samples based on
+ * the true (MC) flavour of the jet.<br>
+ 
+ * Options are given to make a tuple of the flavour tag inputs and to print out a text file
+ * of the different flavour tag neural net outputs. 
+ * 
+ * (When providing more than one FlavourTagCollection and/or TagInputCollection plots for each collection will be made in different directories.)
+ *
+ * In addition LCFIAIDAPlotProcessor also requires a jet collection, and the following collections, which should refer to the <i>same</i> jet collection.
+ *<p>
+ *  BVertexChargeCollection  -- calculated in VertexChargeProcessor<br>
+ *  CVertexChargeCollection  -- calculated in VertexChargeProcessor<br>
+ *  TrueJetFlavourCollection  -- calculated in TrueAngularJetFlavourProcessor<br>
+ *  TrueJetHadronChargeCollection  -- calculated in TrueAngularJetFlavourProcessor<br>
+ *  TrueJetPDGCodeCollection -- calculated in TrueAngularJetFlavourProcessor<br>
+ *  TrueJetPartonChargeCollection -- calculated in TrueAngularJetFlavourProcessor<br>
+ *     
+ *
+ * <H4>Input</H4>
+ * 
+ * The following collections must be available:
+ *
+ * @param FlavourTagCollections  StringVec of LCFloatVec names representing the flavour tag inputs collections - may be more than one collection.
+ * @param TagInputsCollections   StringVec of LCFloatVec names the flavour tag input collections - may be more than one collection.
+ * @param JetCollectionName   Name of ReconstructedParticleCollection representing the jets.
+ * @param VertexCollectionName   Name of VertexCollection representing the Vertex collection of the jets.
+ * @param BVertexChargeCollection Name of LCFloatVector of the vertex charge of the jet collection
+ *  - assuming the jets are b-jets  (calculated in VertexChargeProcessor)
+ * @param CVertexChargeCollection  Name of LCFloatVector of the vertex charge of the jet collection
+ *  - assuming the jets are c-jets  (calculated in VertexChargeProcessor)
+ * @param TrueJetFlavourCollection  Name of LCIntVector of the true (MC) flavour of the jets (calculated in TrueAngularJetFlavourProcessor)
+ * @param TrueJetHadronChargeCollection  Name of LCFloatVector of the true (MC) charge of the hadron initiating the jets (calculated in TrueAngularJetFlavourProcessor)
+ * @param TrueJetPDGCodeCollection   Name of LCIntVector of the true (MC) PDG code of the hadron initiating the jets (calculated in TrueAngularJetFlavourProcessor)
+ * @param TrueJetPartonChargeCollection  Name of LCFloatVector of the true (MC) charge of the parton (quark) initiating the jets (calculated in TrueAngularJetFlavourProcessor)
+ *
+ * @param VertexCollectionName  Name of VertexCollection representing the vertices.
+ * @param BTagNNCut Double reprsenting the lower cut on the b-tag NN value for some of the plots.
+ * @param CTagNNCut Double reprsenting the lower cut on the c-tag NN value for some of the plots.
+ * @param CosThetaJetMax  Double representing upper cut on cos(theta) of the jets for the plots.
+ * @param CosThetaJetMin  Double representing lower cut on cos(theta) of the jets for the plots.
+ * @param PJetMax   Double representing upper cut on momentum of the jet for the plots.
+ * @param PJetMin   Double representing lower cut on momentum of the jet for the plots.
+ * @param MakeTuple   Bool set true if you want to make a tuple of the TagInputCollection variables.
+ * @param NeuralNetOutputFile  String representing name of text file of neural net values to.  
+ *    Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out
+ * @param PrintNeuralNetOutput  Bool set true if you want to make a text file of the neural net values (useful for some scripts).
+ *
+ * 
+ * <H4>Output</H4>
+ * - An aida (or root??) file containing the histograms, plots and tuples.
+ * - (Optionally) a text file containing some of the neural net tagging output
+ *  
+ * @author Victoria Martin (victoria.martin@ed.ac.uk)
+*/
+
 
 //Marlin and LCIO includes 
 #include "marlin/Processor.h" 
@@ -416,8 +419,6 @@ protected:
 }; 
 
 
-
- 
 #endif // endif for "ifndef LCFIAIDAPlotProcessor_h"
 
 #endif // endif for "ifndef MARLIN_USE_AIDA" ... "else"
