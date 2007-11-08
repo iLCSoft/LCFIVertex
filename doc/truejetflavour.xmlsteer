@@ -8,26 +8,36 @@
 <marlin>
  <execute>
   <processor name="MyTrueAngularJetFlavourProcessor"/>
+  <processor name="MyLCIOOutputProcessor"/>
  </execute>
 
  <global>
-  <parameter name="LCIOInputFiles"> cheatout.slcio </parameter>
+  <parameter name="LCIOInputFiles"> cheatout.slcio  </parameter>
   <!-- limit the number of processed records (run+evt): -->  
-  <parameter name="MaxRecordNumber" value="500" />  
-  <parameter name="SkipNEvents" value="0" />  
+  <!-- parameter name="MaxRecordNumber" value="500" /-->  
+  <!-- parameter name="SkipNEvents" value="0" /-->  
   <parameter name="SupressCheck" value="false" />  
   </global>
 
-<processor name="MyTrueAngularJetFlavourProcessor" type="TrueAngularJetFlavourProcessor">
- <!--TrueJetFlavourProcessor - Determines the true flavour of a jet from the MC Paticles associated to the Jet Tracks-->
-  <!--Name of the ReconstructedParticle collection that represents jets-->
-  <parameter name="JetRPCollection" type="string">Jets </parameter>
-  <!--Name of the MCParticle collection that represents jets-->
-  <parameter name="MCParticleCollection" type="string">MCParticle </parameter>
-  <!--Maximum value allowed between MCParticle and jet momentum expressed in degrees-->
-  <parameter name="MaximumAngle" type="double"> 180 </parameter>
 
+ <processor name="MyTrueAngularJetFlavourProcessor" type="TrueAngularJetFlavourProcessor">
+ <!--TrueAngularJetFlavourProcessor - Determines the true flavour of a jet from the MC Paticles associated to the Jets RP-->
+  <!--Name of the ReconstructedParticle collection that represents jets-->
+  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">Jets </parameter>
+  <!--Name of the collection that holds all MC particles. -->
+  <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticle </parameter>
+  <!--Maximum value allowed between MCParticle and jet momentum expressed in degrees-->
+  <!--parameter name="MaximumAngle" type="double">180 </parameter-->
+  <!--Name of the output collection of LCIntVec (same order as jets)-->
+  <parameter name="TrueJetFlavourCollection" type="string" lcioOutType="LCIntVec">TrueJetFlavour </parameter>
+  <!--Name of the output collection of LCIntVec (same order as jets)-->
+  <parameter name="TrueJetHadronChargeCollection" type="string" lcioOutType="LCFloatVec">TrueJetHadronCharge </parameter>
+  <!--Name of the output collection of LCIntVec (same order as jets)-->
+  <parameter name="TrueJetPDGCodeCollection" type="string" lcioOutType="LCIntVec">TrueJetPDGCode </parameter>
+  <!--Name of the output collection of LCIntVec (same order as jets)-->
+  <parameter name="TrueJetPartonChargeCollection" type="string" lcioOutType="LCFloatVec">TrueJetPartonCharge </parameter>
 </processor>
+
 
 <processor name="MyLCIOOutputProcessor" type="LCIOOutputProcessor">
   <!--Writes the current event to the specified LCIO outputfile. Needs to be the last ActiveProcessor.-->
