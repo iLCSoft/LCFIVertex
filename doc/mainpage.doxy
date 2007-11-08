@@ -14,12 +14,16 @@ interfaced to the MarlinReco analysis framework and uses LCIO for input and outp
 permitting it to be used in conjunction with algorithms from other reconstruction frameworks.
 
 The code was implemented by Ben Jeffery (ZVTOP, LCIO/Marlin interface, working classes design and 
-testing), Erik Devetak (Flavour tag inputs calculation and testing, MC Jet flavour), Mark Grimes 
-(Flavour tag procedure, Vertex fitter), Dave Bailey (neural network code) 
-and Sonja Hillert (coordination, system test). The authors thank the LCFI
-physics group for help and advice during the development phase, in particular D. Jackson
-(advice on ZVTOP) and V. Martin (test of vertex charge procedure for c-jets). We would also
-like to thank F. Gaede, T. Behnke and N. Graf for fruitful discussions, D. Martsch for
+testing), Erik Devetak (Flavour tag inputs calculation and testing, MC Jet flavour, Vertex Charge 
+Processor), Mark Grimes (Flavour tag procedure, Vertex fitter), Dave Bailey (neural network code), 
+Victoria Martin (AIDA Plot Processor), Tomas Lastovicka (Kalman filter for vertex fitting), 
+Kristian Harder (use GEAR-geometry for suppression of hadronic interactions, Purity - Efficiency macro) 
+and Sonja Hillert (coordination, system test). The authors thank the LCFI physics group for help and 
+advice during the development phase, in particular D. Jackson (advice on ZVTOP), 
+K. Harder(testing, Mokka/Gear interface) V. Martin (test of vertex charge procedure for c-jets), 
+T. Lastovicka (testing), R. Walsh (testing), Clare Lynch (testing).
+ 
+We would also like to thank F. Gaede, T. Behnke and N. Graf for fruitful discussions, D. Martsch for
 producing a test sample on the GRID and A. Raspereza for advice and for extending the track
 cheater functionality to provide the input required by the Vertex Package.
 
