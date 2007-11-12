@@ -315,11 +315,11 @@ bool TState::GetDStoTStateBz( const TState *p,
       cB = .5*sB*bs;
     }
     
-    g[i][0] = p->fP[0] + sB*px1 + cB*py1;
-    g[i][1] = p->fP[1] - cB*px1 + sB*py1;
-    g[i][2] = p->fP[2] + ss[i]*pz1;
-    g[i][3] =          + c*px1 + s*py1;
-    g[i][4] =          - s*px1 + c*py1;
+    g1[i][0] = p->fP[0] + sB*px1 + cB*py1;
+    g1[i][1] = p->fP[1] - cB*px1 + sB*py1;
+    g1[i][2] = p->fP[2] + ss[i]*pz1;
+    g1[i][3] =          + c*px1 + s*py1;
+    g1[i][4] =          - s*px1 + c*py1;
   }
 
   int i=0, i1=0;
