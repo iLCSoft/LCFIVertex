@@ -30,7 +30,7 @@
 #include "EVENT/LCFloatVec.h"
 #include "EVENT/Vertex.h"
 
-// Malrin includes
+// Marlin includes
 #include <marlin/Exceptions.h>
 
 // AIDA includes...
@@ -46,7 +46,8 @@
 #include <AIDA/ITree.h>
 #include <AIDA/ITupleFactory.h>
 #include <AIDA/ICloud2D.h>
-#include <UTIL/LCRelationNavigator.h>
+
+#include "TypesafeCollection.h"
 
 // There needs to be at least one instantiation for the base constructor to register the processor with 
 // the Marlin processor manager. This is it. 
@@ -184,7 +185,7 @@ void LCFIAIDAPlotProcessor::init()
     std::cerr << " In " << __FILE__ << "(" << __LINE__ << "): Invalid parameter for UseFlavourTagCollectionForVertexCharge.  Setting to 0." << std::endl;
     _myVertexChargeTagCollection = 0;
   } else {
-    _myVertexChargeTagCollection = _iVertexChargeTagCollection;
+    _myVertexChargeTagCollection = uint(_iVertexChargeTagCollection);
   }
 
   _ZoomedVarNames.push_back("D0Significance1"); 
@@ -351,16 +352,13 @@ void LCFIAIDAPlotProcessor::init()
 
       if( !ableToMakeAllHistograms )
 	{
-	  _myStringStream.str("");
-	  _myStringStream << "### " << __FILE__ << "(" << __LINE__ << "): Unable to create some or all of the histograms for the flavour tag values!";
-	  //			_log->message<marlin::ERROR>( _myStringStream.str() );
+	  std::cerr << "### " << __FILE__ << "(" << __LINE__ << "): Unable to create some or all of the histograms for the flavour tag values!" << std::endl;
+	 
 	}
     }
   else
     {
-      _myStringStream.str("");
-      _myStringStream << "### " << __FILE__ << "(" << __LINE__ << "): Unable to get the histogram factory! No histograms will be made.";
-      //		_log->message<marlin::ERROR>( _myStringStream.str() );
+      std::cerr  << "### " << __FILE__ << "(" << __LINE__ << "): Unable to get the histogram factory! No histograms will be made."<< std::endl;
     }
   
   _lastRunHeaderProcessed=-1;
@@ -420,12 +418,10 @@ void LCFIAIDAPlotProcessor::processRunHeader( LCRunHeader* pRun )
 	  
 	  if (!std::includes(AvailableNames.begin(),AvailableNames.end(),RequiredNames.begin(),RequiredNames.end()))
 	    {
-	      _myStringStream.str("");
-	      _myStringStream << __FILE__ << "(" << __LINE__ << "): The collection \"" << _FlavourTagCollectionNames[iTag]
-			      << "\" (if it exists) does not contain the tag values required by " << type() << ".";
-	      //			_log->message<marlin::ERROR>( _myStringStream.str() );
-	      _myStringStream <<   __FILE__ << "(" << __LINE__ << "): The collection \"" << _FlavourTagCollectionNames[iTag]
-			      << "\" (if it exists) does not contain the tag values required by " << type() << "." << std::endl;
+	      std::cerr << __FILE__ << "(" << __LINE__ << "): The collection \"" << _FlavourTagCollectionNames[iTag]
+			<< "\" (if it exists) does not contain the tag values required by " << type() << "." << std::endl;
+	      std::cerr <<   __FILE__ << "(" << __LINE__ << "): The collection \"" << _FlavourTagCollectionNames[iTag]
+			<< "\" (if it exists) does not contain the tag values required by " << type() << "." << std::endl;
 	    }
 	}
 	
@@ -590,18 +586,14 @@ void LCFIAIDAPlotProcessor::processRunHeader( LCRunHeader* pRun )
 void LCFIAIDAPlotProcessor::processEvent( LCEvent* pEvent ) 
 { 
 
-  _myStringStream.str("");
-  _myStringStream << __FILE__ << "(" << __LINE__ << "): processEvent() called for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << ".";
-  //	_log->message<marlin::MESSAGE>( _myStringStream.str() );
+  std::cerr << __FILE__ << "(" << __LINE__ << "): processEvent() called for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
   
   
   // Make sure that "processRunHeader" has been called for this run (see the comment in that method).
   if( (_lastRunHeaderProcessed != pEvent->getRunNumber()) && (_suppressOutputForRun != pEvent->getRunNumber()) )
     {
-      _myStringStream.str("");
-      _myStringStream << __FILE__ << "(" << __LINE__ << "): processRunHeader() was not called for run " << pEvent->getRunNumber()
-		      << " (did you use \"SkipNEvents\"?). The order of the information in the flavour tag collection(s) is going to be guessed.";
-      //		_log->message<marlin::WARNING>( _myStringStream.str() );
+      std::cerr << __FILE__ << "(" << __LINE__ << "): processRunHeader() was not called for run " << pEvent->getRunNumber()
+		<< " (did you use \"SkipNEvents\"?). The order of the information in the flavour tag collection(s) is going to be guessed." << std::endl;
       
       //Only want to do this once for this run, so set a marker that this run has been done
       _suppressOutputForRun=pEvent->getRunNumber();
@@ -950,7 +942,7 @@ void LCFIAIDAPlotProcessor::FillInputsPlots( LCEvent* pEvent, unsigned int jetNu
 		  
 		  //ok everything is okay with the data
 
-		  if (_MakeTuple) {
+		  if (_MakeTuple && iInputsCollection==0) {
 		    
 		    //this could probably be done automatically
 		    
@@ -1154,7 +1146,7 @@ void LCFIAIDAPlotProcessor::FillTagPlots( LCEvent* pEvent, unsigned int jetNumbe
 		  }
 	      }
 	      
-	      if (int(iTagCollection) == _myVertexChargeTagCollection) {
+	      if (iTagCollection == _myVertexChargeTagCollection) {
 
 		//vertex charge plots
 		if( jetType==C_JET && cTag > _CTagNNCut) {
@@ -1316,8 +1308,7 @@ int LCFIAIDAPlotProcessor::FindJetPDGCode( LCEvent* pEvent, unsigned int jetNumb
 	if( !trueJetPDGCodeCollection.is_valid() )
 	{
 	  std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetPDGCodeColName << " is not valid " << std::endl;
-	  //		_log->message<marlin::ERROR>( trueJetFlavourCollection.last_error() );
-		return 0; //can't do anything without this collection
+	  return 0; //can't do anything without this collection
 	}
 
 	int pdgCode;
@@ -1327,20 +1318,16 @@ int LCFIAIDAPlotProcessor::FindJetPDGCode( LCEvent* pEvent, unsigned int jetNumb
 		if( pTruePDGCodeVector->size()==1 ) pdgCode=pTruePDGCodeVector->back();
 		else
 		{
-			_myStringStream.str("");
-			_myStringStream << __FILE__ << "(" << __LINE__ << "): The LCIntVec for jet " << jetNumber << " from the collection "
-					<< _TrueJetFlavourColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
-					<< " is not of size 1.";
-			//			_log->message<marlin::ERROR>( _myStringStream.str() );
-			return 0; //can't fill any plots if we don't know the true flavour
+		  std::cerr << __FILE__ << "(" << __LINE__ << "): The LCIntVec for jet " << jetNumber << " from the collection "
+			    << _TrueJetFlavourColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
+			    << " is not of size 1." << std::endl;
+		  return 0; //can't fill any plots if we don't know the true flavour
 		}
 	}
 	else
 	{
-		_myStringStream.str("");
-		_myStringStream << __FILE__ << "(" << __LINE__ << "): Unable to get the LCIntVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
-				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << ".";
-		//		_log->message<marlin::ERROR>( _myStringStream.str() );
+		std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCIntVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
+				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
 		return 0; //can't fill any plots if we don't know the true flavour
 	}
 
@@ -1353,7 +1340,6 @@ float LCFIAIDAPlotProcessor::FindJetPartonCharge( LCEvent* pEvent, unsigned int 
 	if( !trueJetPartonChargeCollection.is_valid() )
 	{
 	  std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetPartonChargeColName << " is not valid " << std::endl;
-	  //		_log->message<marlin::ERROR>( trueJetPartonChargeCollection.last_error() );
 		return 0; //can't do anything without this collection
 	}
 
@@ -1364,20 +1350,16 @@ float LCFIAIDAPlotProcessor::FindJetPartonCharge( LCEvent* pEvent, unsigned int 
 		if( pTruePartonChargeVector->size()==1 ) partonCharge=pTruePartonChargeVector->back();
 		else
 		{
-			_myStringStream.str("");
-			_myStringStream << __FILE__ << "(" << __LINE__ << "): The LCFloatVec for jet " << jetNumber << " from the collection "
+			std::cerr << __FILE__ << "(" << __LINE__ << "): The LCFloatVec for jet " << jetNumber << " from the collection "
 					<< _TrueJetPartonChargeColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
-					<< " is not of size 1.";
-			//			_log->message<marlin::ERROR>( _myStringStream.str() );
+					<< " is not of size 1." << std::endl;
 			return 0; //can't fill any plots if we don't know the true flavour
 		}
 	}
 	else
 	{
-		_myStringStream.str("");
-		_myStringStream << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetPartonChargeColName
-				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << ".";
-		//		_log->message<marlin::ERROR>( _myStringStream.str() );
+		std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetPartonChargeColName
+				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
 		return 0; //can't fill any plots if we don't know the true flavour
 	}
 
@@ -1391,7 +1373,6 @@ int LCFIAIDAPlotProcessor::FindJetType( LCEvent* pEvent, unsigned int jetNumber 
 	if( !trueJetFlavourCollection.is_valid() )
 	  {
 	    std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetFlavourColName << " is not valid " << std::endl;
-	  //		_log->message<marlin::ERROR>( trueJetFlavourCollection.last_error() );
 		return 0; //can't do anything without this collection
 	}
 
@@ -1402,20 +1383,16 @@ int LCFIAIDAPlotProcessor::FindJetType( LCEvent* pEvent, unsigned int jetNumber 
 		if( pTrueJetTypeVector->size()==1 ) jetType=pTrueJetTypeVector->back();
 		else
 		{
-			_myStringStream.str("");
-			_myStringStream << __FILE__ << "(" << __LINE__ << "): The LCIntVec for jet " << jetNumber << " from the collection "
+			std::cerr << __FILE__ << "(" << __LINE__ << "): The LCIntVec for jet " << jetNumber << " from the collection "
 					<< _TrueJetFlavourColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
-					<< " is not of size 1.";
-			//			_log->message<marlin::ERROR>( _myStringStream.str() );
+					<< " is not of size 1." << std::endl;
 			return 0; //can't fill any plots if we don't know the true flavour
 		}
 	}
 	else
 	{
-		_myStringStream.str("");
-		_myStringStream << __FILE__ << "(" << __LINE__ << "): Unable to get the LCIntVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
-				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << ".";
-		//		_log->message<marlin::ERROR>( _myStringStream.str() );
+		std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCIntVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
+				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
 		return 0; //can't fill any plots if we don't know the true flavour
 	}
 
@@ -1428,7 +1405,6 @@ float LCFIAIDAPlotProcessor::FindJetHadronCharge( LCEvent* pEvent, unsigned int 
   if( !trueJetHadronChargeCollection.is_valid() )
     {
       std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " << _TrueJetHadronChargeColName << " is not valid " << std::endl;
-      //		_log->message<marlin::ERROR>( trueJetHadronChargeCollection.last_error() );
       return -99; //can't do anything without this collection
     }
 
@@ -1439,20 +1415,16 @@ float LCFIAIDAPlotProcessor::FindJetHadronCharge( LCEvent* pEvent, unsigned int 
 		if( pTrueJetChargeVector->size()==1 ) hadronCharge=pTrueJetChargeVector->back();
 		else
 		{
-			_myStringStream.str("");
-			_myStringStream << __FILE__ << "(" << __LINE__ << "): The LCFloatVec for jet " << jetNumber << " from the collection "
+			std::cerr << __FILE__ << "(" << __LINE__ << "): The LCFloatVec for jet " << jetNumber << " from the collection "
 					<< _TrueJetHadronChargeColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
-					<< " is not of size 1.";
-			//			_log->message<marlin::ERROR>( _myStringStream.str() );
+					<< " is not of size 1." << std::endl;
 			return -99; 
 		}
 	}
 	else
 	{
-		_myStringStream.str("");
-		_myStringStream << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetHadronChargeColName
-				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << ".";
-		//		_log->message<marlin::ERROR>( _myStringStream.str() );
+		std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetHadronChargeColName
+				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
 		return 0; //can't fill any plots if we don't know the true flavour
 	}
 
