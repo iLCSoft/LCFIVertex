@@ -585,9 +585,6 @@ void LCFIAIDAPlotProcessor::processRunHeader( LCRunHeader* pRun )
  
 void LCFIAIDAPlotProcessor::processEvent( LCEvent* pEvent ) 
 { 
-
-  std::cerr << __FILE__ << "(" << __LINE__ << "): processEvent() called for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
-  
   
   // Make sure that "processRunHeader" has been called for this run (see the comment in that method).
   if( (_lastRunHeaderProcessed != pEvent->getRunNumber()) && (_suppressOutputForRun != pEvent->getRunNumber()) )
