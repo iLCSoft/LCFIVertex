@@ -32,7 +32,7 @@ SET( GEAR_HOME "${ILC_HOME}/gear/v00-07"
     CACHE PATH "Path to GEAR" FORCE )
 
 # CMake Modules Path
-SET( CMAKE_MODULE_PATH "${ILC_HOME}/CMakeModules/v01-04"
+SET( CMAKE_MODULE_PATH "${ILC_HOME}/CMakeModules/v01-04-01"
     CACHE PATH "Path to CMake Modules" FORCE )
 
 ###############################################
