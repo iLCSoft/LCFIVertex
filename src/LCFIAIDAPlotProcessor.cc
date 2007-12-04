@@ -310,7 +310,7 @@ void LCFIAIDAPlotProcessor::init()
 	    
 	    //make the ntuple
 	    //this breaks the paradigm of reading these in from the flavour tag collections themselves
-	    std::string columnNames="int TrueJetFlavour=-1,  int NumberOfVertices=-1, int NumberOfTracksInVertices=-1, float D0Significance1 = -999., float D0Significance2 = -999., float DecayLength = -999., float DecayLength_SeedToIP= -999., float DecayLengthSignificance= -999., float JointProbRPhi= -999., float JointProbZ= -999., float Momentum1= -999.,float Momentum2= -999., float PTMassCorrection= -999., float RawMomentum= -999., float SecondaryVertexProbability= -999., float Z0Significance1= -999., float Z0Significance2= -999., int BQVtx=-10, int CQVtx=-10";
+	    std::string columnNames="int TrueJetFlavour=-1,  int NumberOfVertices=-1, int NumberOfTracksInVertices=-1, float D0Significance1 = -999., float D0Significance2 = -999., float DecayLength = -999., float DecayLength_SeedToIP= -999., float DecayLengthSignificance= -999., float JointProbRPhi= -999., float JointProbZ= -999., float Momentum1= -999.,float Momentum2= -999., float PTCorrectedMass= -999., float RawMomentum= -999., float SecondaryVertexProbability= -999., float Z0Significance1= -999., float Z0Significance2= -999., int BQVtx=-10, int CQVtx=-10";
 	    
 	    if( !pTree->cd(  "/"  + name() + "/" + _FlavourTagInputsCollectionNames[iTagCollection]  + "/TupleDir/"))
 	      {	 
@@ -512,7 +512,7 @@ void LCFIAIDAPlotProcessor::processRunHeader( LCRunHeader* pRun )
 			lowerBin=0.;
 			higerBin=50.;
 		      }
-		    else if (VarNames[i]=="PTMassCorrection" ) 
+		    else if (VarNames[i]=="PTCorrectedMass" ) 
 		      {
 			numberOfPoints=100;
 			lowerBin=0.;
@@ -954,7 +954,7 @@ void LCFIAIDAPlotProcessor::FillInputsPlots( LCEvent* pEvent, unsigned int jetNu
 		    float JointProbZ=(*pInputs)[_InputsIndex[iInputsCollection]	       ["JointProbZ"]];
 		    float Momentum1=(*pInputs)[_InputsIndex[iInputsCollection]	       ["Momentum1"]];
 		    float Momentum2=(*pInputs)[_InputsIndex[iInputsCollection]	       ["Momentum2"]];
-		    float PTMassCorrection=(*pInputs)[_InputsIndex[iInputsCollection]    ["PTMassCorrection"]];
+		    float PTCorrectedMass=(*pInputs)[_InputsIndex[iInputsCollection]    ["PTCorrectedMass"]];
 		    float RawMomentum=(*pInputs)[_InputsIndex[iInputsCollection]	       ["RawMomentum"]];
 		    float SecondaryVertexProbability=(*pInputs)[_InputsIndex[iInputsCollection]["SecondaryVertexProbability"]];
 		    float Z0Significance1=(*pInputs)[_InputsIndex[iInputsCollection]     ["Z0Significance1"]];
@@ -972,7 +972,7 @@ void LCFIAIDAPlotProcessor::FillInputsPlots( LCEvent* pEvent, unsigned int jetNu
 		    _pMyTuple->fill( 9, JointProbZ);
 		    _pMyTuple->fill( 10, Momentum1);
 		    _pMyTuple->fill( 11, Momentum2);
-		    _pMyTuple->fill( 12, PTMassCorrection);
+		    _pMyTuple->fill( 12, PTCorrectedMass);
 		    _pMyTuple->fill( 13, RawMomentum);
 		    _pMyTuple->fill( 14, SecondaryVertexProbability);
 		    _pMyTuple->fill( 15, Z0Significance1);
@@ -993,7 +993,7 @@ void LCFIAIDAPlotProcessor::FillInputsPlots( LCEvent* pEvent, unsigned int jetNu
 		    //if the quantity relates to the second vertex, and there is no second vertex, then don't plot it		    
 		    if (! ((*pInputs)[_InputsIndex[iInputsCollection]["NumVertices"]] < 2 && 
 			((*iTagNames).first == "DecayLength" || (*iTagNames).first == "RawMomentum"  ||
-			 (*iTagNames).first == "SecondaryVertexProbability" || (*iTagNames).first == "PTMassCorrection" ||
+			 (*iTagNames).first == "SecondaryVertexProbability" || (*iTagNames).first == "PTCorrectedMass" ||
 			 (*iTagNames).first == "DecayLength(SeedToIP)" || (*iTagNames).first == "DecayLengthSignificance") )) {
 		      
 		      if( jetType==B_JET ) _inputsHistogramsBJets[iInputsCollection][(*iTagNames).first]->fill(input);
