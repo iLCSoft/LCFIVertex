@@ -349,8 +349,10 @@ bool TState::GetDStoTStateBz( const TState *p,
   DS = ss[i];
   DS1 = ss1[i1];
   
-  double x = g[i][0], y = g[i][1],  z = g[i][2],  ppx = g[i][3],  ppy = g[i][4];  
-  double x1=g[i1][0], y1= g[i1][1], z1= g[i1][2], ppx1= g[i1][3], ppy1= g[i1][4];  
+  double x = g[i][0], y = g[i][1], z = g[i][2];
+  double ppx = g[i][3], ppy = g[i][4];
+  double x1 =g1[i1][0], y1 = g1[i1][1], z1 = g1[i1][2];  
+  double ppx1 = g1[i1][3], ppy1 = g1[i1][4];
   double dx = x1-x;
   double dy = y1-y;
   double dz = z1-z;
