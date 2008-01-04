@@ -149,11 +149,15 @@ class RPCutProcessor : public Processor {
   double _CutDistance;
 
 #ifdef MCFAIL_DIAGNOSTICS
-  TH2F *_diaghist_mat_xy;
+  TH2F *_diaghist_bpmat_xy;
+  TH2F *_diaghist_vxmat_xy;
   TH2F *_diaghist_nomat_xy;
-  TH2F *_diaghist_mat_rz;
+  TH2F *_diaghist_bpmat_rz;
+  TH2F *_diaghist_vxmat_rz;
   TH2F *_diaghist_nomat_rz;
   TH1F *_diaghist_dist;
+  TH1F *_diaghist_dist_vxmat;
+  TH1F *_diaghist_dist_nomat;
 #endif
   
   int _nRun ;

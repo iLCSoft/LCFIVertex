@@ -17,7 +17,7 @@
   <-- limit the number of processed records (run+evt): -->  
   <!--parameter name="MaxRecordNumber" value="5001" /-->  
   <parameter name="SupressCheck" value="false" />  
-  <parameter name="GearXMLFile"> GearOutput.xml </parameter>
+  <!-- <parameter name="GearXMLFile"> GearOutput.xml </parameter> -->  
 </global>
  
 <processor name="ZVRESRPCutProcessor" type="RPCutProcessor">

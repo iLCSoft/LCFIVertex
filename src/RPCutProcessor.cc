@@ -221,31 +221,40 @@ void RPCutProcessor::init() {
   _nRun = 0 ;
   _nEvt = 0 ;
 
-  _VxdPar = &(Global::GEAR->getVXDParameters());
-  const gear::GearParameters& BeamPipePar
-                      = Global::GEAR->getGearParameters("BeamPipe");
-  _BeamPipeInnerRadius=BeamPipePar.getDoubleVal("BeamPipeRadius");
-  _BeamPipeOuterRadius=_BeamPipeInnerRadius
-                      +BeamPipePar.getDoubleVal("BeamPipeThickness");
-  _BeamPipeHalfZ=BeamPipePar.getDoubleVal("BeamPipeHalfZ");
+  if (_MCVertexEnable) {
+    _VxdPar = &(Global::GEAR->getVXDParameters());
+    const gear::GearParameters& BeamPipePar
+      = Global::GEAR->getGearParameters("BeamPipe");
+    _BeamPipeInnerRadius=BeamPipePar.getDoubleVal("BeamPipeRadius");
+    _BeamPipeOuterRadius=_BeamPipeInnerRadius
+      +BeamPipePar.getDoubleVal("BeamPipeThickness");
+    _BeamPipeHalfZ=BeamPipePar.getDoubleVal("BeamPipeHalfZ");
 
-  // tracks originating from anywhere closer than the following value
-  // to a ladder or to the beam pipe will be removed if the user selects
-  // hadronic interaction suppression. The unit is mm.
-  _CutDistance=0.000;
+    // tracks originating from anywhere closer than the following value
+    // to a ladder or to the beam pipe will be removed if the user selects
+    // hadronic interaction suppression. The unit is mm.
+    // I chose a distance of 20 micron based on a histogram of the distribution
+    // of track origin distances from ladder material, which shows a clear
+    // excess between 0 and 20 micron, probably due to the GEANT4 step size.
+    _CutDistance=0.02;
 
-  // widen beam pipe size parameters accordingly
-  _BeamPipeInnerRadius-=_CutDistance;
-  _BeamPipeOuterRadius+=_CutDistance;
-  _BeamPipeHalfZ+=_CutDistance;
+    // widen beam pipe size parameters accordingly
+    _BeamPipeInnerRadius-=_CutDistance;
+    _BeamPipeOuterRadius+=_CutDistance;
+    _BeamPipeHalfZ+=_CutDistance;
 
 #ifdef MCFAIL_DIAGNOSTICS
-  _diaghist_mat_xy = new TH2F("mathist_xy","xy distribution of track origins supposedly in material",1000,-60,60,1000,-60,60);
-  _diaghist_nomat_xy = new TH2F("nomathist_xy","xy distribution of track origins supposedly outside of material",1000,-60,60,1000,-60,60);
-  _diaghist_mat_rz = new TH2F("mathist_rz","rz distribution of track origins supposedly in material",1000,-300,300,1000,0,60);
-  _diaghist_nomat_rz = new TH2F("nomathist_rz","rz distribution of track origins supposedly outside of material",1000,-300,300,1000,0,60);
-  _diaghist_dist = new TH1F("disthist","distance of track origins from nearest ladder",100,0.0,0.1);
-#endif     
+    _diaghist_vxmat_xy = new TH2F("vxmathist_xy","xy distribution of track origins supposedly in VXD material",1000,-60,60,1000,-60,60);
+    _diaghist_bpmat_xy = new TH2F("bpmathist_xy","xy distribution of track origins supposedly in beam pipe material",1000,-60,60,1000,-60,60);
+    _diaghist_nomat_xy = new TH2F("nomathist_xy","xy distribution of track origins supposedly outside of material",1000,-60,60,1000,-60,60);
+    _diaghist_vxmat_rz = new TH2F("vxmathist_rz","rz distribution of track origins supposedly in VXD material",1000,-300,300,1000,0,60);
+    _diaghist_bpmat_rz = new TH2F("bpmathist_rz","rz distribution of track origins supposedly in beam pipe material",1000,-300,300,1000,0,60);
+    _diaghist_nomat_rz = new TH2F("nomathist_rz","rz distribution of track origins supposedly outside of material",1000,-300,300,1000,0,60);
+    _diaghist_dist = new TH1F("disthist","distance of track origins from nearest ladder",100,0.0,2);
+    _diaghist_dist_vxmat = new TH1F("disthist_vxmat","distance of track origins from nearest ladder, inside VXD material",100,0.0,2);
+    _diaghist_dist_nomat = new TH1F("disthist_nomat","distance of track origins from nearest ladder, outside VXD material",100,0.0,0.2);
+#endif
+  }
 }
 
 void RPCutProcessor::processRunHeader( LCRunHeader* run) { 
@@ -426,14 +435,20 @@ void RPCutProcessor::check( LCEvent * evt ) {
 
 void RPCutProcessor::end(){ 
 
-#ifdef MCFAIL_DIAGNOSTICS  
+#ifdef MCFAIL_DIAGNOSTICS
+  if (_MCVertexEnable) {
         TFile dumpfile((name()+std::string(".root")).c_str(),"RECREATE");
-	_diaghist_mat_xy->Write();
+	_diaghist_vxmat_xy->Write();
+	_diaghist_bpmat_xy->Write();
 	_diaghist_nomat_xy->Write();
-	_diaghist_mat_rz->Write();
+	_diaghist_vxmat_rz->Write();
+	_diaghist_bpmat_rz->Write();
 	_diaghist_nomat_rz->Write();
 	_diaghist_dist->Write();
+	_diaghist_dist_vxmat->Write();
+	_diaghist_dist_nomat->Write();
 	dumpfile.Close();
+  }
 #endif
 
 	std::cout << "RPCutProcessor::end()  " << name() 
@@ -599,33 +614,41 @@ bool  RPCutProcessor::_MCVertexFail(lcio::ReconstructedParticle* RPTrack, UTIL::
 		const double * Vert = mcp->getVertex();
 		gear::Vector3D VertVec(Vert[0],Vert[1],Vert[2]);
 
-		// is this track originating in beam pipe material? (this check
-		// is the fastest one, so we do it first and have some chance
-		// of being able to skip the VXD material check later)
 		double radius = sqrt((Vert[0] * Vert[0])+(Vert[1] * Vert[1]));
-		if (radius >=_BeamPipeInnerRadius
+		if (radius <_BeamPipeInnerRadius) {
+		  // this track originates from inside the beam pipe.
+		  // we assume that there is no material interaction there.
+#ifdef MCFAIL_DIAGNOSTICS
+		  _diaghist_nomat_xy->Fill(Vert[0],Vert[1]);
+		  _diaghist_nomat_rz->Fill(Vert[2],radius);
+#endif
+		  return false;
+		}else if (radius >=_BeamPipeInnerRadius
 		    && radius <=_BeamPipeOuterRadius
 		    && fabs(Vert[2])<=_BeamPipeHalfZ) {
+		  // this track originates from within the beam pipe wall.
+		  // thus it is likely a hadronic interaction product
 #ifdef MCFAIL_DIAGNOSTICS
-		  _diaghist_mat_xy->Fill(Vert[0],Vert[1]);
-		  _diaghist_mat_rz->Fill(Vert[2],radius);
+		  _diaghist_bpmat_xy->Fill(Vert[0],Vert[1]);
+		  _diaghist_bpmat_rz->Fill(Vert[2],radius);
 #endif
 		  return true;
 		} else {
 		  // next check: are we in VXD ladder material?
-#ifdef MCFAIL_DIAGNOSTICS
 		  double dist=_VxdPar->distanceToNearestLadder(VertVec).r();
+#ifdef MCFAIL_DIAGNOSTICS
 		  _diaghist_dist->Fill(dist);
 #endif
-		  //if (dist<=_CutDistance) { // does not seem to work yet
-		  if (_VxdPar->isPointInLadder(VertVec)) {
+		  if (dist<=_CutDistance) {
 #ifdef MCFAIL_DIAGNOSTICS
-		    _diaghist_mat_xy->Fill(Vert[0],Vert[1]);
-		    _diaghist_mat_rz->Fill(Vert[2],radius);
+       	            _diaghist_dist_vxmat->Fill(dist);
+		    _diaghist_vxmat_xy->Fill(Vert[0],Vert[1]);
+		    _diaghist_vxmat_rz->Fill(Vert[2],radius);
 #endif
 		    return true;
 		  } else {
 #ifdef MCFAIL_DIAGNOSTICS
+       	            _diaghist_dist_nomat->Fill(dist);
 		    _diaghist_nomat_xy->Fill(Vert[0],Vert[1]);
 		    _diaghist_nomat_rz->Fill(Vert[2],radius);
 #endif
