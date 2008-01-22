@@ -3,6 +3,8 @@
 # @author Jan Engels, DESY
 ###############################################
 
+SET( @PROJECT_NAME@_FOUND FALSE )
+MARK_AS_ADVANCED( @PROJECT_NAME@_FOUND )
 
 # do not store find results in cache
 SET( @PROJECT_NAME@_INCLUDE_DIR @PROJECT_NAME@_INCLUDE_DIR-NOTFOUND )
@@ -90,6 +92,7 @@ IF( @PROJECT_NAME@_INCLUDE_DIR AND
         @PROJECT_NAME@_NNET_INCLUDE_DIR AND
         @PROJECT_NAME@_BOOST_INCLUDE_DIR AND
         @PROJECT_NAME@_LIB )
+    SET( @PROJECT_NAME@_FOUND TRUE )
     # include directories
 	SET( @PROJECT_NAME@_INCLUDE_DIRS
         ${@PROJECT_NAME@_INCLUDE_DIR}
