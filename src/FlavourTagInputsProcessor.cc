@@ -60,7 +60,7 @@ FlavourTagInputsProcessor::FlavourTagInputsProcessor() : Processor("FlavourTagIn
 			      std::string("Jets") ) ;
   registerInputCollection( lcio::LCIO::VERTEX,
 			      "IPVertexCollection" , 
-			      "Name of the Vertex collection that contains the primary vertex (Optional)"  ,
+			      "Name of the Vertex collection that contains the primary vertex"  ,
 			      _IPVertexCollectionName ,
 			      std::string("IPVertex") ) ;
   registerInputCollection( lcio::LCIO::RECONSTRUCTEDPARTICLE,
