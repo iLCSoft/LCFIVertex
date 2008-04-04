@@ -29,10 +29,10 @@ f_i(\mathbf{r})=\exp\lbrace-\frac{1}{2}[(\frac{x'-(x'_0+\kappa y'^2)}{\sigma_T})
 
 Note that this is a parabolic approximation to the track trajectory where  \f$ x' \f$  and  \f$ y' \f$  are such that the track momentum is parallel to the  \f$ y' \f$  axis at the track's point of closest approach to the IP.  \f$ x'_0 \f$  and  \f$ z_0 \f$  are the co-ordinates at this point.  \f$ \kappa \f$  is the curvature in the  \f$ xy \f$  plane and  \f$ \lambda \f$  the track's dip angle in the  \f$ yz \f$  plane with respect to the y axis.  \f$ \sigma_L \f$  and  \f$ \sigma_{T} \f$  are the track errors in the  \f$ z \f$  direction and  \f$ xy \f$  plane respectively. For the version of ZVTOP developed for these studies the parabolic approximation was removed and replaced with:
 \f[
-f_i(\mathbf{r})=\exp\lbrace-\frac{1}{2}(\mathbf{r}-\mathbf{p})\mathbb{V}^{-1}(\mathbf{r}-\mathbf{p})^T\rbrace
+f_i(\mathbf{r})=\exp\lbrace-\frac{1}{2}(\mathbf{r}-\mathbf{p})\mathbf{V}^{-1}(\mathbf{r}-\mathbf{p})^T\rbrace
 \f]  
 
-Where vector  \f$ \mathbf{p} \f$  is the point of closest approach on the track to  \f$ \mathbf{r} \f$  and matrix  \f$ \mathbb{V} \f$  is the 3D covariance of the track at  \f$ \mathbf{p} \f$ .  \f$ f_i(\mathbf{r}) \f$  is a spacial function that has a Gaussian cross section proportional to the covariance of the track at any given point. Note that the Gaussian is unnormalised so that the function is the weighted distance to the track relative to all other tracks.
+Where vector  \f$ \mathbf{p} \f$  is the point of closest approach on the track to  \f$ \mathbf{r} \f$  and matrix  \f$ \mathbf{V} \f$  is the 3D covariance of the track at  \f$ \mathbf{p} \f$ .  \f$ f_i(\mathbf{r}) \f$  is a spacial function that has a Gaussian cross section proportional to the covariance of the track at any given point. Note that the Gaussian is unnormalised so that the function is the weighted distance to the track relative to all other tracks.
 
 These independent track functions are combined to produce a vertex function that gives a measure of the likelyhood of a track co-incidence at any point:
 \f[
@@ -43,12 +43,12 @@ Note that this function is near-zero at points that are near zero or one tracks,
 
 The IP object is added by defining  \f$ f_0(\mathbf{r}) \f$  for the IP analogously to  \f$ f_i(\mathbf{r}) \f$  for the tracks:
 \f[
-f_0(\mathbf{r})=\exp\lbrace-\frac{1}{2}(\mathbf{r}-\mathbf{p})\mathbb{V}^{-1}(\mathbf{r}-\mathbf{p})^T\rbrace
+f_0(\mathbf{r})=\exp\lbrace-\frac{1}{2}(\mathbf{r}-\mathbf{p})\mathbf{V}^{-1}(\mathbf{r}-\mathbf{p})^T\rbrace
 \f]  
 
 
 
-Where  \f$ \mathbf{p} \f$  is the IP position and  \f$ \mathbb{V} \f$  the IP covariance. This  \f$ f_0(\mathbf{r}) \f$  is inserted into  \f$ V(\mathbf{r}) \f$  with a weight  \f$ K_{IP} \f$ :
+Where  \f$ \mathbf{p} \f$  is the IP position and  \f$ \mathbf{V} \f$  the IP covariance. This  \f$ f_0(\mathbf{r}) \f$  is inserted into  \f$ V(\mathbf{r}) \f$  with a weight  \f$ K_{IP} \f$ :
 \f[
 V(\mathbf{r})=K_{IP}f_0(\mathbf{r})+\sum^N_{i=1}f_i(\mathbf{r})-\frac{K_{IP}f^2_0(\mathbf{r})+\sum^N_{i=1}f^2_i(\mathbf{r})}{K_{IP}f_0(\mathbf{r})\sum^N_{i=1}f_i(\mathbf{r})} 
 \f]  
