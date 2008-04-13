@@ -22,7 +22,7 @@
  <processor name="MyVertexChargeProcessor" type="VertexChargeProcessor">
  <!--VertexChargeProcessor - takes a set of vertices as a decay chain with its associated jet and calculates the vertex charge.-->
   <!--Parameter determining whether all tracks from secondary are included in the B-Charge-->
-  <!--parameter name="ChargeAllSecondaryTracks" type="bool">true </parameter-->
+  <parameter name="ChargeAllSecondaryTracks" type="bool">true </parameter>
   <!--Upper cut on track distance of closest approach to the seed axis for the B-Charge -->
   <!--parameter name="ChargeCloseapproachCut" type="double">1 </parameter-->
   <!--Cut determining the maximum L/D for the B-Charge-->
