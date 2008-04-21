@@ -232,64 +232,49 @@ std::list<CandidateVertex*> VertexFinderClassic::findVertices()
 		{
 			if ((*iCV)->hasTrack(*iTrack)) AssocCVs.push_back(*iCV);
 		}
-		if (!AssocCVs.empty())
+		if (AssocCVs.empty())
 		{
-			//Sort so highest V(r) at begining
-			AssocCVs.sort(CVVFPosDescending());
-			//First remove all that are less than 10% of the high CV
-			CandidateVertex* HighCV = *(AssocCVs.begin());
-			//Take a copy as we don't want ot remove while iterating
-			std::list<CandidateVertex*> TempAssocCVs = AssocCVs;
-			for (std::list<CandidateVertex*>::iterator iCV = TempAssocCVs.begin();iCV != TempAssocCVs.end();++iCV)
-				{
-					if ((*iCV)->vertexFuncValue() < 0.1 * HighCV->vertexFuncValue())
-					{
-						RemoveFrom.push_back(*iCV);
-						TrackToRemove.push_back(*iTrack);
-						AssocCVs.remove(*iCV);
-					}
-				}
-			do
-			{
-				if (!AssocCVs.empty())
-				{
-					//Take out highest V(r) CV
-					HighCV = *(AssocCVs.begin());
-					AssocCVs.erase(AssocCVs.begin());
-					
-					//Copy the list, as iterating over a list while removing is not prudent
-					std::list<CandidateVertex*> CVLeftToCheck = AssocCVs;
-					//Loop over the left to check
-					for (std::list<CandidateVertex*>::iterator iCV = AssocCVs.begin();iCV != AssocCVs.end();++iCV)
-					{
-						//if this CV is unresolved from the set we are going to remove from or the high cv 
-						//then we remove this track from it and remove it from the list (this is done after
-						//all the checking as removing tracks moves the fitted position
-						bool remove = 0;
-						
-						remove = !(*iCV)->isResolvedFrom(HighCV,_ResolverCutOff, CandidateVertex::FittedPosition);
-						//If iCV was resolved from the high cv we need to check the others we already marked for removal.
-						if (remove == 0)
-						{
-							for (std::vector<CandidateVertex*>::iterator iRemoveSet = RemoveFrom.begin();iRemoveSet != RemoveFrom.end();++iRemoveSet)
-							{
-								remove = !(*iCV)->isResolvedFrom((*iRemoveSet),_ResolverCutOff, CandidateVertex::FittedPosition);
-								//If we were not resolved then theres no need to check the rest
-								if (remove == 1) break;
-							}
-						}
-						if (remove)
-						{
-							RemoveFrom.push_back(*iCV);
-							TrackToRemove.push_back(*iTrack);
-							CVLeftToCheck.remove(*iCV);
-						}
-					}
-					AssocCVs = CVLeftToCheck;
-				}
-			//Keep going till none left
-			} while (!AssocCVs.empty());
-		}
+			continue;
+        	}
+        	//Sort so highest V(r) at begining
+        	AssocCVs.sort(CVVFPosDescending());
+        	////First remove all that are less than 10% of the high CV
+        	CandidateVertex* HighCV = *(AssocCVs.begin());
+        	////Take a copy as we don't want ot remove while iterating
+        	std::list<CandidateVertex*> TempAssocCVs = AssocCVs;
+        	for (std::list<CandidateVertex*>::iterator iCV = TempAssocCVs.begin();iCV != TempAssocCVs.end();++iCV)
+        	    {
+        	        if ((*iCV)->vertexFuncValue() < 0.1 * HighCV->vertexFuncValue())
+        	        {
+        	            RemoveFrom.push_back(*iCV);
+        	            TrackToRemove.push_back(*iTrack);
+        	            AssocCVs.remove(*iCV);
+        	        }
+        	    }
+        	//Keep a list of the ones we retain
+        	std::list<CandidateVertex*> RetainedCVs;
+        	//Sort so highest V(r) at begining
+        	AssocCVs.sort(CVVFPosDescending());
+        	//Now in descending order retain tracks that are resolved from those already retained
+        	for (std::list<CandidateVertex*>::iterator iCV = AssocCVs.begin();iCV != AssocCVs.end();++iCV)
+        	{
+            		bool resolved = true;
+            		for (std::list<CandidateVertex*>::iterator iRetainedCV = RetainedCVs.begin();iRetainedCV != RetainedCVs.end();++iRetainedCV)
+	            	{
+				resolved = (*iCV)->isResolvedFrom((*iRetainedCV),_ResolverCutOff, CandidateVertex::FittedPosition);
+                		//If we were not resolved then theres no need to check the rest
+               	 		if (!resolved) 
+                		{
+		    			RemoveFrom.push_back(*iCV);
+                    			TrackToRemove.push_back(*iTrack);
+                    			break;
+                		}
+            		}
+	    		if (resolved)
+            		{
+				RetainedCVs.push_back(*iCV);
+	            	}
+	    	}
 	}
 	//Now go over the list we just made removing tracks
 	std::vector<Track*>::iterator iTrack = TrackToRemove.begin();
