@@ -70,6 +70,11 @@ public:
 		std::ostream &operator<<(std::ostream &os,const NeuralNetDataSet &ds);
 };
 
+#ifndef __CINT__
+NEURALNETDLL
+#endif
+std::ostream &operator<<(std::ostream &os,const NeuralNetDataSet &ds);
+
 }//namespace nnet
 
 #endif
