@@ -57,6 +57,7 @@ ENDIF()
 INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/include" )
 INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/vertex_lcfi" )
 INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/vertex_lcfi/nnet/inc" )
+INCLUDE_DIRECTORIES( "diagnostics/include" )
 # boost
 INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/boost" )
 
@@ -65,6 +66,11 @@ INSTALL( DIRECTORY
         "${PROJECT_SOURCE_DIR}/include"
         "${PROJECT_SOURCE_DIR}/boost"
         DESTINATION .
+        PATTERN "*~" EXCLUDE
+        PATTERN "*CVS*" EXCLUDE )
+INSTALL( DIRECTORY
+        "${PROJECT_SOURCE_DIR}/diagnostics/include"
+        DESTINATION "diagnostics"
         PATTERN "*~" EXCLUDE
         PATTERN "*CVS*" EXCLUDE )
 INSTALL( DIRECTORY
@@ -107,10 +113,11 @@ ADD_DEFINITIONS( "-Wall -ansi -pedantic" )
 
 # get list of all source files
 AUX_SOURCE_DIRECTORY( src processor_srcs )
+AUX_SOURCE_DIRECTORY( diagnostics/src diagnostics_srcs )
 FILE( GLOB_RECURSE vertex_lcfi_srcs "vertex_lcfi/*.cpp" )
 
 # library sources
-SET( library_sources ${processor_srcs} ${vertex_lcfi_srcs} )
+SET( library_sources ${processor_srcs} ${diagnostics_srcs} ${vertex_lcfi_srcs} )
 
 
 ### DOCUMENTATION ############################################################
