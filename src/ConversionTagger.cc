@@ -52,7 +52,8 @@ void ConversionTagger::processEvent( LCEvent * evt ) {
   // try this for all track collections in the event
   for (size_t i=0; i<colNames->size(); i++) {
     LCCollection *collection=evt->getCollection((*colNames)[i]);
-    if (collection->getTypeName()==LCIO::TRACK) {
+    if ((collection->getTypeName()==LCIO::TRACK) ||
+	(collection->getTypeName()==LCIO::RECONSTRUCTEDPARTICLE)) {
       tagger(evt,(*colNames)[i]);
     }
   }
@@ -84,6 +85,9 @@ void ConversionTagger::tagger( LCEvent *evt,
   // create output collection
   LCCollectionVec* recocoll = new LCCollectionVec(LCIO::RECONSTRUCTEDPARTICLE);
 
+  // bookkeeping of reconstructed particles tagged as conversions
+  vector<bool> tagged;
+  for (int i=0; i<coll->getNumberOfElements(); i++) tagged.push_back(false);
 
   for (int irp1=0; irp1<coll->getNumberOfElements(); irp1++) {
     ReconstructedParticle *rp1=dynamic_cast<ReconstructedParticle*>
@@ -224,6 +228,10 @@ void ConversionTagger::tagger( LCEvent *evt,
       double K0_mass = diParticleMass(mom1,mom2,0.13957,0.13957);
       histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,1);
       histos->fill("K0_mass",K0_mass,1,"K0_mass",100,0,1);
+
+      // get rid of not-a-number situations
+      if (!(conv_mass>0) && !(conv_mass<=0)) continue;
+
       // check whether our candidate is either close to photon mass
       // or K0 mass
       if (conv_mass>0.01 && fabs(K0_mass-0.498)>0.02) continue;
@@ -245,11 +253,36 @@ void ConversionTagger::tagger( LCEvent *evt,
       recopart->addTrack(rp1->getTracks()[0]);
       recopart->addTrack(rp2->getTracks()[0]);
       recocoll->addElement(recopart);
+      tagged[irp1]=true;
+      tagged[irp2]=true;
     }
   }
 
 
   evt->addCollection( recocoll , collectionName+"Conv") ;
+
+  // create new ReconstructedParticle collection without tagged particles
+  LCCollectionVec* remainder = new LCCollectionVec(LCIO::RECONSTRUCTEDPARTICLE);
+  remainder->setSubset();
+  for (int irp=0; irp<coll->getNumberOfElements(); irp++) {
+    if (!tagged[irp]) {
+      streamlog_out(MESSAGE) << "saving element no. " << irp
+			     << " of collection " << collectionName << endl; 
+      ReconstructedParticleImpl* newpart=new ReconstructedParticleImpl(*dynamic_cast<ReconstructedParticleImpl*>(coll->getElementAt(irp)));
+      remainder->addElement(newpart);
+    } else {
+      streamlog_out(MESSAGE) << "skipping element no. " << irp
+			     << " of collection " << collectionName << endl; 
+      
+    }
+  }
+  cout << "ConversionTagger: adding V0-purged collection "
+       << "V0Veto"+collectionName << " to the event" << endl;
+  evt->addCollection(remainder, "V0Veto"+collectionName) ;
+
+  cout << "original number of entries: " << coll->getNumberOfElements()
+       << ", new number of entries: " << remainder->getNumberOfElements()
+       << endl;
 
   // delete our temporary collection (if any).
   // destructor of LCCollectionVec automatically deletes all elements
