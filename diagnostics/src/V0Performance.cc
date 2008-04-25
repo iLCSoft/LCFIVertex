@@ -214,7 +214,7 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
       cout << "CONVERSION: number of hits from daughter particles: "
 	   << numHits[daughters[0]] << ", " << numHits[daughters[1]] << endl;
     } else if (not_from_IP && mcp->isDecayedInTracker()
-	       && numDaughters>=2 && mcp->getCharge()==0) {
+	       && numDaughters>=2 && (abs(pdg)==130 || abs(pdg)==3122)) {
       // long lived neutral particles
       // first check how many charged daughters there are
       int nCharged=0;
