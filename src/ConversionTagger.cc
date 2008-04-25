@@ -224,7 +224,9 @@ void ConversionTagger::tagger( LCEvent *evt,
       double K0_mass = diParticleMass(mom1,mom2,0.13957,0.13957);
       histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,1);
       histos->fill("K0_mass",K0_mass,1,"K0_mass",100,0,1);
-
+      // check whether our candidate is either close to photon mass
+      // or K0 mass
+      if (conv_mass>0.01 && fabs(K0_mass-0.498)>0.02) continue;
 
 
       // vertex probability (cut on distance of closest approach first?)
@@ -274,7 +276,6 @@ ReconstructedParticle* ConversionTagger::CreateRecoPart(Track* trk){
   helix = 0;
 
 
-  cout << "LEAKCHECK: create recopart" << endl;
   ReconstructedParticleImpl* recopart = new ReconstructedParticleImpl();
   recopart->setType(211);
   recopart->addTrack(trk);
