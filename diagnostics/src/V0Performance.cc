@@ -450,6 +450,15 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
       =dynamic_cast<EVENT::ReconstructedParticle*>
       (recoColl->getElementAt(ipart));
 
+    if (!part) {
+      // this is weird
+      streamlog_out(ERROR) << "collection " << collectionName
+			   << " contains NULL object at position "
+			   << ipart << " of " << recoColl->getNumberOfElements()
+			   << ". skipping." << endl;
+      continue;
+    }
+
     // is there more than one track associated with this object?
     if (part->getTracks().size()>0) {
       ncand_tracks[collectionName]+=part->getTracks().size();
