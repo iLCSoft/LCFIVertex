@@ -4,10 +4,15 @@
 #include <string>
 #include <map>
 #include "marlin/Processor.h"
+
+#ifdef MARLIN_USE_AIDA
+
 #include <AIDA/IHistogramFactory.h>
 #include <AIDA/ITree.h>
 #include <AIDA/IHistogram1D.h>
 #include <AIDA/IHistogram2D.h>
+
+#endif
 
 using namespace std;
 
@@ -29,12 +34,18 @@ class HistMap {
 
  private:
 
+  string _dirName;
+
+
+#ifdef MARLIN_USE_AIDA
+
   AIDA::IHistogramFactory* _histFact;
   AIDA::ITree* _aidaTree;
-  string _dirName;
 
   map<string,AIDA::IHistogram1D*> _histmap1D;
   map<string,AIDA::IHistogram2D*> _histmap2D;
+
+#endif
 
   map<string,double> _histmap1D_xmin;
   map<string,double> _histmap2D_xmin;
