@@ -34,25 +34,29 @@ V0Performance::V0Performance() : Processor("V0Performance") {
   // modify processor description
   _description = "V0Performance processor does performance analysis of conversion and V0 tagging" ;
   
+  // minimum number of SimTrackerHits that at least two conversion/V0 decay
+  // particles have to have in order for the V0/conversion to be taken as
+  // inside the tracking system
+  registerOptionalParameter("minHits",
+			    "minimum hit numbers for conv/V0 decay particles",
+			    _minHits,-999);
+
+  V0Name[V0Gamma]="photon conversion";
+  V0Name[V0K0]="Kshort";
+  V0Name[V0Lambda]="Lambda";
 }
 
 
 void V0Performance::init() { 
 
-  // minimum number of SimTrackerHits that at least two conversion/V0 decay
-  // particles have to have in order for the V0/conversion to be taken as
-  // inside the tracking system
-  minHits=-999;
-
   printParameters() ;
 
   // bookkeeping for efficiency/purity determination at track level
-  total_num_v0=0;
-  ntrue_tracks=0;
-  ncand_tracks.clear();
-  ngood_tracks.clear();
-  ngood_tracks_in_composites.clear();
-  ntracks_in_composites.clear();
+  for (int i=0; i<V0LastType; i++) {
+    mc_num[i]=0;
+    mc_tracks[i]=0;
+  }
+  num_tracks_total.clear();
 
   histos = new HistMap(this);
 }
@@ -187,22 +191,17 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
     const MCParticleVec &daughters = mcp->getDaughters();
     int numDaughters=daughters.size();
     double radius=0,z=0;
-    bool not_from_IP=false;
     if (numDaughters>=2) {
       const double* vtx = daughters[0]->getVertex();
       radius = sqrt(vtx[0]*vtx[0]+vtx[1]*vtx[1]);
       z = vtx[2];
-      // now we assume that the IP is always at 0,0,0. for future event
-      // generation with IP smearing at generator level this might not
-      // work.
-      not_from_IP=(radius>0.001) || (fabs(z)>0.001); // is 1 micron ok?
     }
     if (abs(pdg)==22 && numDaughters==2 && mcp->isDecayedInTracker()
 	&& (daughters[0]->getPDG()*daughters[1]->getPDG()==-11*11)
-	&& numHits[daughters[0]]>=minHits && numHits[daughters[1]]>=minHits) {
+	&& numHits[daughters[0]]>=_minHits && numHits[daughters[1]]>=_minHits) {
       // this is a photon conversion in the tracking system
       V0Candidate_type *newconv = new V0Candidate_type();
-      newconv->is_conversion=true;
+      newconv->V0Type=V0Gamma;
       newconv->radius=radius;
       newconv->z=z;
       newconv->mother = mcp;
@@ -210,30 +209,33 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
       newconv->tracks.clear();
       newconv->recopart.clear();
       V0Candidates.push_back(newconv);
-      ntrue_tracks+=2;
-      cout << "CONVERSION: number of hits from daughter particles: "
-	   << numHits[daughters[0]] << ", " << numHits[daughters[1]] << endl;
-    } else if (not_from_IP && mcp->isDecayedInTracker()
+      ++mc_num[V0Gamma];
+      mc_tracks[V0Gamma]+=2;
+    } else if (mcp->isDecayedInTracker()
 	       && numDaughters>=2 && (abs(pdg)==130 || abs(pdg)==3122)) {
+
       // long lived neutral particles
+      int thisV0Type = V0K0;
+      if (abs(pdg)!=130) thisV0Type=V0Lambda;
+	
       // first check how many charged daughters there are
       int nCharged=0;
       double totalCharge=0;
-      bool has_proton=false;
+      bool has_nucleon=false;
       for (int idaughter=0; idaughter<numDaughters; idaughter++) {
 	if (daughters[idaughter]->getCharge()==-1000) {
 	  streamlog_out(ERROR) << "Mokka failed to find charge for PDG "
 			       << daughters[idaughter]->getPDG()
 			       << "; assuming this to be neutral" << endl;
 	} else if (daughters[idaughter]->getCharge()!=0
-		   && numHits[daughters[idaughter]]>=minHits) {
+		   && numHits[daughters[idaughter]]>=_minHits) {
 	  ++nCharged;
 	  totalCharge+=daughters[idaughter]->getCharge();
-	  has_proton|=(daughters[idaughter]->getPDG()==2212);
+	  has_nucleon|=(daughters[idaughter]->getPDG()==2212);
 	}
       }
       if (totalCharge!=0) {
-	if (has_proton && totalCharge==1) {
+	if (has_nucleon && totalCharge!=0) {
 	  // we are probably looking at a nuclear interaction.
 	  // ignore this for now.
 	} else {
@@ -251,9 +253,15 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
 	  streamlog_out(ERROR) << endl;
 	}
       }
-      if (nCharged>=2) {
+      if (nCharged>=2 && totalCharge==0) {
+	if (nCharged!=numDaughters) {
+	  streamlog_out(WARNING) << V0Name[thisV0Type] << " has " << nCharged
+				 << " charged and " << numDaughters-nCharged
+				 << " neutral daughters in MC."
+				 << " mass reconstruction will fail." << endl;
+	}
 	V0Candidate_type *newconv = new V0Candidate_type();
-	newconv->is_conversion=false;
+	newconv->V0Type=thisV0Type;
 	newconv->radius=radius;
 	newconv->z=z;
 	newconv->mother = mcp;
@@ -261,13 +269,13 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
 	newconv->tracks.clear();
 	newconv->recopart.clear();
 	V0Candidates.push_back(newconv);
-	ntrue_tracks+=nCharged;
+	++mc_num[thisV0Type];
+	mc_tracks[thisV0Type]+=nCharged;
       }
     }
   }
   streamlog_out(MESSAGE) << "number of conv/V0 in this event: "
 			 << V0Candidates.size() << endl;
-  total_num_v0+=V0Candidates.size();
 }
 
 
@@ -292,11 +300,7 @@ void V0Performance::hitAnalysis( const LCEvent *evt ) {
 void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
 
   // general information
-  if (cand->is_conversion) {
-    streamlog_out(MESSAGE) << "photon conversion found: " << endl;
-  } else {
-    streamlog_out(MESSAGE) << "V0 found (PDG " << cand->mother->getPDG() << "):" << endl;
-  }
+  streamlog_out(MESSAGE) << V0Name[cand->V0Type] << " found: " << endl;
   streamlog_out(MESSAGE) << "radius=" << cand->radius << " mm, z=" << cand->z << " mm" << endl;
   streamlog_out(MESSAGE) << "daughter momenta:" << endl;
   for (size_t i=0; i<cand->daughters.size(); i++) {
@@ -308,7 +312,7 @@ void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
   }
 
   // MC decay products
-  streamlog_out(MESSAGE) << "daughter particles:";
+  streamlog_out(MESSAGE) << "daughter particles:    ";
   for (size_t i=0; i<cand->daughters.size(); i++) {
     if (cand->daughters[i]->getCharge()!=0
 	&& cand->daughters[i]->getCharge()!=-1000) {
@@ -324,7 +328,7 @@ void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
   // reconstructed tracks
   for (map<string,vector<Track*> >::iterator it=cand->tracks.begin();
        it!=cand->tracks.end(); it++) {
-    streamlog_out(MESSAGE) << "tracks in " << setw(12) << it->first << ":";
+    streamlog_out(MESSAGE) << "tracks in " << setw(16) << it->first << ":";
     for (size_t itrk=0; itrk<it->second.size(); itrk++) {
       if (it->second[itrk]) {
 	streamlog_out(MESSAGE) << setw(7) << "yes";
@@ -341,7 +345,7 @@ void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
   // particle flow objects
   for (map<string,vector<ReconstructedParticle*> >::iterator
 	 it=cand->recopart.begin(); it!=cand->recopart.end(); it++) {
-    streamlog_out(MESSAGE) << "PFOs   in " << setw(12) << it->first << ":";
+    streamlog_out(MESSAGE) << "PFOs   in " << setw(16) << it->first << ":";
     for (size_t itrk=0; itrk<it->second.size(); itrk++) {
       if (it->second[itrk]) {
 	if (it->second[itrk]->getTracks().size()>1) {
@@ -363,7 +367,7 @@ void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
   }
 
   // histograms for this candidate
-  if (cand->is_conversion) {
+  if (cand->V0Type==V0Gamma) {
     histos->fill("conv_radius_mc",cand->radius,1,
 		 "radius of MC conversion",100,0,2000);
     histos->fill("conv_z_mc",cand->z,1,"z of MC conversion",100,-2500,2500);
@@ -380,8 +384,8 @@ void V0Performance::trackAnalysis( const LCEvent *evt,
 				      const string collectionName) {
 
   LCCollection *trkColl=evt->getCollection(collectionName);
+  num_tracks_total[collectionName]+=trkColl->getNumberOfElements();
 
-  ncand_tracks[collectionName]+=trkColl->getNumberOfElements();
   for (int itrk=0; itrk<trkColl->getNumberOfElements(); itrk++) {
     EVENT::Track *trk=dynamic_cast<EVENT::Track*>(trkColl->getElementAt(itrk));
 
@@ -420,10 +424,6 @@ void V0Performance::trackAnalysis( const LCEvent *evt,
       for (size_t idght=0; idght<V0Candidates[iv0]->daughters.size(); idght++) {
 	for (size_t imc=0; imc<mcp.size(); imc++) {
 	  if (V0Candidates[iv0]->daughters[idght]==mcp[imc]) {
-	    // if there was no previous track match, count this one as found now
-	    if (V0Candidates[iv0]->track_weights[collectionName][idght]==0) {
-	      ++ngood_tracks[collectionName];
-	    }
 	    // we do have a matching track here. if there is more than one,
 	    // store the one with highest weight in LCRelation to MCParticle
 	    if (mcp_weight[imc]
@@ -437,6 +437,25 @@ void V0Performance::trackAnalysis( const LCEvent *evt,
       }
     }
 
+  }
+
+  // book-keeping: count how many times we did (not) do well
+  for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
+    size_t numReconstructed=0;
+    for (size_t idght=0; idght<V0Candidates[iv0]->tracks[collectionName].size();
+	 idght++) {
+      if (V0Candidates[iv0]->tracks[collectionName][idght]) ++numReconstructed;
+    }
+    if (numReconstructed==0) {
+      ++foundNOtracks[V0Candidates[iv0]->V0Type][collectionName];
+    } else if (numReconstructed==1) {
+      ++foundONEtrack[V0Candidates[iv0]->V0Type][collectionName];
+    } else if (numReconstructed>=2) {
+      ++foundTWOtracks[V0Candidates[iv0]->V0Type][collectionName];
+    }
+    if (numReconstructed==V0Candidates[iv0]->daughters.size()) {
+      ++foundALLtracks[V0Candidates[iv0]->V0Type][collectionName];
+    }
   }
 }
 
@@ -461,10 +480,10 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
 
     // is there more than one track associated with this object?
     if (part->getTracks().size()>0) {
-      ncand_tracks[collectionName]+=part->getTracks().size();
+      num_tracks_total[collectionName]+=part->getTracks().size();
     }
     if (part->getTracks().size()>1) {
-      ntracks_in_composites[collectionName]+=part->getTracks().size();
+      ++num_composites_total[collectionName];
       streamlog_out(MESSAGE) << "collection " << collectionName
 			     << " contains object of type " << part->getType()
 			     << " with " << part->getTracks().size()
@@ -493,10 +512,6 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
 		streamlog_out(ERROR) << "more than one matching recoparticle!" << endl;
 	      } else {
 		V0Candidates[iv0]->recopart[collectionName][idght]=part;
-		++ngood_tracks[collectionName];
-		if (part->getTracks().size()>1) {
-		  ++ngood_tracks_in_composites[collectionName];
-		}
 	      }
 	    }
 	  }
@@ -504,6 +519,38 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
       }
     }
   }
+
+  // book-keeping: count how many times we did (not) do well
+  for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
+    size_t numReconstructed=0;
+    ReconstructedParticle* RecoObj=0;
+    bool isSingleComposite=true;
+    for (size_t idght=0; idght<V0Candidates[iv0]->recopart[collectionName].size();
+	 idght++) {
+      if (V0Candidates[iv0]->recopart[collectionName][idght]) {
+	++numReconstructed;
+	if (RecoObj==0) {
+	  RecoObj=V0Candidates[iv0]->recopart[collectionName][idght];
+	} else if (RecoObj!=V0Candidates[iv0]->recopart[collectionName][idght]){
+	  isSingleComposite=false;
+	}
+      }
+    }
+    if (numReconstructed==0) {
+      ++foundNOtracks[V0Candidates[iv0]->V0Type][collectionName];
+    } else if (numReconstructed==1) {
+      ++foundONEtrack[V0Candidates[iv0]->V0Type][collectionName];
+    } else if (numReconstructed>=2) {
+      ++foundTWOtracks[V0Candidates[iv0]->V0Type][collectionName];
+      if (isSingleComposite) {
+	++foundComposite[V0Candidates[iv0]->V0Type][collectionName];
+      }
+    }
+    if (numReconstructed==V0Candidates[iv0]->daughters.size()) {
+      ++foundALLtracks[V0Candidates[iv0]->V0Type][collectionName];
+    }
+  }
+
 }
 
 
@@ -515,43 +562,50 @@ void V0Performance::check( LCEvent * evt ) {
 void V0Performance::end(){ 
 
   streamlog_out(MESSAGE) << "PERFORMANCE SUMMARY:" << endl;
-  streamlog_out(MESSAGE) << " actual conv/V0 in MCParticles: " << total_num_v0
-			 << " with " << ntrue_tracks << " tracks" << endl;
-  for (map<string,int>::iterator it=ncand_tracks.begin();
-       it!=ncand_tracks.end(); it++) {
-    streamlog_out(MESSAGE) << " " << it->first << " collection contains "
-			   << it->second << " tracks, including "
-			   << ngood_tracks[it->first]
-			   << " ones actually coming from V0/conversion"
-			   << endl;
-    if (ntrue_tracks>0) {
-      streamlog_out(MESSAGE) << "    ==> efficiency "
-			     << ngood_tracks[it->first]/double(ntrue_tracks)
-			     << endl;
+  double ntrue_tracks=0;
+  for (int i=0; i<V0LastType; i++) {
+    streamlog_out(MESSAGE) << " actual " << V0Name[i] << " in MCParticles: "
+			 << mc_num[i] << " with "
+			 << mc_tracks[i] << " tracks" << endl;
+    ntrue_tracks+=mc_tracks[i];
+  }
+  for (map<string,int>::iterator it=num_tracks_total.begin();
+       it!=num_tracks_total.end(); it++) {
+    for (int i=0; i<V0LastType; i++) {
+      if (mc_num[i]==0) continue;
+      streamlog_out(MESSAGE) << " number of MC " <<  V0Name[i]
+			     << " with no reconstructed tracks in "
+			     << it->first << ": " << foundNOtracks[i][it->first]
+			     << " of " << mc_num[i] << " ("
+			     << int(0.5+1000.*foundNOtracks[i][it->first]
+				 /mc_num[i])/10. << "%)" << endl;
+      streamlog_out(MESSAGE) << " number of MC " <<  V0Name[i]
+			     << " with one reconstructed track  in "
+			     << it->first << ": " << foundONEtrack[i][it->first]
+			     << " of " << mc_num[i] << " ("
+			     << int(0.5+1000.*foundONEtrack[i][it->first]
+				 /mc_num[i])/10. << "%)" << endl;
+      streamlog_out(MESSAGE) << " number of MC " <<  V0Name[i]
+			     << " with >=2 reconstructed tracks in "
+			     << it->first << ": " << foundTWOtracks[i][it->first]
+			     << " of " << mc_num[i] << " ("
+			     << int(0.5+1000.*foundTWOtracks[i][it->first]
+				 /mc_num[i])/10. << "%)" << endl;
+      streamlog_out(MESSAGE) << " number of MC " <<  V0Name[i]
+			     << " with all daughters reconstructed in "
+			     << it->first << ": " << foundALLtracks[i][it->first]
+			     << " of " << mc_num[i] << " ("
+			     << int(0.5+1000.*foundALLtracks[i][it->first]
+				 /mc_num[i])/10. << "%)" << endl;
+      streamlog_out(MESSAGE) << " number of MC " <<  V0Name[i]
+			     << " reconstructed as composite in "
+			     << it->first << ": " << foundComposite[i][it->first]
+			     << " of " << mc_num[i] << " ("
+			     << int(0.5+1000.*foundComposite[i][it->first]
+				 /mc_num[i])/10. << "%)" << endl;
+      streamlog_out(MESSAGE) << " total number of composite objects"
+			     << " with >=2 tracks in " << it->first << ": "
+			     << num_composites_total[it->first] << endl;
     }
-    if (it->second>0) {
-      streamlog_out(MESSAGE) << "    ==> purity     "
-			     << ngood_tracks[it->first]/double(it->second)
-			     << endl;
-    }      
-
-    streamlog_out(MESSAGE) << " " << it->first << " collection contains "
-			   << ngood_tracks_in_composites[it->first]
-			   << " correct tracks in composite objects"
-			   << " and " << ntracks_in_composites[it->first]
-			   << " tracks in composite objects with >1 track"
-			   << endl;
-    if (ntrue_tracks>0) {
-      streamlog_out(MESSAGE) << "    ==> composite efficiency "
-			     << ngood_tracks_in_composites[it->first]
-	/double(ntrue_tracks) << endl;
-    }
-    if (ntracks_in_composites[it->first]>0) {
-      streamlog_out(MESSAGE) << "    ==> composite purity     "
-			     << ngood_tracks_in_composites[it->first]
-	/double(ntracks_in_composites[it->first])
-			     << endl;
-    }      
   }
 }
-
