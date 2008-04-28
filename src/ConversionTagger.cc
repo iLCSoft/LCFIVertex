@@ -223,18 +223,31 @@ void ConversionTagger::tagger( LCEvent *evt,
       helix1.getExtrapolatedMomentum(vertex1,mom1);
       helix2.getExtrapolatedMomentum(vertex2,mom2);
 
+      // for some reason the extrapolation sometimes ends up with NaN momentum
+      if ( ( !(mom1[0]<0) && !(mom1[0]>=0) ) ||
+	   ( !(mom1[1]<0) && !(mom1[1]>=0) ) ||
+	   ( !(mom2[0]<0) && !(mom2[0]>=0) ) ||
+	   ( !(mom2[1]<0) && !(mom2[1]>=0) ) ) {
+	streamlog_out(ERROR) << "extrapolated momenta are NaN" << endl;
+	continue;
+      }
+
+
       // invariant mass of the combination: either around 0 or K0 mass?
       double conv_mass = diParticleMass(mom1,mom2,0.000511,0.000511);
       double K0_mass = diParticleMass(mom1,mom2,0.13957,0.13957);
+      double Lambda_mass1 = diParticleMass(mom1,mom2,0.13957,0.938);
+      double Lambda_mass2 = diParticleMass(mom2,mom1,0.13957,0.938);
       histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,1);
       histos->fill("K0_mass",K0_mass,1,"K0_mass",100,0,1);
-
-      // get rid of not-a-number situations
-      if (!(conv_mass>0) && !(conv_mass<=0)) continue;
+      histos->fill("Lambda_mass",Lambda_mass1,1,"Lambda_mass",100,1,2);
+      histos->fill("Lambda_mass",Lambda_mass2);
 
       // check whether our candidate is either close to photon mass
       // or K0 mass
-      if (conv_mass>0.01 && fabs(K0_mass-0.498)>0.02) continue;
+      if (conv_mass>0.01 && fabs(K0_mass-0.498)>0.02
+	  && fabs(Lambda_mass1-1.116)>0.02
+	  && fabs(Lambda_mass2-1.116)>0.02) continue;
 
 
       // vertex probability (cut on distance of closest approach first?)
@@ -249,7 +262,13 @@ void ConversionTagger::tagger( LCEvent *evt,
 
       // whatever is left here will be stored as conversion candidate
       ReconstructedParticleImpl* recopart = new ReconstructedParticleImpl();
-      recopart->setType(22);
+      if (conv_mass<=0.01) {
+	recopart->setType(22);
+      } else if (fabs(K0_mass-0.498)<=0.02) {
+	recopart->setType(130);
+      } else {
+	recopart->setType(3122);
+      }
       recopart->addTrack(rp1->getTracks()[0]);
       recopart->addTrack(rp2->getTracks()[0]);
       recocoll->addElement(recopart);
