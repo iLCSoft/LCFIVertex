@@ -16,6 +16,26 @@
 
 namespace vertex_lcfi { namespace ZVTOP
 {
+    
+// Ascending distance from IP func
+struct IPDistAscending
+{
+     InteractionPoint* IP; 
+	
+     IPDistAscending(InteractionPoint* _IP) : IP(_IP) {}
+     
+     bool operator()(CandidateVertex*& rpStart, CandidateVertex*& rpEnd)
+     {
+          if (IP) 
+	  {
+		  return rpStart->position().distanceTo2(IP->position()) < rpEnd->position().distanceTo2(IP->position());
+	  }
+	  else
+	  {
+		  return rpStart->position().distanceTo2(Vector3(0,0,0)) < rpEnd->position().distanceTo2(Vector3(0,0,0));
+	  }
+     }
+};
 
 VertexFinderGhost::VertexFinderGhost(const std::vector<Track*> &Tracks, InteractionPoint* IP)
 :_TrackList(Tracks),_IP(IP)
@@ -64,10 +84,22 @@ std::list<CandidateVertex*> VertexFinderGhost::findVertices()
 	//TODO Check for existance of IP
 	//TODO Create candiates without vf (new constructor)
 	//TODO Change this next line to a parameter
-	using std::cout;using std::endl;clock_t start,pstart;int debug=1;
-	//Skip if we have no tracks
-	if (_TrackList.empty()) return std::list<CandidateVertex*>();
-	
+	using std::cout;using std::endl;clock_t start,pstart;int debug=0;
+	//If we have no tracks return the IP
+	if (_TrackList.empty())
+    {
+        if (debug) std::cout << "Ghost: No Tracks" << std::endl;
+        if(!_IP)
+            return std::list<CandidateVertex*>();
+        else
+        {
+            std::list<CandidateVertex*> ret;
+            CandidateVertex* CV = new CandidateVertex(std::vector<TrackState*>(),_IP,0);
+            MemoryManager<CandidateVertex>::Event()->registerObject(CV);
+            ret.push_back(CV);
+            return ret;
+        }
+    }
 	/*////////////////////////////////////////////////////////DEBUGLINE*/if (debug) {cout << "Initial Ghost direction finding and resize...."; cout.flush();pstart=clock();start=clock();}
 	//First we find the ghost
 	Track* GhostTrack = GhostFinderStage1().findGhost(_InitialGhostWidth,_MaxChi2Allowed,_SeedDirection,_TrackList,_IP);
@@ -157,7 +189,7 @@ std::list<CandidateVertex*> VertexFinderGhost::findVertices()
 				DegreesOfFreedom = 2 * ((*iCV)->trackStateList().size() - 1) - 2;
 			}
 			//TODO check calc above
-			//std::cout << util::prob((*iCV)->chiSquaredOfFit(),DegreesOfFreedom) << " ";
+			std::cout << (*iCV)->chiSquaredOfFit() <<":"<<util::prob((*iCV)->chiSquaredOfFit(),DegreesOfFreedom) << " ";
 			if(util::prob((*iCV)->chiSquaredOfFit(),DegreesOfFreedom) > HighestProb)
 			{
 				HighestProb = util::prob((*iCV)->chiSquaredOfFit() , DegreesOfFreedom);
@@ -167,7 +199,7 @@ std::list<CandidateVertex*> VertexFinderGhost::findVertices()
 		//std::cout << std::endl;
 		/*////////////////////////////////////////////////////////DEBUGLINE*/if (debug) {cout << "\t\tdone!" << " "<< TrialMergedCandidates.size() << "T " << Candidates.size() << "C Verts"<< "\t" << ((double(clock())-double(start))/CLOCKS_PER_SEC)*1000 << "ms" <<endl; cout.flush();}
 		//std::cout << "Highest Prob: " << MostProbableVertex << std::endl;
-		/*////////////////////////////////////////////////////////DEBUGLINE*/if (debug) {cout << "Promote trial to candidate and add new trials..."; cout.flush();start=clock();}
+		/*////////////////////////////////////////////////////////DEBUGLINE*/if (0) {cout << "Promote trial to candidate and add new trials..."; cout.flush();start=clock();}
 		if (HighestProb > _MinimumProbability)
 		{
 			//So now we need to remove the most probable vertex from the trial list and put it on the candidates list
@@ -215,13 +247,13 @@ std::list<CandidateVertex*> VertexFinderGhost::findVertices()
 		{
 			break;
 		}
-		/*////////////////////////////////////////////////////////DEBUGLINE*/if (debug) {cout << "done!" << " "<< TrialMergedCandidates.size() << "T " << Candidates.size() << "C Verts"<< "\t" << ((double(clock())-double(start))/CLOCKS_PER_SEC)*1000 << "ms" <<endl; cout.flush();}	
+		/*////////////////////////////////////////////////////////DEBUGLINE*/if (0) {cout << "done!" << " "<< TrialMergedCandidates.size() << "T " << Candidates.size() << "C Verts"<< "\t" << ((double(clock())-double(start))/CLOCKS_PER_SEC)*1000 << "ms" <<endl; cout.flush();}	
 
 	}while (1); // Loop is broken in at line 216 only
 	/*////////////////////////////////////////////////////////DEBUGLINE*/if (debug) {cout << "done!" << " "<< TrialMergedCandidates.size() << "T " << Candidates.size() << "C Verts"<< "\t" << ((double(clock())-double(start))/CLOCKS_PER_SEC)*1000 << "ms" <<endl; cout.flush();}	
 	/*////////////////////////////////////////////////////////DEBUGLINE*/if (debug) {cout << "Vertex find complete" <<  "\t" << (double(clock())-double(pstart))/CLOCKS_PER_SEC << "s" << endl; cout.flush();}
 	
-	//TODO Sort
+	Candidates.sort(IPDistAscending(_IP));
 	_LastGhost = GhostTrack;
 	return Candidates;
 	//Done
