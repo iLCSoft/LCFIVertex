@@ -31,7 +31,7 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
   // modify processor description
   _description = "ConversionTagger processor does conversion and V0 tagging" ;
   
-  _twopi=2*acos(-1);
+  _twopi=2*acos(-1.0);
 }
 
 
