@@ -12,12 +12,6 @@
 #include "EVENT/CalorimeterHit.h"
 #include "EVENT/SimCalorimeterHit.h"
 
-
-//AIDA includes...
-#include <AIDA/IHistogram1D.h>
-#include <AIDA/IHistogram2D.h>
-#include <AIDA/ITree.h>
-
 #include <string>
 #include <map>
 #include <iostream>
@@ -33,7 +27,7 @@ using namespace std;
  *   Tracks and ReconstructedParticles.
  *
  * @author Kristian Harder, RAL
- * @version $Id: KnowYourInputs.h,v 1.1 2008-04-25 10:34:53 harderk Exp $ 
+ * @version $Id: KnowYourInputs.h,v 1.2 2008-04-29 07:30:37 harderk Exp $ 
  */
 
 class KnowYourInputs : public Processor {
