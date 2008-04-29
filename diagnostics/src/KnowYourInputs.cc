@@ -431,7 +431,7 @@ void KnowYourInputs::trackerPlots( const LCEvent *evt,
     double charge=0;
     double phi=0;
     double costheta=0;
-    double halfpi = acos(0);
+    double halfpi = acos(0.0);
     double Pi = 2*halfpi;
 
     if(coll->getTypeName()== LCIO::TRACK){
