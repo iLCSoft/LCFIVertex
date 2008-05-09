@@ -12,6 +12,8 @@
 #include "EVENT/LCCollection.h"
 #include "EVENT/LCIntVec.h"
 #include "EVENT/LCFloatVec.h"
+#include "EVENT/MCParticle.h"
+#include "EVENT/LCRelation.h"
 
 template<class T>
 class TypesafeCollection
