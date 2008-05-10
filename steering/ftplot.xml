@@ -1,7 +1,7 @@
 <marlin>
  <execute>
-  <processor name="MyPlot"/>
   <processor name="MyAIDAProcessor"/>
+  <processor name="MyPlot"/>
   <processor name="MyLCFIAIDAPlotProcessor"/>
  </execute>
 
@@ -29,14 +29,14 @@
   <parameter name="Compress" type="int">0 </parameter>
   <!-- filename without extension-->
   <parameter name="FileName" type="string">LCFIPlot </parameter>
-  <!-- type of output file xml (default) or root ( only OpenScientist)-->
-  <parameter name="FileType" type="string">xml</parameter>
+  <!-- type of output file xml (recommended for JAIDA) or root (recommended for RAIDA)-->
+  <parameter name="FileType" type="string">root</parameter>
 </processor>
 
 
 
  <processor name="MyLCFIAIDAPlotProcessor" type="LCFIAIDAPlotProcessor">
- <!--Creates an AIDA plot of the efficiency purity values and various other things. Make sure that MarlinAIDAProcessor is run before this.-->
+ <!--Creates an AIDA plot of the LCFIVertex tagging efficiency-purity values and various other things.  Make sure that MarlinAIDAProcessor is run before this.-->
   <!--Cut determining the Neural Net cut used to select B-Jets-->
   <!--parameter name="BTagNNCut" type="double">0.7 </parameter-->
   <!--Name of collection containing the vertex charge of the jets, assuming they are B-jets-->
@@ -53,6 +53,8 @@
   <parameter name="FlavourTagCollections" type="StringVec">FlavourTag  </parameter>
   <!--Name of the collection of ReconstructedParticles that is the jet-->
   <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
+  <!--Name of the collection that holds all MC particles. -->
+  <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticle </parameter>
   <!--Set true to make a tuple of the flavour tag input variables.  Default is true.-->
   <!--parameter name="MakeTuple" type="bool">true </parameter-->
   <!--Output filename for the NN values (output).  Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out.-->
@@ -76,7 +78,13 @@
   <!--Integer parameter determing which FlavourTag Collection to use the determine C-Jets and B-Jets in Vertex Charge Plots-->
   <!--parameter name="UseFlavourTagCollectionForVertexCharge" type="int">0 </parameter-->
   <!--Name of the collection that holds the Vertices-->
-  <parameter name="VertexCollectionName" type="string" lcioInType="Vertex">ZVRESVertices </parameter>
+  <parameter name="VertexCollection" type="string" lcioInType="Vertex">ZVRESVertices </parameter>
+  <!--Name of the ZVRES DecayChain collection-->
+  <parameter name="ZVRESDecayChainCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChains </parameter>
+  <!--Output filename for the NN values (output).  Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out.-->
+  <!--parameter name="ZVRESOutputFile" type="string"> </parameter-->
+  <!--Name of the ZVRES Selected Jets collection-->
+  <parameter name="ZVRESSelectedJetsCollection" type="string" lcioInType="ReconstructedParticle">ZVRESSelectedJets </parameter>
 </processor>
 
 

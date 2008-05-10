@@ -1,5 +1,6 @@
-#ifndef LCFIAIDAPlotProcessor_h 
-#define LCFIAIDAPlotProcessor_h 
+#ifndef LCFIAIDAPlotProcessor_h
+#define LCFIAIDAPlotProcessor_h
+
 
 
 //===============================================================================================================
@@ -80,6 +81,7 @@
 #include "EVENT/LCCollection.h"
 #include "EVENT/LCIntVec.h"
 #include "EVENT/LCFloatVec.h"
+#include "EVENT/MCParticle.h"
 
 #include <iostream>
 #include <fstream>
@@ -111,6 +113,8 @@ public:
  
 	virtual void end(); 
 protected: 
+
+	//!required input collections
 	std::vector<std::string> _FlavourTagCollectionNames;
 	std::vector<std::string> _FlavourTagInputsCollectionNames;
 	std::string _TrueJetFlavourColName;
@@ -121,6 +125,12 @@ protected:
 	std::string _VertexColName;
 	std::string _CVertexChargeCollection;
 	std::string _BVertexChargeCollection;
+
+	//zvrestable//  	std::string _TrueTracksToMCPCollection;
+  	std::string _ZVRESSelectedJetsCollection;
+  	//zvrestable//std::string _ZVRESDecayChainRPTracksCollection;
+	std::string _ZVRESDecayChainCollection;
+				  
 
 	//! cuts on all jets 
 	double _CosThetaJetMax;
@@ -140,6 +150,8 @@ protected:
 	bool _PrintNeuralNetOutput;
 	bool _MakeTuple;
 	std::string _NeuralNetOutputFile;
+
+	std::string _ZVRESOutputFile;
  
 	int _iVertexChargeTagCollection;
 	unsigned int _myVertexChargeTagCollection;
@@ -147,6 +159,15 @@ protected:
 	std::vector<std::string> _VertexCatNames;
 	std::vector<std::string>  _NumVertexCatDir;
 	std::vector<std::string> _ZoomedVarNames;
+	std::string _MCParticleColName;
+
+	std::vector<AIDA::IHistogram2D*> _pBJetCharge;
+	std::vector<AIDA::IHistogram2D*> _pCJetCharge;
+	
+	std::vector<AIDA::IHistogram1D*> _pCDecayLengthAll;
+	std::vector<AIDA::IHistogram1D*> _pBDecayLengthAll;
+	std::vector<AIDA::IHistogram1D*> _pCDecayLengthTwoVertices;
+	std::vector<AIDA::IHistogram1D*> _pBDecayLengthTwoVertices;
 
 	//!True B-jets - vertex charge vs true charge
 	AIDA::IHistogram2D* _pBJetCharge2D;
@@ -161,6 +182,14 @@ protected:
 	AIDA::IHistogram1D* _pBJetVertexCharge;
 	//!True C-jets - vertex charge
 	AIDA::IHistogram1D* _pCJetVertexCharge;
+
+
+	AIDA::IHistogram2D* _decayLengthCJet2D;
+	AIDA::IHistogram2D* _decayLengthBJet2D;
+
+	AIDA::ICloud2D* _decayLengthCJetCloud2D;
+	AIDA::ICloud2D* _decayLengthBJetCloud2D;
+
 
 	std::vector< std::map<std::string,unsigned int> > _IndexOfForEachTag;
 	std::vector< std::map<std::string,unsigned int> > _InputsIndex;
@@ -224,10 +253,9 @@ protected:
 	//!number of different vertex categories we want to look at: 1 vertex, 2 vertices, >=3 vertices
 	static const unsigned int N_VERTEX_CATEGORIES=3;  
 			
-	//!Tuple of the input variables - only filled for one inpur collection - selected with UseFlavourTagCollectionForVertexCharge
+	//!Tuple of the input variables - only filled for one input collection - selected with UseFlavourTagCollectionForVertexCharge
 	AIDA::ITuple* _pMyTuple;
 
-	
 	int _lastRunHeaderProcessed;
 	int _suppressOutputForRun;
 
@@ -235,7 +263,8 @@ protected:
 	bool PassesJetCuts( ReconstructedParticle* pJet );
 	void FillInputsPlots( LCEvent* pEvent, unsigned int jetNumber );
 	void FillTagPlots( LCEvent* pEvent, unsigned int jetNumber );
-	
+	void FillVertexPlots( LCEvent* pEvent, unsigned int jetNumber );
+
 	static const int B_JET=5;
 	static const int C_JET=4;
 	
@@ -246,6 +275,7 @@ protected:
 
 	
 	float CalculateDistance(const float* pos1, const float* pos2);
+	double CalculateDistance(const double* pos1, const double* pos2);
 
 	//!Finds the true flavour of a jet (uses TrueJetFlavourCollection)
 	int FindJetType( LCEvent* pEvent, unsigned int jetNumber );
@@ -255,7 +285,9 @@ protected:
 	int FindJetPDGCode( LCEvent* pEvent, unsigned int jetNumber );
 	//!Finds the true charge of the parton producing a jet (uses TrueJetPartonChargeCollection)
 	float FindJetPartonCharge(LCEvent* pEvent, unsigned int jetNumber);
-	
+	//!Finds the true decay length of the longest b- or c- hadron in a jet
+	void FindTrueJetDecayLength( LCEvent* pEvent, unsigned int jetNumber, std::vector<double>& decaylengthvector, std::vector<double>&  bjetdecaylengthvector, std::vector<double>&  cjetdecaylengthvector);
+	void FindTrueJetDecayLength2( LCEvent* pEvent, unsigned int jetNumber, double& bjetdecaylength, double& cjetdecaylength);
 	//!Finds the number of vertices in an event (from the flavour tag inputs)
 	int FindNumVertex( LCEvent* pEvent, unsigned int jetNumber, unsigned int iInputsCollection);
 	//!Finds the vertex charge of the jet - using cuts tuned to find vertex charge for C-jets (from CVertexChargeCollection)
@@ -263,13 +295,18 @@ protected:
 	//!Finds the vertex charge of the jet - using cuts tuned to find vertex charge for B-jets (from BVertexChargeCollection)
 	int FindBQVtx( LCEvent* pEvent, unsigned int jetNumber);
 	
-	
+	int GetPDGFlavour(int code);
+
+	//zvrestable//    	void FillZVRESTable(LCEvent* pEvent);
 	void PrintNNOutput();
+	//zvrestable//    	void PrintZVRESTable();
 	
 	void InternalVectorInitialisation();
 	
 	//!Makes a DataPointSet of the tag efficiency e.g number of B-jets passing a given B-tag NN cut, as a function of NN
 	AIDA::IDataPointSet* CreateEfficiencyPlot(const AIDA::IHistogram1D* pSignal, AIDA::IDataPointSet* pDataPointSet);
+	//!Makes a DataPointSet of histogram 1 divide by histogram 2 - this is an IDataPointSet as a histrogram gives the wrong errors
+	AIDA::IDataPointSet* CreateEfficiencyPlot2(const AIDA::IHistogram1D* pAllEvents, const AIDA::IHistogram1D *pPassEvents, AIDA::IDataPointSet* pDataPointSet);
 	//!Makes a DataPointSet integrating a histogram from the first bin to the last bin  -- NOT USED
 	AIDA::IDataPointSet* CreateIntegralPlot(const AIDA::IHistogram1D* pNN, AIDA::IDataPointSet* pIntegral);
 	//!Makes a DataPointSet of the tag purity e.g. N(B-jets passing NN cut)/N(all-jets passing NN cut) for a given B-tag NN cut, as a function of NN 
@@ -283,7 +320,8 @@ protected:
 
 	//!Makes DataPointSets for the number of 
 	void CreateVertexChargeLeakagePlot(AIDA::IDataPointSet* pBJetVtxChargeDPS, AIDA::IDataPointSet* pCJetVtxChargeDPS);
-
+	void CreateVertexChargeLeakagePlot();
+	
 	//vertex plots
 	AIDA::IHistogram1D* _pVertexDistanceFromIP;
 	AIDA::IHistogram1D* _pVertexPositionX;
@@ -296,6 +334,23 @@ protected:
 	AIDA::IHistogram1D* _pPrimaryVertexPositionY;
 	AIDA::IHistogram1D* _pPrimaryVertexPositionZ;
 	
+	AIDA::IHistogram1D* _reconstructedSecondaryDecayLength;
+	AIDA::IHistogram1D* _reconstructedSecTerDecayLength;
+	AIDA::IHistogram2D* _numberOfJetsDC;
+	AIDA::IHistogram1D* _numberOfSecondaryVertices;
+	
+	AIDA::IHistogram1D* _recoDecayLengthBJet;
+	AIDA::IHistogram1D* _recoDecayLengthBCJet;
+	AIDA::IHistogram1D* _nVerticesBJet;
+	AIDA::IHistogram1D* _recoDecayLengthCJet;
+	AIDA::IHistogram1D* _nVerticesCJet;
+	AIDA::IHistogram1D* _recoDecayLengthLightJet;
+	AIDA::IHistogram1D* _nVerticesLightJet;
+	AIDA::IHistogram1D* _decayLengthBJetTrue;
+      	AIDA::IHistogram1D* _decayLengthBCJetTrue;
+      	AIDA::IHistogram1D* _decayLengthCJetTrue;  
+	
+
 	//!numbers of true C-jets with true charge ++
 	int _cJet_truePlus2;
 	//!numbers of true C-jets with true charge +
@@ -422,8 +477,89 @@ protected:
 	std::vector< unsigned int>  _bJet_trueMinus2_recoPlus_angle; 
 	std::vector< unsigned int>  _bJet_trueMinus2_recoNeut_angle;
 	std::vector< unsigned int>  _bJet_trueMinus2_recoMinus_angle;
+
+	//! Numbers for purity if reconstructed track-vertex association
+	int _nb_twoVertex_bTrack_Primary;	  
+	int _nb_twoVertex_bTrack_Secondary;  
+	int _nb_twoVertex_bTrack_Tertiary;
+	int _nb_twoVertex_bTrack_Isolated;
+	
+	int _nb_twoVertex_cTrack_Primary; 	  
+	int _nb_twoVertex_cTrack_Secondary;	  
+	int _nb_twoVertex_cTrack_Tertiary; 
+	int _nb_twoVertex_cTrack_Isolated; 
+	
+	int _nb_twoVertex_lTrack_Primary; 	  
+	int _nb_twoVertex_lTrack_Secondary;	  
+	int _nb_twoVertex_lTrack_Tertiary;
+	int _nb_twoVertex_lTrack_Isolated;
+	
+	int _nb_threeVertex_bTrack_Primary;   
+	int _nb_threeVertex_bTrack_Secondary;  
+	int _nb_threeVertex_bTrack_Tertiary;  
+	int _nb_threeVertex_bTrack_Isolated;  
+	
+	int _nb_threeVertex_cTrack_Primary;  
+	int _nb_threeVertex_cTrack_Secondary; 
+	int _nb_threeVertex_cTrack_Tertiary; 
+	int _nb_threeVertex_cTrack_Isolated; 
+	
+	int _nb_threeVertex_lTrack_Primary;   
+	int _nb_threeVertex_lTrack_Secondary;  
+	int _nb_threeVertex_lTrack_Tertiary;  
+	int _nb_threeVertex_lTrack_Isolated;  
+
+	int _nb_threeVertex_Primary_noMCP;
+	int _nb_threeVertex_Secondary_noMCP;
+	int _nb_threeVertex_Tertiary_noMCP;
+	int _nb_threeVertex_Isolated_noMCP;
+	
+	int _nb_twoVertex_Primary_noMCP;
+	int _nb_twoVertex_Secondary_noMCP;
+	int _nb_twoVertex_Tertiary_noMCP;
+	int _nb_twoVertex_Isolated_noMCP;
+
+
+	int _nc_twoVertex_bTrack_Primary;	  
+	int _nc_twoVertex_bTrack_Secondary;  
+	int _nc_twoVertex_bTrack_Tertiary;
+	int _nc_twoVertex_bTrack_Isolated;
+	
+	int _nc_twoVertex_cTrack_Primary; 	  
+	int _nc_twoVertex_cTrack_Secondary;	  
+	int _nc_twoVertex_cTrack_Tertiary; 
+	int _nc_twoVertex_cTrack_Isolated; 
+	
+	int _nc_twoVertex_lTrack_Primary; 	  
+	int _nc_twoVertex_lTrack_Secondary;	  
+	int _nc_twoVertex_lTrack_Tertiary;
+	int _nc_twoVertex_lTrack_Isolated;
+	
+	int _nc_threeVertex_bTrack_Primary;   
+	int _nc_threeVertex_bTrack_Secondary;  
+	int _nc_threeVertex_bTrack_Tertiary;  
+	int _nc_threeVertex_bTrack_Isolated;  
+	
+	int _nc_threeVertex_cTrack_Primary;  
+	int _nc_threeVertex_cTrack_Secondary; 
+	int _nc_threeVertex_cTrack_Tertiary; 
+	int _nc_threeVertex_cTrack_Isolated; 
+	
+	int _nc_threeVertex_lTrack_Primary;   
+	int _nc_threeVertex_lTrack_Secondary;  
+	int _nc_threeVertex_lTrack_Tertiary;  
+	int _nc_threeVertex_lTrack_Isolated;  
+
+	int _nc_threeVertex_Primary_noMCP;
+	int _nc_threeVertex_Secondary_noMCP;
+	int _nc_threeVertex_Tertiary_noMCP;
+	int _nc_threeVertex_Isolated_noMCP;
+	
+	int _nc_twoVertex_Primary_noMCP;
+	int _nc_twoVertex_Secondary_noMCP;
+	int _nc_twoVertex_Tertiary_noMCP;
+	int _nc_twoVertex_Isolated_noMCP;
 	 
 }; 
-
 
 #endif // endif for "ifndef LCFIAIDAPlotProcessor_h"
