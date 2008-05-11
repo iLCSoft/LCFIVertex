@@ -18,7 +18,7 @@
   <-- limit the number of processed records (run+evt): -->  
   <!--parameter name="MaxRecordNumber" value="5001" /-->  
   <parameter name="SupressCheck" value="false" />  
-  <!-- <parameter name="GearXMLFile"> GearOutput.xml </parameter> -->  
+  <!--parameter name="GearXMLFile"> GearOutput.xml </parameter>
 </global>
  
 <processor name="ZVKINRPCutProcessor" type="RPCutProcessor">
@@ -96,7 +96,7 @@
   <!--A list of all the PDG codes of the parent Monte Carlo particle to cut-->
   <parameter name="h2_CutPIDS" type="IntVec">310 -310 3122 -3122  </parameter>
   <!--Name of the LCRelation collection which links InputRCPCollection to the Monte Carlo data. Required only if MCPIDEnable is true-->
-  <parameter name="h3_MonteCarloLCRelationCollection" type="string" lcioInType="LCRelation">FittedTrueTracksMCP </parameter>
+  <parameter name="h3_MonteCarloLCRelationCollection" type="string" lcioInType="LCRelation">LDCTracksMCP </parameter>
   <!--Enable a cut on tracks with NaN parameters or covariances-->
   <parameter name="i1_BadParametersEnable" type="bool">true </parameter>
 </processor>

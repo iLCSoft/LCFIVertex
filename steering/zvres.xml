@@ -17,20 +17,12 @@
   <-- limit the number of processed records (run+evt): -->  
   <!--parameter name="MaxRecordNumber" value="5001" /-->  
   <parameter name="SupressCheck" value="false" />  
-  <!-- <parameter name="GearXMLFile"> GearOutput.xml </parameter> -->  
+  <!--parameter name="GearXMLFile"> GearOutput.xml </parameter>
 </global>
- 
+
 <processor name="ZVRESRPCutProcessor" type="RPCutProcessor">
- <!--RPCutProcessor - cuts tracks based on several criteria-->
-  <!--Name of the ReconstructedParticle collection which will be cut-->
-  <parameter name="InputRCPCollection" type="string" lcioInType="ReconstructedParticle">Jets </parameter>
-  <!--Name of the output ReconstructedParticle collection when WriteNewCollection is true-->
-  <parameter name="OutputRCPCollection" type="string" lcioOutType="ReconstructedParticle">ZVRESSelectedJets </parameter>
-  <!--If true cuts tracks from the particle lists of particles in InputRCPCollection, if false just cuts particles from InputRCPCollection-->
-  <parameter name="SubParticleLists" type="bool">true </parameter>
-  <!--Name of the Track collection - this is just used to get the sub dectector indices-->
-  <parameter name="WriteNewCollection" type="bool">true </parameter>
-  
+
+ <!--RPCutProcessor - cuts tracks based on several criteria--> 
   <!--Enable a cut on the value of each tracks chi squared over degrees of freedom-->
   <!--parameter name="a1_Chi2OverDOFEnable" type="bool">false </parameter-->
   <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
@@ -95,23 +87,26 @@
   <!--A list of all the PDG codes of the parent Monte Carlo particle to cut-->
   <parameter name="h2_CutPIDS" type="IntVec">310 -310 3122 -3122  </parameter>
   <!--Name of the LCRelation collection which links InputRCPCollection to the Monte Carlo data. Required only if MCPIDEnable is true-->
-  <parameter name="h3_MonteCarloLCRelationCollection" type="string" lcioInType="LCRelation">FittedTrueTracksMCP </parameter>
+  <parameter name="h3_MonteCarloLCRelationCollection" type="string" lcioInType="LCRelation">LDCTracksMCP </parameter>
   <!--Enable a cut on tracks with NaN parameters or covariances-->
   <parameter name="i1_BadParametersEnable" type="bool">true </parameter>
-</processor>
+
+ <!--Name of the ReconstructedParticle collection which will be cut-->
+  <parameter name="InputRCPCollection" type="string" lcioInType="ReconstructedParticle">Jets </parameter>
+  <!--Name of the output ReconstructedParticle collection when WriteNewCollection is true-->
+  <parameter name="OutputRCPCollection" type="string" lcioOutType="ReconstructedParticle">ZVRESSelectedJets </parameter>
+  <!--If true cuts tracks from the particle lists of particles in InputRCPCollection, if false just cuts particles from InputRCPCollection-->
+  <parameter name="SubParticleLists" type="bool">true </parameter>
+  <!--Name of the Track collection - this is just used to get the sub dectector indices-->
+  <parameter name="WriteNewCollection" type="bool">true </parameter>
+
+ </processor>
 
  <processor name="MyZVTOP_ZVRES" type="ZVTOP_ZVRESProcessor">
+
  <!--ZVTOP-ZVRES - Vertex Reconstruction Algorithm-->
-  <!--Name of the ReconstructedParticle collection that holds RPs representing output decay chains-->
-  <parameter name="DecayChainCollectionName" type="string" lcioOutType="ReconstructedParticle">ZVRESDecayChains </parameter>
-  <!--Name of the ReconstructedParticle collection that represents tracks in output decay chains-->
-  <parameter name="DecayChainRPTracksCollectionName" type="string" lcioOutType="ReconstructedParticle">ZVRESDecayChainRPTracks </parameter>
-  <!--Name of the Vertex collection that contains the primary vertex (Optional)-->
-  <parameter name="IPVertexCollection" type="string" lcioInType="Vertex">IPVertex </parameter>
   <!--Weight of the IP in the Vertex Function-->
   <!--parameter name="IPWeighting" type="double">1 </parameter-->
-  <!--Name of the ReconstructedParticle collection that represents jets-->
-  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">ZVRESSelectedJets </parameter>
   <!--Scaling factor for Weight of the jet direction in the Vertex Function-->
   <!--parameter name="JetWeightingEnergyScaling" type="double">0.125 </parameter-->
   <!--If false then the primary vertex from VertexCollection is used-->
@@ -126,8 +121,18 @@
   <!--parameter name="TrackTrimCut" type="double">10 </parameter-->
   <!--Chi Squared cut for making initial track pairs - chi squared of either track NOT sum-->
   <!--parameter name="TwoTrackCut" type="double">10 </parameter-->
+  <!--Name of the Vertex collection that contains the primary vertex (Optional)-->
+  <parameter name="IPVertexCollection" type="string" lcioInType="Vertex">IPVertex </parameter>
+
+  <!--Name of the ReconstructedParticle collection that holds RPs representing output decay chains-->
+  <parameter name="DecayChainCollectionName" type="string" lcioOutType="ReconstructedParticle">ZVRESDecayChains </parameter>
+  <!--Name of the ReconstructedParticle collection that represents tracks in output decay chains-->
+  <parameter name="DecayChainRPTracksCollectionName" type="string" lcioOutType="ReconstructedParticle">ZVRESDecayChainRPTracks </parameter>  
+  <!--Name of the ReconstructedParticle collection that represents jets-->
+  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">ZVRESSelectedJets </parameter>
   <!--Name of the Vertex collection that contains found vertices-->
   <parameter name="VertexCollection" type="string" lcioOutType="Vertex">ZVRESVertices </parameter>
+
 </processor>
   
 <processor name="MyLCIOOutputProcessor" type="LCIOOutputProcessor">

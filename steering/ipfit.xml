@@ -16,9 +16,9 @@
   <-- limit the number of processed records (run+evt): -->  
   <!--Parameter name="MaxRecordNumber" value="5001" /-->  
   <parameter name="SupressCheck" value="false" />  
-  <!-- <parameter name="GearXMLFile"> GearOutput.xml </parameter> -->  
+  <!--parameter name="GearXMLFile"> GearOutput.xml </parameter> -->  
 </global>
-  
+
 <processor name="MyPerEventIPFitterProcessor" type="PerEventIPFitterProcessor">
  <!--Per Event IP fitter - trims tracks to reach probabililty threshold-->
   <!--Manually set default error matrix of the primary vertex (cm) (lower symmetric)-->
@@ -32,6 +32,7 @@
   <!--Tracks are removed until this threshold is reached-->
   <parameter name="ProbabilityThreshold" type="double">0.01 </parameter>
 </processor>
+
 
  <processor name="IPRPCutProcessor" type="RPCutProcessor">
  <!--RPCutProcessor - cuts tracks based on several criteria-->
@@ -111,8 +112,10 @@
   <parameter name="h3_MonteCarloLCRelationCollection" type="string" lcioInType="LCRelation">NotNeeded </parameter>
   <!--Enable a cut on tracks with NaN parameters or covariances-->
   <parameter name="i1_BadParametersEnable" type="bool">true </parameter>
+
+
    
-  </processor>
+  </processor> 
 
 <processor name="MyLCIOOutputProcessor" type="LCIOOutputProcessor">
   <!--Writes the current event to the specified LCIO outputfile. Needs to be the last ActiveProcessor.-->
