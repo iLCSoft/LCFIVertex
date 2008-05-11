@@ -1,0 +1,1240 @@
+
+<marlin>
+    <execute>
+        <processor name="MyMaterialDB"/>
+        <processor name="MyTPCDigiProcessor"/>
+        <processor name="MyCurlKillerProcessor"/>
+        <processor name="MyVTXDigiProcessor"/>
+        <processor name="MyFTDDigiProcessor"/>
+        <processor name="MyLEPTrackingProcessor"/>
+        <processor name="MySiliconTracking"/>
+        <processor name="MyFullLDCTracking"/>
+        <processor name="MySimpleCaloDigi"/>
+        <processor name="MySimpleMuonDigi"/>
+        <processor name="MyPandoraPFAProcessor"/>
+        <processor name="MySelectReconstructedParticle" />
+        <processor name="MySatoruJetFinderProcessor" />
+
+        <processor name="MyTrueAngularJetFlavourProcessor"/>
+
+        <processor name="IPRPCutProcessor"/>
+        <processor name="MyPerEventIPFitterProcessor"/>
+
+        <processor name="ZVRESRPCutProcessor"/>  
+        <processor name="MyZVTOP_ZVRES"/>
+
+        <processor name="FTRPCutProcessor"/>
+        <processor name="MyFlavourTagInputsProcessor"/>
+
+        <processor name="MyFlavourTag"/>
+
+        <processor name="BVertexChargeProcessor"/>
+
+        <processor name="CVertexChargeProcessor"/>
+
+        <processor name="MyPlot"/>
+<!--
+        <processor name="MyAIDAProcessor"/>
+        <processor name="MyLCFIAIDAPlotProcessor"/>
+-->     
+    </execute>
+    <global>
+        <parameter name="LCIOInputFiles">output.slcio</parameter>
+        <-- limit the number of processed records (run+evt): -->
+        <parameter name="MaxRecordNumber" value="10" />
+        <parameter name="SupressCheck" value="false" />
+        <parameter name="GearXMLFile">GearOutput.xml</parameter>
+    </global>
+ 
+
+ <processor name="MyMaterialDB" type="MaterialDB">
+ <!--Material DB builder...-->
+  <!--Use Extrapolations in Fit-->
+  <parameter name="UseExtrapolations" type="int" value="1"/>
+  <!--Use material database-->
+  <parameter name="UseMaterials" type="int" value="1"/>
+</processor>
+
+ <processor name="MyTPCDigiProcessor" type="TPCDigiProcessor">
+ <!--Produces TPC TrackerHit collection from SimTrackerHit collection, smeared in RPhi and Z-->
+  <!--Name of the SimTrackerHit collection-->
+  <parameter name="CollectionName" type="string" lcioInType="SimTrackerHit"> TPCCollection </parameter>
+  <!--Name of the digitized TrackerHit collection-->
+  <parameter name="TPCTrackerHitsCol" type="string" lcioOutType="TrackerHit"> AllTPCTrackerHits </parameter>
+  <!--R-Phi Diffusion Coefficent in TPC-->
+  <parameter name="DiffusionCoeffRPhi" type="float" value="0.025"/>
+  <!--Z Diffusion Coefficent in TPC-->
+  <parameter name="DiffusionCoeffZ" type="float" value="0.08"/>
+  <!--Number of Effective electrons per pad in TPC-->
+  <parameter name="N_eff" type="int" value="22"/>
+  <!--Defines spatial slice in RP-->
+  <parameter name="PixRP" type="float" value="1"/>
+  <!--Defines spatial slice in Z-->
+  <parameter name="PixZ" type="float" value="1.4"/>
+  <!--Pad Phi Resolution constant in TPC-->
+  <parameter name="PointResolutionPadPhi" type="float" value="0.9"/>
+  <!--R-Phi Resolution constant in TPC-->
+  <parameter name="PointResolutionRPhi" type="float" value="0.05"/>
+  <!--TPC Z Resolution Coefficent independent of diffusion-->
+  <parameter name="PointResolutionZ" type="float" value="0.4"/>
+  <!--whether or not to use hits without proper cell ID (pad row)-->
+  <parameter name="RejectCellID0" type="int" value="1"/>
+</processor>
+
+ <processor name="MyCurlKillerProcessor" type="CurlKillerProcessor">
+ <!--CurlKillerProcessor: Using a 2D(r-phi) histogram, hits from patterns (curlers) traversing the TPC in Z whilst retaining constant r-phi are removed from a new TrackerHit collection -->
+  <!--Name of the TrackerHit collection-->
+  <parameter name="InputCollectionName" type="string" lcioInType="TrackerHit"> AllTPCTrackerHits </parameter>
+  <!--Name of the cut away TrackerHit collection-->
+  <parameter name="CutCollectionName" type="string" lcioOutType="TrackerHit"> cutTPCTrackeHits </parameter>
+  <!--Name of the remaining TrackerHit collection-->
+  <parameter name="RemainingCollectionName" type="string" lcioOutType="TrackerHit"> TPCTrackerHits </parameter>
+  <!--Bin size in square root of pad multiples-->
+  <parameter name="BinSize" type="int" value="2"/>
+  <!--Cut for the number of hits allowed in one bin-->
+  <parameter name="MultiplicityCut" type="int" value="4"/>
+  <!--TPC PadHeight-->
+  <parameter name="PadHeight" type="float" value="6.2"/>
+  <!--TPC PadWidth-->
+  <parameter name="PadWidth" type="float" value="2.2"/>
+</processor>
+
+
+ <processor name="MyVTXDigiProcessor" type="VTXDigiProcessor">
+ <!--VTXDigiProcessor should create VTX TrackerHits from SimTrackerHits-->
+  <!--Name of the SimTrackerHit collection-->
+  <parameter name="SITCollectionName" type="string" lcioInType="SimTrackerHit"> SITCollection </parameter>
+  <!--Name of the SimTrackerHit collection-->
+  <parameter name="VTXCollectionName" type="string" lcioInType="SimTrackerHit"> VXDCollection </parameter>
+  <!--Name of the sit TrackerHit output collection-->
+  <parameter name="SITHitCollection" type="string" lcioOutType="TrackerHit"> SITTrackerHits </parameter>
+  <!--Name of the vxd TrackerHit output collection-->
+  <parameter name="VTXHitCollection" type="string" lcioOutType="TrackerHit"> VTXTrackerHits </parameter>
+  <!--Debugging option-->
+  <parameter name="Debug" type="int" value="0"/>
+  <!--Momentum Cut For D Rays (MeV)-->
+  <parameter name="MomentumCutForDRays" type="float" value="10"/>
+  <!--R-Phi Resolution in SIT-->
+  <parameter name="PointResolutionRPhi_SIT" type="float" value="0.01"/>
+  <!--R-Phi Resolution in VTX-->
+  <parameter name="PointResolutionRPhi_VTX" type="float" value="0.004"/>
+  <!--Z Resolution in SIT-->
+  <parameter name="PointResolutionZ_SIT" type="float" value="0.01"/>
+  <!--Z Resolution in VTX-->
+  <parameter name="PointResolutionZ_VTX" type="float" value="0.004"/>
+  <!--Remove D-rays ?-->
+  <parameter name="RemoveDrays" type="int" value="0"/>
+</processor>
+
+ <processor name="MyFTDDigiProcessor" type="FTDDigiProcessor">
+ <!--FTDDigiProcessor creates FTD TrackerHits from SimTrackerHits-->
+  <!--Name of the SimTrackerHit collection-->
+  <parameter name="CollectionName" type="string" lcioInType="SimTrackerHit"> FTDCollection </parameter>
+  <!--Name of the TrackerHit output collection-->
+  <parameter name="OutputCollectionName" type="string" lcioOutType="TrackerHit"> FTDTrackerHits </parameter>
+  <!--Momentum Cut For D Rays (GeV)-->
+  <parameter name="MomentumCutForDRays" type="float" value="10"/>
+  <!--Point Resolution in FTD-->
+  <parameter name="PointResolution" type="float" value="0.01"/>
+  <!--Remove D rays?-->
+  <parameter name="RemoveDrays" type="int" value="0"/>
+</processor>
+
+ <processor name="MyLEPTrackingProcessor" type="LEPTrackingProcessor">
+ <!--Produces Track collection from TPC TrackerHit collections using LEP tracking algorithms-->
+  <!--Name of the SIT TrackerHit collection-->
+  <parameter name="SITTrackerHitCollectionName" type="string" lcioInType="TrackerHit"> SITTrackerHits </parameter>
+  <!--Name of the TPC TrackerHit collection-->
+  <parameter name="TPCTrackerHitCollectionName" type="string" lcioInType="TrackerHit"> TPCTrackerHits </parameter>
+  <!--Name of the VTX TrackerHit collection-->
+  <parameter name="VTXTrackerHitCollectionName" type="string" lcioInType="TrackerHit"> VTXTrackerHits </parameter>
+  <!--Name of the TPC Track MC Relation collection-->
+  <parameter name="MCTPCTrackRelCollectionName" type="string" lcioOutType="LCRelation"> TPCTracksMCP </parameter>
+  <!--Name of the Track MC Relation collection-->
+  <parameter name="MCTrackRelCollectionName" type="string" lcioOutType="LCRelation"> TracksMCP </parameter>
+  <!--Name of the TPC Track collection-->
+  <parameter name="TPCTrackCollectionName" type="string" lcioOutType="Track"> TPCTracks </parameter>
+  <!--Name of the Track collection-->
+  <parameter name="TrackCollectionName" type="string" lcioOutType="Track"> Tracks </parameter>
+</processor>
+
+ <processor name="MySiliconTracking" type="SiliconTracking">
+ <!--Pattern recognition in silicon trackers-->
+  <!--FTD Hit Collection Name-->
+  <parameter name="FTDHitCollectionName" type="string" lcioInType="TrackerHit"> FTDTrackerHits </parameter>
+  <!--SIT Hit Collection Name-->
+  <parameter name="SITHitCollectionName" type="string" lcioInType="TrackerHit"> SITTrackerHits </parameter>
+  <!--VTX Hit Collection Name-->
+  <parameter name="VTXHitCollectionName" type="string" lcioInType="TrackerHit"> VTXTrackerHits </parameter>
+  <!--Silicon track Collection Name-->
+  <parameter name="SiTrackCollectionName" type="string" lcioOutType="Track"> SiTracks </parameter>
+  <!--Name of Si track MC particle relation collection-->
+  <parameter name="SiTrackMCPRelCollection" type="string" lcioOutType="LCRelation"> SiTracksMCP </parameter>
+  <!--Angle Cut For Merging-->
+  <parameter name="AngleCutForMerging" type="float" value="0.1"/>
+  <!--Chi2 Fit Cut-->
+  <parameter name="Chi2FitCut" type="float" value="100"/>
+  <!--Chi2 Prefit Cut-->
+  <parameter name="Chi2PrefitCut" type="float" value="1e+10"/>
+  <!--Chi2WRphiQuartet-->
+  <parameter name="Chi2WRphiQuartet" type="float" value="1"/>
+  <!--Chi2WRphiSeptet-->
+  <parameter name="Chi2WRphiSeptet" type="float" value="1"/>
+  <!--Chi2WRphiTriplet-->
+  <parameter name="Chi2WRphiTriplet" type="float" value="1"/>
+  <!--Chi2WZQuartet-->
+  <parameter name="Chi2WZQuartet" type="float" value="0.5"/>
+  <!--Chi2WZSeptet-->
+  <parameter name="Chi2WZSeptet" type="float" value="0.5"/>
+  <!--Chi2WZTriplet-->
+  <parameter name="Chi2WZTriplet" type="float" value="0.5"/>
+  <!--Create Track To MCP Relations-->
+  <parameter name="CreateMap" type="int" value="1"/>
+  <!--cut on D0 for tracks-->
+  <parameter name="CutOnD0" type="float" value="100"/>
+  <!--cut on Pt-->
+  <parameter name="CutOnPt" type="float" value="0.1"/>
+  <!--cut on Z0 for tracks-->
+  <parameter name="CutOnZ0" type="float" value="100"/>
+  <!--Print out debugging info?-->
+  <parameter name="Debug" type="int" value="1"/>
+  <!--Fast attachment-->
+  <parameter name="FastAttachment" type="int" value="0"/>
+  <!--Final Refit ?-->
+  <parameter name="FinalRefit" type="int" value="1"/>
+  <!--Combinations of Hits in Layers-->
+  <parameter name="LayerCombinations" type="IntVec"> 6 4 3 6 4 2 6 3 2 5 4 3 5 4 2 5 3 2 4 3 2 4 3 1 4 2 1 3 2 1 </parameter>
+  <!--Combinations of Hits in FTD-->
+  <parameter name="LayerCombinationsFTD" type="IntVec"> 6 5 4 5 4 3 5 4 2 5 4 1 5 3 2 5 3 1 5 2 1 4 3 2 4 3 1 4 3 0 4 2 1 4 2 0 4 1 0 3 2 1 3 2 0 3 1 0 2 1 0 </parameter>
+  <!--MinDistCutAttach-->
+  <parameter name="MinDistCutAttach" type="float" value="2"/>
+  <!--MinLayerToAttach-->
+  <parameter name="MinLayerToAttach" type="int" value="-1"/>
+  <!--minimal hits-->
+  <parameter name="MinimalHits" type="int" value="3"/>
+  <!--Number of divisions in Phi-->
+  <parameter name="NDivisionsInPhi" type="int" value="40"/>
+  <!--Number of divisions in Phi for FTD-->
+  <parameter name="NDivisionsInPhiFTD" type="int" value="3"/>
+  <!--Number of divisions in Theta-->
+  <parameter name="NDivisionsInTheta" type="int" value="40"/>
+  <!--Option of prefit ?-->
+  <parameter name="OptPrefit" type="int" value="0"/>
+  <!--Simple Helix Fit ?-->
+  <parameter name="SimpleHelixFit" type="int" value="1"/>
+  <!--Use Extra Point in Fit-->
+  <parameter name="UseExtraPoint" type="int" value="0"/>
+  <!--Use SIT-->
+  <parameter name="UseSIT" type="int" value="1"/>
+</processor>
+
+ <processor name="MyFullLDCTracking" type="FullLDCTracking">
+ <!--Performs full tracking in LDC detector-->
+  <!--FTD Hit Collection Name-->
+  <parameter name="FTDHitCollection" type="string" lcioInType="TrackerHit"> FTDTrackerHits </parameter>
+  <!--SIT Hit Collection Name-->
+  <parameter name="SITHitCollection" type="string" lcioInType="TrackerHit"> SITTrackerHits </parameter>
+  <!--Si Track Collection-->
+  <parameter name="SiTracks" type="string" lcioInType="Track"> SiTracks </parameter>
+  <!--Si Track to Collection-->
+  <parameter name="SiTracksMCPRelColl" type="string" lcioInType="LCRelation"> SiTracksMCP </parameter>
+  <!--TPC Hit Collection Name-->
+  <parameter name="TPCHitCollection" type="string" lcioInType="TrackerHit"> TPCTrackerHits </parameter>
+  <!--TPC Track Collection-->
+  <parameter name="TPCTracks" type="string" lcioInType="Track"> TPCTracks </parameter>
+  <!--TPC Track to MCP Relation Collection Name-->
+  <parameter name="TPCTracksMCPRelColl" type="string" lcioInType="LCRelation"> TPCTracksMCP </parameter>
+  <!--VTX Hit Collection Name-->
+  <parameter name="VTXHitCollection" type="string" lcioInType="TrackerHit"> VTXTrackerHits </parameter>
+  <!--LDC track collection name-->
+  <parameter name="LDCTrackCollection" type="string" lcioOutType="Track"> LDCTracks </parameter>
+  <!--Collection name for the LDC track to MCParticle relations-->
+  <parameter name="LDCTrackMCPRelCollection" type="string" lcioOutType="LCRelation"> LDCTracksMCP </parameter>
+  <!--Refitted TPC track collection name-->
+  <parameter name="ReffitedTPCTrackCollection" type="string" lcioOutType="Track"> RefittedTPCTracks </parameter>
+  <!--Refitted Si track collection name-->
+  <parameter name="RefittedSiTrackCollection" type="string" lcioOutType="Track"> RefittedSiTracks </parameter>
+  <!--Collection name for the refittedSi track to MCParticle relations-->
+  <parameter name="RefittedSiTrackMCPRelCollection" type="string" lcioOutType="LCRelation"> RefittedSiTracksMCP </parameter>
+  <!--Collection name for the refitted TPC track to MCParticle relations-->
+  <parameter name="RefittedTPCTrackMCPRelCollection" type="string" lcioOutType="LCRelation"> RefittedTPCTracksMCP </parameter>
+  <!--Cut on Opening Angle for forced merging of Si and TPC segments-->
+  <parameter name="AngleCutForForcedMerging" type="float" value="0.05"/>
+  <!--Cut on Opening Angle for merging Si and TPC segments-->
+  <parameter name="AngleCutForMerging" type="float" value="0.1"/>
+  <!--Assign left over FTD hits-->
+  <parameter name="AssignFTDHits" type="int" value="1"/>
+  <!--Assign left over SIT hits-->
+  <parameter name="AssignSITHits" type="int" value="1"/>
+  <!--Assign left over TPC hits-->
+  <parameter name="AssignTPCHits" type="int" value="1"/>
+  <!--Assign left over VTX hits-->
+  <parameter name="AssignVTXHits" type="int" value="1"/>
+  <!--Cut on fit Chi2-->
+  <parameter name="Chi2FitCut" type="float" value="100"/>
+  <!--Cut on fit Chi2-->
+  <parameter name="Chi2PrefitCut" type="float" value="100000"/>
+  <!--Create Track to MCP Relations-->
+  <parameter name="CreateMap" type="int" value="1"/>
+  <!--Cut on the number of the TPC hits for tracks with no Si hits-->
+  <parameter name="CutOnTPCHits" type="int" value="35"/>
+  <!--Cut on the track parameter D0-->
+  <parameter name="CutOnTrackD0" type="float" value="500"/>
+  <!--Cut on the track parameter Z0-->
+  <parameter name="CutOnTrackZ0" type="float" value="500"/>
+  <!--Cut on D0 difference for forced merging of Si and TPC segments-->
+  <parameter name="D0CutForForcedMerging" type="float" value="50"/>
+  <!--Cut on D0 difference for merging of Si and TPC segments-->
+  <parameter name="D0CutForMerging" type="float" value="500"/>
+  <!--Cut on D0 difference for merging TPC segments-->
+  <parameter name="D0CutToMergeTPCSegments" type="float" value="100"/>
+  <!--Activate debugging?-->
+  <parameter name="Debug" type="int" value="1"/>
+  <!--Cut on dP/P difference for merging TPC segments-->
+  <parameter name="DeltaPCutToMergeTPCSegments" type="float" value="0.1"/>
+  <!--Cut on distance between track and FTD hits-->
+  <parameter name="FTDHitToTrackDistance" type="float" value="2"/>
+  <!--Forbid overlap in Z for combining TPC segments with tracks having Si hits-->
+  <parameter name="ForbidOverlapInZComb" type="int" value="0"/>
+  <!--Forbid overlap in Z for the merged TPC segments-->
+  <parameter name="ForbidOverlapInZTPC" type="int" value="0"/>
+  <!--Force merging of Si and TPC segments?-->
+  <parameter name="ForceSiTPCMerging" type="int" value="0"/>
+  <!--Force merging of TPC Segments?-->
+  <parameter name="ForceTPCSegmentsMerging" type="int" value="1"/>
+  <!--Cut on Omega difference for forced merging of Si and TPC segments-->
+  <parameter name="OmegaCutForForcedMerging" type="float" value="0.15"/>
+  <!--Cut on Omega difference for merging Si and TPC segments-->
+  <parameter name="OmegaCutForMerging" type="float" value="0.25"/>
+  <!--Option for the LDC Track fit-->
+  <parameter name="OptFit" type="int" value="4"/>
+  <!--Option for Si tracks refitting-->
+  <parameter name="OptFitSi" type="int" value="2"/>
+  <!--Option for TPC tracks refitting-->
+  <parameter name="OptFitTPC" type="int" value="2"/>
+  <!--Cut on Pt of tracks for merging TPC segments-->
+  <parameter name="PtCutToMergeTPCSegments" type="float" value="1.2"/>
+  <!--Refit Si Tracks ?-->
+  <parameter name="RefitSiTracks" type="int" value="0"/>
+  <!--Refit TPC Tracks ?-->
+  <parameter name="RefitTPCTracks" type="int" value="1"/>
+  <!--Cut on distance between track and SIT hits-->
+  <parameter name="SITHitToTrackDistance" type="float" value="2"/>
+  <!--Store only hits used in fit?-->
+  <parameter name="StoreHitsInFit" type="int" value="0"/>
+  <!--Store Refitted Si Tracks ?-->
+  <parameter name="StoreRefittedSiTracks" type="int" value="1"/>
+  <!--Store Refitted TPC Tracks ?-->
+  <parameter name="StoreRefittedTPCTracks" type="int" value="0"/>
+  <!--Cut on distance between track and TPC hits-->
+  <parameter name="TPCHitToTrackDistance" type="float" value="25"/>
+  <!--Use Extra Point in Fit-->
+  <parameter name="UseExtraPoint" type="int" value="0"/>
+  <!--Cut on distance between track and VTX hits-->
+  <parameter name="VTXHitToTrackDistance" type="float" value="1.5"/>
+  <!--Cut on Z0 difference for forced merging of Si and TPC segments-->
+  <parameter name="Z0CutForForcedMerging" type="float" value="200"/>
+  <!--Cut on Z0 difference for merging of Si and TPC segments-->
+  <parameter name="Z0CutForMerging" type="float" value="1000"/>
+  <!--Cut on Z0 difference for merging TPC segments-->
+  <parameter name="Z0CutToMergeTPCSegments" type="float" value="5000"/>
+  <!--Parameter a to define minimal IP error-->
+  <parameter name="aParameterForIPError" type="float" value="0.002"/>
+  <!--Parameter b to define minimal IP error-->
+  <parameter name="bParameterForIPError" type="float" value="0.0076"/>
+  <!--Parameter s to define minimal IP error-->
+  <parameter name="sParameterForIPError" type="float" value="0.75"/>
+</processor>
+
+ <processor name="MySimpleCaloDigi" type="SimpleCaloDigi">
+ <!--Performs simple digitization of sim calo hits...-->
+  <!--ECAL Collection Names-->
+  <parameter name="ECALCollections" type="StringVec" lcioInType="SimCalorimeterHit"> EcalBarrelCollection EcalEndcapCollection EcalEndcapRingCollection </parameter>
+  <!--HCAL Collection Names-->
+  <parameter name="HCALCollections" type="StringVec" lcioInType="SimCalorimeterHit"> HcalBarrelRegCollection HcalEndCapRingsCollection HcalEndCapsCollection </parameter>
+  <!--ECAL Collection of real Hits-->
+  <parameter name="ECALOutputCollection" type="string" lcioOutType="CalorimeterHit"> ECAL </parameter>
+  <!--HCAL Collection of real Hits-->
+  <parameter name="HCALOutputCollection" type="string" lcioOutType="CalorimeterHit"> HCAL </parameter>
+  <!--CaloHit Relation Collection-->
+  <parameter name="RelationOutputCollection" type="string" lcioOutType="LCRelation"> RelationCaloHit </parameter>
+  <!--Calibration coefficients for ECAL-->
+  <parameter name="CalibrECAL" type="FloatVec"> 41.83 118.53  </parameter>  <!-- 51.66 146.4  correceted by 1/1.235101-- >
+  <!--Calibration coefficients for HCAL-->
+  <parameter name="CalibrHCAL" type="FloatVec" value="38.22"/>
+  <!--Index of ECal Layers-->
+  <parameter name="ECALLayers" type="IntVec"> 20 100 </parameter>
+  <!--Threshold for ECAL Hits in GeV-->
+  <parameter name="ECALThreshold" type="float" value="1e-04"/>
+  <!--Index of HCal Layers-->
+  <parameter name="HCALLayers" type="IntVec" value="100"/>
+  <!--Threshold for HCAL Hits in GeV-->
+  <parameter name="HCALThreshold" type="float" value="0.0004"/>
+  <!--Digital Ecal-->
+  <parameter name="IfDigitalEcal" type="int" value="0"/>
+  <!--Digital Hcal-->
+  <parameter name="IfDigitalHcal" type="int" value="0"/>
+</processor>
+
+ <processor name="MySimpleMuonDigi" type="SimpleMuonDigi">
+ <!--Performs simple digitization of sim muon hits...-->
+  <!--Muon Collection Names-->
+  <parameter name="MUONCollections" type="StringVec" lcioInType="SimCalorimeterHit"> MuonEndCapCollection MuonBarrelCollection MuonPlugCollection </parameter>
+  <!--Muon Collection of real Hits-->
+  <parameter name="MUONOutputCollection" type="string" lcioOutType="CalorimeterHit"> MUON </parameter>
+  <!--CaloHit Relation Collection-->
+  <parameter name="RelationOutputCollection" type="string" lcioOutType="LCRelation"> RelationMuonHit </parameter>
+  <!--Calibration coefficients for MUON-->
+  <parameter name="CalibrMUON" type="float" value="31"/>
+  <!--Threshold for Muon Hits in GeV-->
+  <parameter name="MuonThreshold" type="float" value="0"/>
+</processor>
+
+ <processor name="MyPandoraPFAProcessor" type="PandoraPFAProcessor">
+ <!--PandoraPFAProcessor reconstructs clusters and particle flow objects-->
+  <!--Name of the Curl Killer TPC Hit collection used for kink finding-->
+  <parameter name="CurlKilledTpcHitCollection" type="string" lcioInType="TrackerHit"> cutTPCTrackeHits </parameter>
+  <!--Name of the ECAL collection used to form clusters-->
+  <parameter name="ECALcollections" type="string" lcioInType="CalorimeterHit"> ECAL </parameter>
+  <!--Name of the HCAL collection used to form clusters-->
+  <parameter name="HCALcollections" type="string" lcioInType="CalorimeterHit"> HCAL </parameter>
+  <!--Name of the MUON collections-->
+  <parameter name="MUONcollections" type="string" lcioInType="CalorimeterHit"> MUON </parameter>
+  <!--Name of the calo hit <-> sim calo hit relation-->
+  <parameter name="RelationCaloString" type="string" lcioInType="LCRelation"> RelationCaloHit </parameter>
+  <!--Name of the track hit <-> sim track hit relation-->
+  <parameter name="RelationTrackString" type="string" lcioInType="LCRelation"> LDCTracksMCP </parameter>
+  <!--Name of the TPC Hit collection used for kink finding-->
+  <parameter name="TpcHitCollections" type="string" lcioInType="TrackerHit"> AllTPCTrackerHits </parameter>
+  <!--Name of the Track collection used for clustering-->
+  <parameter name="TrackCollections" type="string" lcioInType="Track"> LDCTracks </parameter>
+  <!--Cluster Collection Name -->
+  <parameter name="ClusterCollectionName" type="string" lcioOutType="Cluster"> PandoraClusters </parameter>
+  <!--Particle Collection Name -->
+  <parameter name="ParticleCollectionName" type="string" lcioOutType="ReconstructedParticle"> PandoraPFOs </parameter>
+  <!-- Sorry, this parameter isn't a default parameter for this processor: description and type lost!!  -->
+  <parameter name="AddInEnu" value="0"/>
+  <!--Switch on/off code to fragment photons from MIPS-->
+  <parameter name="AllowPhotonFragmentation" type="int" value="1"/>
+  <!--Switch on/off code for statistical reclustering i.e. whether to break up/merge clusters based on track-->
+  <parameter name="AllowReclustering" type="int" value="1"/>
+  <!--Turn on internal analysis of clusters-->
+  <parameter name="AnalyseClusters" type="int" value="0"/>
+  <!--Name of Root file for PFA Analysis-->
+  <parameter name="AnalysisRootFile" type="string" value="PandoraPFAAnalysis.root"/>
+  <!--Switch on/off matching of back-scattered tracks-->
+  <parameter name="AssociateBackScatters" type="int" value="1"/>
+  <!--Switch on/off matching by proximity-->
+  <parameter name="AssociateByProximity" type="int" value="1"/>
+  <!--Switch on/off matching by shower cone-->
+  <parameter name="AssociateByShowerCone" type="int" value="1"/>
+  <!--Switch on/off matching-->
+  <parameter name="AssociateFromStart" type="int" value="1"/>
+  <!--Switch on/off matching of looping tracks in CALO-->
+  <parameter name="AssociateLoopingTracks" type="int" value="1"/>
+  <!--Switch on/off matching of mip track stubs to showers-->
+  <parameter name="AssociateMipStubsToShowers" type="int" value="1"/>
+  <!--Switch on/off matching of showers to MIP segments-->
+  <parameter name="AssociateShowersToMips" type="int" value="1"/>
+  <!--Switch on/off matching of showers to MIP segments II-->
+  <parameter name="AssociateShowersToMipsII" type="int" value="1"/>
+  <!--Switch on/off matching of soft clusters-->
+  <parameter name="AssociateSoftClusters" type="int" value="1"/>
+  <!--Switch on/off matching of track segments in CALO-->
+  <parameter name="AssociateTrackSegments" type="int" value="1"/>
+  <!--Can use cluster energy for PFOs for tracks which exit detector-->
+  <parameter name="CanUseClusterForExitingTracks" type="int" value="1"/>
+  <!--Cluster Collection Name -->
+  <parameter name="CellIDCoding" type="string" value="Mokka"/>
+  <!--Chi cut for reclustering-->
+  <parameter name="ChiToAttemptReclustering" type="float" value="3.0"/>
+  <!--Chi cut for forced reclustering-->
+  <parameter name="ChiToForceReclustering" type="float" value="4"/>
+  <!--tan(angle) used in hit-cluster association-->
+  <parameter name="ClusterFormationAngleECAL" type="float" value="0.3"/>
+  <!--tan(angle) used in hit-cluster association-->
+  <parameter name="ClusterFormationAngleHCAL" type="float" value="0.5"/>
+  <!--number of pads to add to cone in cluster fortmation-->
+  <parameter name="ClusterFormationPadsECAL" type="float" value="1.5"/>
+  <!--number of pads to add to cone in cluster fortmation-->
+  <parameter name="ClusterFormationPadsHCAL" type="float" value="2.5"/>
+  <!--0=Step and make assignment in layer then, if none found, step back, 1=step over iback layers and choose best assignment -->
+  <parameter name="ClusterFormationStrategy" type="int" value="0"/>
+  <!--Cosine of cone half angle for shower cone assoc-->
+  <parameter name="CosineConeAngle" type="float" value="0.9"/>
+  <!--Power for density weighting assuming 1/r^N weighting e.g. 2 = inverse square-->
+  <parameter name="DenistyWeightingPower" type="int" value="2"/>
+  <!--If set treat ECAL as digital ECAL-->
+  <parameter name="DigitalECAL" type="int" value="0"/>
+  <!--If set treat HCAL as digital HCAL-->
+  <parameter name="DigitalHCAL" type="int" value="0"/>
+  <!--Display the ununused tpc hits-->
+  <parameter name="DisplayUnusedTpcHits" type="int" value="0"/>
+  <!--Calibration from deposited ECAL MIP to EM energy-->
+  <parameter name="ECALEMMIPToGeV" type="float" value="0.004785"/>
+  <!--Calibration from deposited ECAL MIP to Hadronic energy-->
+  <parameter name="ECALHadMIPToGeV" type="float" value="0.004785"/>
+  <!--Calibration from deposited ECAL energy to MIP-->
+  <parameter name="ECALMIPcalibration" type="float" value="209.0"/>
+  <!--ECAL Threshold in MIPS-->
+  <parameter name="ECALThreshold" type="float" value="0.5"/>
+  <!-- Sorry, this parameter isn't a default parameter for this processor: description and type lost!!  -->
+  <parameter name="EToPlot" value="0.0"/>
+  <!--Below this enegry tracks are treates as very low wenegry-->
+  <parameter name="EnergyCutForVeryLowEnergyTracks" type="float" value="0.25"/>
+  <!--Veto cluster merging based on chi2 difference (Eclust-Etrack)/sigE-->
+  <parameter name="EnergyDeltaChi2ForCrudeMerging" type="float" value="1.0"/>
+  <!--Use additional method to match looping tracks to clusters ? 0=no 1=yes-->
+  <parameter name="ExtraLoopingTrackClusterAssociation" type="int" value="1"/>
+  <!-- Sorry, this parameter isn't a default parameter for this processor: description and type lost!!  -->
+  <parameter name="FirstEvent" value="0"/>
+  <!--Make a dummy cluster from isolated hits-->
+  <parameter name="FormClusterFromUnusedIsolatedHits" type="int" value="0"/>
+  <!--Switch on/off identification and removal of fragment clusters-->
+  <parameter name="FragmentRemoval" type="int" value="1"/>
+  <!--Base for chi2 requirement-->
+  <parameter name="FragmentRemovalChi2Base" type="float" value="5"/>
+  <!--Fragment removal: weight for cone evidence-->
+  <parameter name="FragmentRemovalConeWeight" type="float" value="1"/>
+  <!--Fragment removal contact criterion - cut in pads-->
+  <parameter name="FragmentRemovalContactCut" type="float" value="2"/>
+  <!--Fragment removal contact cut criterion - no of layers-->
+  <parameter name="FragmentRemovalContactLayersCut" type="int" value="4"/>
+  <!--Fragment removal: weight for contact evidence-->
+  <parameter name="FragmentRemovalContactWeight" type="float" value="1"/>
+  <!--Fragment removal maximum delta chi2 for merge-->
+  <parameter name="FragmentRemovalDeltaChi2ToMerge" type="float" value="1"/>
+  <!--Fragment removal: weight for distance evidence-->
+  <parameter name="FragmentRemovalDistanceWeight" type="float" value="1"/>
+  <!--Penalty for using global chi2-->
+  <parameter name="FragmentRemovalGlobalPenalty" type="float" value="5"/>
+  <!--Fragment removal maximum chi2 for merge-->
+  <parameter name="FragmentRemovalMaxChi2ForMerge" type="float" value="9"/>
+  <!--Fragment removal: weight for track extrapolation evidence-->
+  <parameter name="FragmentRemovalTrackExtrapolationWeight" type="float" value="1"/>
+  <!--Calibration from deposited HCAL MIP to EM energy-->
+  <parameter name="HCALEMMIPToGeV" type="float" value="0.023"/>
+  <!--Calibration from deposited HCAL MIP to Hadronic energy-->
+  <parameter name="HCALHadMIPToGeV" type="float" value="0.023"/>
+  <!--Calibration from deposited HCAL energy to MIP-->
+  <parameter name="HCALMIPcalibration" type="float" value="34.5"/>
+  <!--HCAL Threshold in MIPS-->
+  <parameter name="HCALThreshold" type="float" value="0.3"/>
+  <!--density weight cut for isolation in ECAL-->
+  <parameter name="IsolationDensityWeightCutECAL" type="float" value="0.1"/>
+  <!--density weight cut for isolation in HCAL-->
+  <parameter name="IsolationDensityWeightCutHCAL" type="float" value="0.1"/>
+  <!--distance (absolute) within layer for ECAL isolation/mm-->
+  <parameter name="IsolationDistanceECAL" type="float" value="25."/>
+  <!--sweep up isolated hits within radius-->
+  <parameter name="IsolationDistanceForReCombination" type="float" value="250."/>
+  <!--distance (absolute) within layer for HCAL isolation /mm-->
+  <parameter name="IsolationDistanceHCAL" type="float" value="200."/>
+  <!--Type of isolation cut : 0=NONE; 1=DENSITY, 2=MULTIPLICITY-->
+  <parameter name="IsolationType" type="int" value="1"/>
+  <!-- Sorry, this parameter isn't a default parameter for this processor: description and type lost!!  -->
+  <parameter name="LayersForDenistyWeighting" value="0"/>
+  <!--Number of layers (other than current) for density weighting-->
+  <parameter name="LayersForDensityWeighting" type="int" value="2"/>
+  <!--Number of ECAL layers for isolation cuts-->
+  <parameter name="LayersForIsolationECAL" type="int" value="2"/>
+  <!--Number of HCAL layers for isolation cuts-->
+  <parameter name="LayersForIsolationHCAL" type="int" value="2"/>
+  <!--Maximum Number of layers in ECAL over which cluster associations are made-->
+  <parameter name="LayersToStepBackECAL" type="int" value="3"/>
+  <!--Maximum Number of layers in HCAL over which cluster associations are made-->
+  <parameter name="LayersToStepBackHCAL" type="int" value="3"/>
+  <!--Maximum distance of closest approach for looping track assoc-->
+  <parameter name="LooperClosestApproachCutECAL" type="float" value="200"/>
+  <!--Maximum distance between ends of clusters for looping track assoc-->
+  <parameter name="LooperTrackSeparationCut" type="float" value="250"/>
+  <!--Chi cut for Killing track-->
+  <parameter name="MatchingChiToKillTrack" type="float" value="4.0"/>
+  <!--cut on distance for cone association ECAL-->
+  <parameter name="MaximumDistanceForConeAssociationECAL" type="float" value="250."/>
+  <!--cut on distance for cone association HCAL-->
+  <parameter name="MaximumDistanceForConeAssociationHCAL" type="float" value="500."/>
+  <!--Distance cuts for joining soft clusters-->
+  <parameter name="MaximumDistanceForSoftCluster" type="float" value="250."/>
+  <!--maximum number of hits for cluster to be considered soft-->
+  <parameter name="MaximumHitsInSoftCluster" type="int" value="5"/>
+  <!--Merge hard photon fragments-->
+  <parameter name="MergeHardPhotons" type="int" value="1"/>
+  <!--Merge soft photon fragments-->
+  <parameter name="MergeSoftPhotons" type="int" value="1"/>
+  <!--Switch on/off photon merging-->
+  <parameter name="MergeSplitPhotons" type="int" value="1"/>
+  <!--minimum energy for EM cluster-->
+  <parameter name="MinimumClusterEnergyEM" type="float" value="0.025"/>
+  <!--minimum energy for HAD cluster-->
+  <parameter name="MinimumClusterEnergyHAD" type="float" value="0.2"/>
+  <!--minimum number of hits in standalone cluster-->
+  <parameter name="MinimumHitsInCluster" type="int" value="5"/>
+  <!--Number of pads over which to count for MIP mulitplicity-->
+  <parameter name="MipCells" type="int" value="2"/>
+  <!--Maximum energy (mips) for hit to be tagged as mip like-->
+  <parameter name="MipLikeMipCut" type="float" value="5."/>
+  <!--Maximum Number of mip cells hit for hit to be tagged as candidate MIP-->
+  <parameter name="MipMaxCellsHit" type="int" value="1"/>
+  <!--number of Mips per hit for hadron to be flagged as hot-->
+  <parameter name="MipsPerHitForHotHadron" type="float" value="15"/>
+  <!--Region defined as outer HCAL-->
+  <parameter name="OuterHCAL" type="int" value="10"/>
+  <!--Use MC to cheat particle flow-->
+  <parameter name="PerfectPFA" type="int" value="0"/>
+  <!--Cut in energy matching for non-IDed fragmented photons-->
+  <parameter name="PhotonFragNonPhotonDeltaChi2Cut" type="float" value="0."/>
+  <!--Cut in energy matching for IDed fragmented photons-->
+  <parameter name="PhotonFragPhotonDeltaChi2Cut" type="float" value="1."/>
+  <!--Switch on/off code for photon recovery-->
+  <parameter name="PhotonRecovery" type="int" value="1"/>
+  <!--Debug printing-->
+  <parameter name="Printing" type="int" value="1"/>
+  <!--Draw the display-->
+  <parameter name="RecoDisplay" type="int" value="0"/>
+  <!--Number of HCAL layers used-->
+  <parameter name="RestrictHCALToNLayers" type="int" value="9999"/>
+  <!--distance in number of pads for same layer assoc-->
+  <parameter name="SameLayerPadCutECAL" type="float" value="1.8"/>
+  <!--distance in number of pads for same layer assoc-->
+  <parameter name="SameLayerPadCutHCAL" type="float" value="1.8"/>
+  <!--number of Mips per hit used to scale hot hadron energies-->
+  <parameter name="ScaledMipsPerHitForHotHadron" type="float" value="5"/>
+  <!--Search for back scatters?-->
+  <parameter name="SearchForBackScatterss" type="int" value="1"/>
+  <!--Search for kinks?-->
+  <parameter name="SearchForKinks" type="int" value="1"/>
+  <!--Search for prongs?-->
+  <parameter name="SearchForProngs" type="int" value="1"/>
+  <!--Search for V0s?-->
+  <parameter name="SearchForV0s" type="int" value="1"/>
+  <!-- Sorry, this parameter isn't a default parameter for this processor: description and type lost!!  -->
+  <parameter name="SelectEvent" value="-1"/>
+  <!--Step through cluster association on display-->
+  <parameter name="ShowProtoClusterAssociation" type="int" value="0"/>
+  <!--Step through cluster formation on display-->
+  <parameter name="ShowProtoClusterFormation" type="int" value="0"/>
+  <!--number of hits for smallest cluster size when tagging isolated hits-->
+  <parameter name="SmallestClusterSize" type="int" value="3"/>
+  <!--maximum energy for HAD cluster to be considered soft-->
+  <parameter name="SoftClusterEnergyHAD" type="float" value="2"/>
+  <!--Energy for cluster to be considered a soft photon fragment-->
+  <parameter name="SoftPhotonMergingEnergy" type="float" value="0.2"/>
+  <!--track merging distance in  ECAL-->
+  <parameter name="TrackMergeCutEcal" type="float" value="25."/>
+  <!--track merging distance in  HCAL-->
+  <parameter name="TrackMergeCutHcal" type="float" value="25."/>
+  <!--track merging perp distance in  ECAL-->
+  <parameter name="TrackMergePerpCutEcal" type="float" value="50."/>
+  <!--track merging perp distance in  HCAL-->
+  <parameter name="TrackMergePerpCutHcal" type="float" value="75."/>
+  <!--Use tracks to seed clusters ? 0=no, 1=only barrel loopers, 2=all loopers, 3=all tracks-->
+  <parameter name="TrackSeeding" type="int" value="3"/>
+  <!--weight given to tracking in protocluster formation-->
+  <parameter name="TrackingWeight" type="int" value="2"/>
+  <!-- Sorry, this parameter isn't a default parameter for this processor: description and type lost!!  -->
+  <parameter name="TypeOfOrdering" value="0"/>
+  <!--How hits are ordered within Layer : 0 = PseudoEnergy, 1 = density within layer, 2=local density over layers-->
+  <parameter name="TypeOfOrderingInLayer" type="int" value="1"/>
+  <!--Maximum energy for unmatched vertex track-->
+  <parameter name="UnmatchedVertexTrackEnergyCut" type="float" value="5"/>
+  <!--Final photon ID based on longitudinal profile-->
+  <parameter name="UseAdvancedPhotonID" type="int" value="1"/>
+  <!--Use tracks which don't originate from vertex-->
+  <parameter name="UseNonVertexTracks" type="int" value="1"/>
+  <!--Use only the end of the track in the main extrap-->
+  <parameter name="UseTrackEndIntersection" type="int" value="0"/>
+  <!--Use unmatched tracks which don't originate from vertex-->
+  <parameter name="UseUnmatchedNonVertexTracks" type="int" value="0"/>
+  <!--Use unmatched vertex/kink tracks-->
+  <parameter name="UseUnmatchedVertexTracks" type="int" value="1"/>
+  <!--UsingCheatedTracks ?-->
+  <parameter name="UsingCheatedTracks" type="int" value="0"/>
+  <!--cut on d0 to define good tracks-->
+  <parameter name="d0TrackCut" type="float" value="50"/>
+  <!-- Sorry, this parameter isn't a default parameter for this processor: description and type lost!!  -->
+  <parameter name="ecalCollections" value="ECAL"/>
+  <!-- Sorry, this parameter isn't a default parameter for this processor: description and type lost!!  -->
+  <parameter name="hcalCollections" value="HCAL"/>
+  <!--cut on z0 to define good tracks-->
+  <parameter name="z0TrackCut" type="float" value="50"/>
+</processor>
+
+ <processor name="MySelectReconstructedParticle" type="SelectReconstructedParticle">
+        <!--SelectReconstructedParticle: Selects particles from all reconstructed particles to be used for the thrust finder-->
+        <!--Minimum momentum a particle has to have to be used for the thrust calculation-->
+        <!--Value of 0.02 is suitable for CMS energy =  92 GeV-->
+        <!--Should be increased to 0.1 for CMS energy = 500 GeV-->
+        <parameter name="MinimumMomentum" type="float">0.02</parameter>
+        <!--Collection of reconstructed particles to chose from-->
+        <parameter name="inputCollectionName" type="string">PandoraPFOs</parameter>
+        <!--Collection of selected reconstructed particles-->
+        <parameter name="outputCollectionName" type="string">SelectedRecoParticles</parameter>
+    </processor>
+ 
+ <processor name="MySatoruJetFinderProcessor" type="SatoruJetFinderProcessor">
+ <!--A multi algorithm jet finder-->
+  <!--Collection of reconstructed particles-->
+  <parameter name="InputCollection" type="string" lcioInType="ReconstructedParticle">SelectedRecoParticles</parameter>
+  <!--Name of collection with the found jets-->
+  <parameter name="OutputCollection" type="string" lcioOutType="ReconstructedParticle"> Jets </parameter>
+  <!--Set debug level-->
+  <!--parameter name="Debug" type="int" value="0"/-->
+  <!--Jet energycut for cone jet finding algorithm with variable number of jets-->
+  <!--parameter name="EpsCone" type="float" value="7"/-->
+  <!--mode for manual alogorithm selection, see documentation for details-->
+  <!--parameter name="GlobalMode" type="string" value="0A"/-->
+  <!--Merging mode, if mode is "manual"-->
+  <!--parameter name="MergingMode" type="int" value="0"/-->
+  <!--Merging threshold, if mode is "manual"-->
+  <!--parameter name="MergingThreshold" type="float" value="0"/-->
+  <!--Select predefined algorithms for jet finding(or "manual")-->
+  <parameter name="Mode" type="string" value="satoru"/>
+  <!--Force everything to N jets(if supported by current mode)-->
+  <parameter name="NJetRequested" type="int" value="2"/>
+  <!--Primary jet finding mode, if mode is "manual"-->
+  <!--parameter name="PrimaryJetFindingMode" type="int" value="0"/-->
+  <!--Half cone opening angle for cone jet finding algorithm with variable number of jet-->
+  <!--parameter name="RCone" type="float" value="0.7"/-->
+  <!--Secong jet finding mode, if mode is "manual"-->
+  <!--parameter name="SecondJetFindingMode" type="int" value="0"/-->
+  <!--Name of parameter added to event in case of successful jet finding-->
+  <!--parameter name="SuccessTag" type="string" value="JetsFound"/-->
+  <!--Threshold, if mode is "manual"-->
+  <!--parameter name="Threshold" type="float" value="0"/-->
+  <!--YCut for jet finding algorithm(if supported by current mode)-->
+  <!--parameter name="YCut" type="float" value="0"/-->
+</processor>
+
+  <processor name="MyTrueAngularJetFlavourProcessor" type="TrueAngularJetFlavourProcessor">
+ <!--TrueAngularJetFlavourProcessor - Determines the true flavour of a jet from the MC Paticles associated to the Jets RP-->
+  <!--Name of the ReconstructedParticle collection that represents jets-->
+  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">Jets </parameter>
+  <!--Name of the collection that holds all MC particles. -->
+  <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticle </parameter>
+  <!--Maximum value allowed between MCParticle and jet momentum expressed in degrees-->
+  <!--parameter name="MaximumAngle" type="double">180 </parameter-->
+  <!--Name of the output collection of LCIntVec (same order as jets)-->
+  <parameter name="TrueJetFlavourCollection" type="string" lcioOutType="LCIntVec">TrueJetFlavour </parameter>
+  <!--Name of the output collection of LCIntVec (same order as jets)-->
+  <parameter name="TrueJetHadronChargeCollection" type="string" lcioOutType="LCFloatVec">TrueJetHadronCharge </parameter>
+  <!--Name of the output collection of LCIntVec (same order as jets)-->
+  <parameter name="TrueJetPDGCodeCollection" type="string" lcioOutType="LCIntVec">TrueJetPDGCode </parameter>
+  <!--Name of the output collection of LCIntVec (same order as jets)-->
+  <parameter name="TrueJetPartonChargeCollection" type="string" lcioOutType="LCFloatVec">TrueJetPartonCharge </parameter>
+</processor>
+
+<processor name="MyPerEventIPFitterProcessor" type="PerEventIPFitterProcessor">
+ <!--Per Event IP fitter - trims tracks to reach probabililty threshold-->
+  <!--Manually set default error matrix of the primary vertex (cm) (lower symmetric)-->
+  <parameter name="DefaultIPError" type="FloatVec">2.5e-05 0 2.5e-05 0 0 0.0004  </parameter>
+  <!--Manually set default position of the IP vertex (cm)-->
+  <parameter name="DefaultIPPosition" type="FloatVec">0 0 0  </parameter>
+  <!--Name of the ReconstructedParticle collection contains tracks to fit-->
+  <parameter name="InputRPCollection" type="string" lcioInType="ReconstructedParticle">IPFitSelectedParticles </parameter>
+  <!--Name of the Vertex collection of the output ip vertex-->
+  <parameter name="OutputVertexCollection" type="string" lcioOutType="Vertex">IPVertex </parameter>
+  <!--Tracks are removed until this threshold is reached-->
+  <parameter name="ProbabilityThreshold" type="double">0.01 </parameter>
+</processor>
+
+
+ <processor name="IPRPCutProcessor" type="RPCutProcessor">
+ <!--RPCutProcessor - cuts tracks based on several criteria-->
+  <!--Name of the ReconstructedParticle collection which will be cut-->
+  <parameter name="InputRCPCollection" type="string" lcioInType="ReconstructedParticle">SelectedRecoParticles</parameter>
+  <!--Name of the output ReconstructedParticle collection when WriteNewCollection is true-->
+  <parameter name="OutputRCPCollection" type="string" lcioOutType="ReconstructedParticle">IPFitSelectedParticles</parameter>
+  <!--If true cuts tracks from the particle lists of particles in InputRCPCollection, if false just cuts particles from InputRCPCollection-->
+  <parameter name="SubParticleLists" type="bool">false </parameter>
+  <!--Name of the Track collection - this is just used to get the sub dectector indices-->
+  <parameter name="WriteNewCollection" type="bool">true </parameter>
+ 
+  <!--Enable a cut on the value of each tracks chi squared over degrees of freedom-->
+  <!--parameter name="a1_Chi2OverDOFEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="a2_Chi2OverDOFCutLowerThan" type="bool">false </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="a3_Chi2OverDOFCutValue" type="float">10 </parameter-->
+  
+  <!--Enable a cut on the value of each tracks d0 (no correction for ref point position)-->
+  <parameter name="b1_D0Enable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="b2_D0CutLowerThan" type="bool">false </parameter>
+  <!--Cut Value-->
+  <parameter name="b3_D0CutValue" type="float">5O </parameter>
+  
+  <!--Enable a cut on the value of each tracks d0 Error (sqrt(covariance(d0,d0))-->
+  <!--parameter name="c1_D0ErrEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="c2_D0ErrCutLowerThan" type="bool">false </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="c3_D0ErrCutValue" type="float">0.025 </parameter-->
+  
+  <!--Enable a cut on the value of each tracks Z0 (no correction for ref point position)-->
+  <parameter name="d1_Z0Enable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="d2_Z0CutLowerThan" type="bool">false </parameter>
+  <!--Cut Value-->
+  <parameter name="d3_Z0CutValue" type="float">50 </parameter>
+  
+  <!--Enable a cut on the value of each tracks z0 Error (sqrt(covariance(z0,z0))-->
+  <!--parameter name="e1_Z0ErrEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="e2_Z0ErrCutLowerThan" type="bool">true </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="e3_Z0ErrCutValue" type="float">0.025 </parameter-->
+  
+  <!--Enable a cut on the value of each tracks PT (radial magnitude of ReconstructedParticle->momentum())-->
+  <!--parameter name="f1_PTEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="f2_PTCutLowerThan" type="bool">true </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="f3_PTCutValue" type="float">0.1 </parameter-->
+  
+  <!--Enable a cut on the number seen hits in sub detectors - for more details see documentation-->
+  <!--parameter name="g1_DetectorHitsEnable" type="bool">false </parameter-->
+  <!--Sub detector names in same order as result of Track->getSubdetectorHitNumbers()-->
+  <!--parameter name="g2_SubDetectorNames" type="StringVec">VTX FTD SIT TPC </parameter-->
+  <!--Sub detector names of detectors defining the boundary between region 1 and region 2-->
+  <!--parameter name="g3_DetectorHitsBoundaryDetectorNames" type="StringVec">TPC FTD  </parameter-->
+  <!--Corresponding to the order of DetectorHitsBoundaryDetectorNames the max number of hits for each detector for region 1, if any of the sub detectors has a higher number of hits then region 2 is used-->
+  <!--parameter name="g4_DetectorHitsBoundaryCuts" type="IntVec">20 3  </parameter-->
+  <!--Sub detector names of detectors used for cutting in region 1-->
+  <!--parameter name="g5_DetectorHitsRegion1DetectorNames" type="StringVec">VTX  </parameter-->
+  <!--Corresponding to the order of DetectorHitsRegion1DetectorNames the minimum number of hits for region 1 for a track to pass-->
+  <!--parameter name="g6_DetectorHitsRegion1Cuts" type="IntVec">3  </parameter-->
+  <!--Sub detector names of detectors used for cutting in region 2-->
+  <!--parameter name="g7_DetectorHitsRegion2DetectorNames" type="StringVec">VTX  </parameter-->
+  <!--Corresponding to the order of DetectorHitsRegion2DetectorNames the minimum number of hits for region 2 for a track to pass-->
+  <!--parameter name="g8_DetectorHitsRegion2Cuts" type="IntVec">0  </parameter-->
+  
+  <!--Enable a cut on the PDG code of the Monte Carlo particle associated with the track. Set the codes to cut on in CutPIDS and the LCRelation collection name to the MC data in MonteCarloLCRelationCollection-->
+  <!--parameter name="h1_MCPIDEnable" type="bool">false </parameter-->
+  <!--A list of all the PDG codes of the associated Monte Carlo particle to cut-->
+  <!--parameter name="h2_CutPIDS" type="IntVec">0  </parameter-->
+  <!--Name of the LCRelation collection which links InputRCPCollection to the Monte Carlo data. Required only if MCPIDEnable is true-->
+  <parameter name="h3_MonteCarloLCRelationCollection" type="string" lcioInType="LCRelation">NotNeeded </parameter>
+  <!--Enable a cut on tracks with NaN parameters or covariances-->
+  <parameter name="i1_BadParametersEnable" type="bool">true </parameter>
+
+</processor>
+
+
+<processor name="ZVRESRPCutProcessor" type="RPCutProcessor">
+
+ <!--RPCutProcessor - cuts tracks based on several criteria--> 
+  <!--Enable a cut on the value of each tracks chi squared over degrees of freedom-->
+  <!--parameter name="a1_Chi2OverDOFEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="a2_Chi2OverDOFCutLowerThan" type="bool">false </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="a3_Chi2OverDOFCutValue" type="float">10 </parameter-->
+  
+  <!--Enable a cut on the value of each tracks d0 (no correction for ref point position)-->
+  <parameter name="b1_D0Enable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="b2_D0CutLowerThan" type="bool">false </parameter>
+  <!--Cut Value-->
+  <parameter name="b3_D0CutValue" type="float">10 </parameter>
+  
+  <!--Enable a cut on the value of each tracks d0 Error (sqrt(covariance(d0,d0))-->
+  <parameter name="c1_D0ErrEnable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="c2_D0ErrCutLowerThan" type="bool">false </parameter>
+  <!--Cut Value-->
+  <parameter name="c3_D0ErrCutValue" type="float">0.25 </parameter>
+  
+  <!--Enable a cut on the value of each tracks Z0 (no correction for ref point position)-->
+  <parameter name="d1_Z0Enable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="d2_Z0CutLowerThan" type="bool">false </parameter>
+  <!--Cut Value-->
+  <parameter name="d3_Z0CutValue" type="float">20 </parameter>
+  
+  <!--Enable a cut on the value of each tracks z0 Error (sqrt(covariance(z0,z0))-->
+  <!--parameter name="e1_Z0ErrEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="e2_Z0ErrCutLowerThan" type="bool">true </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="e3_Z0ErrCutValue" type="float">0.025 </parameter-->
+  
+  <!--Enable a cut on the value of each tracks PT (radial magnitude of ReconstructedParticle->momentum())-->
+  <parameter name="f1_PTEnable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="f2_PTCutLowerThan" type="bool">true </parameter>
+  <!--Cut Value-->
+  <parameter name="f3_PTCutValue" type="float">0.1 </parameter>
+  
+  <!--Enable a cut on the number seen hits in sub detectors - for more details see documentation-->
+  <parameter name="g1_DetectorHitsEnable" type="bool">true </parameter>
+  <!--Sub detector names in same order as result of Track->getSubdetectorHitNumbers()-->
+  <parameter name="g2_SubDetectorNames" type="StringVec">VTX FTD SIT TPC </parameter>
+  <!--Sub detector names of detectors defining the boundary between region 1 and region 2-->
+  <parameter name="g3_DetectorHitsBoundaryDetectorNames" type="StringVec">TPC FTD  </parameter>
+  <!--Corresponding to the order of DetectorHitsBoundaryDetectorNames the max number of hits for each detector for region 1, if any of the sub detectors has a higher number of hits then region 2 is used-->
+  <parameter name="g4_DetectorHitsBoundaryCuts" type="IntVec">20 3  </parameter>
+  <!--Sub detector names of detectors used for cutting in region 1-->
+  <parameter name="g5_DetectorHitsRegion1DetectorNames" type="StringVec">VTX  </parameter>
+  <!--Corresponding to the order of DetectorHitsRegion1DetectorNames the minimum number of hits for region 1 for a track to pass-->
+  <parameter name="g6_DetectorHitsRegion1Cuts" type="IntVec">3  </parameter>
+  <!--Sub detector names of detectors used for cutting in region 2-->
+  <parameter name="g7_DetectorHitsRegion2DetectorNames" type="StringVec">VTX  </parameter>
+  <!--Corresponding to the order of DetectorHitsRegion2DetectorNames the minimum number of hits for region 2 for a track to pass-->
+  <parameter name="g8_DetectorHitsRegion2Cuts" type="IntVec">0  </parameter>
+  
+  <!--Enable a cut on the PDG code of the parent of Monte Carlo particle associated with the track. Set the codes to cut on in CutPIDS and the LCRelation collection name to the MC data in MonteCarloLCRelationCollection"-->
+  <parameter name="h1_MCPIDEnable" type="bool">true </parameter>
+  <!--A list of all the PDG codes of the parent Monte Carlo particle to cut-->
+  <parameter name="h2_CutPIDS" type="IntVec">310 -310 3122 -3122  </parameter>
+  <!--Name of the LCRelation collection which links InputRCPCollection to the Monte Carlo data. Required only if MCPIDEnable is true-->
+  <parameter name="h3_MonteCarloLCRelationCollection" type="string" lcioInType="LCRelation">LDCTracksMCP </parameter>
+  <!--Enable a cut on tracks with NaN parameters or covariances-->
+  <parameter name="i1_BadParametersEnable" type="bool">true </parameter>
+
+ <!--Name of the ReconstructedParticle collection which will be cut-->
+  <parameter name="InputRCPCollection" type="string" lcioInType="ReconstructedParticle">Jets </parameter>
+  <!--Name of the output ReconstructedParticle collection when WriteNewCollection is true-->
+  <parameter name="OutputRCPCollection" type="string" lcioOutType="ReconstructedParticle">ZVRESSelectedJets </parameter>
+  <!--If true cuts tracks from the particle lists of particles in InputRCPCollection, if false just cuts particles from InputRCPCollection-->
+  <parameter name="SubParticleLists" type="bool">true </parameter>
+  <!--Name of the Track collection - this is just used to get the sub dectector indices-->
+  <parameter name="WriteNewCollection" type="bool">true </parameter>
+
+ </processor>
+
+ <processor name="MyZVTOP_ZVRES" type="ZVTOP_ZVRESProcessor">
+
+ <!--ZVTOP-ZVRES - Vertex Reconstruction Algorithm-->
+  <!--Weight of the IP in the Vertex Function-->
+  <!--parameter name="IPWeighting" type="double">1 </parameter-->
+  <!--Scaling factor for Weight of the jet direction in the Vertex Function-->
+  <!--parameter name="JetWeightingEnergyScaling" type="double">0.125 </parameter-->
+  <!--If false then the primary vertex from VertexCollection is used-->
+  <parameter name="ManualIPVertex" type="bool">true </parameter>
+  <!--Manually set error matrix of the primary vertex (cm) (lower symmetric)-->
+  <parameter name="ManualIPVertexError" type="FloatVec">2.5e-05 0 2.5e-05 0 0 0.0004  </parameter>
+  <!--Manually set position of the primary vertex (cm) - non origin IP not yet fully supported-->
+  <parameter name="ManualIPVertexPosition" type="FloatVec">0 0 0  </parameter>
+  <!--Cut to determine if two vertices are resolved-->
+  <!--parameter name="ResolverCut" type="double">0.6 </parameter-->
+  <!--Chi Squared cut for final trimming of tracks from vertices-->
+  <!--parameter name="TrackTrimCut" type="double">10 </parameter-->
+  <!--Chi Squared cut for making initial track pairs - chi squared of either track NOT sum-->
+  <!--parameter name="TwoTrackCut" type="double">10 </parameter-->
+  <!--Name of the Vertex collection that contains the primary vertex (Optional)-->
+  <parameter name="IPVertexCollection" type="string" lcioInType="Vertex">IPVertex </parameter>
+
+  <!--Name of the ReconstructedParticle collection that holds RPs representing output decay chains-->
+  <parameter name="DecayChainCollectionName" type="string" lcioOutType="ReconstructedParticle">ZVRESDecayChains </parameter>
+  <!--Name of the ReconstructedParticle collection that represents tracks in output decay chains-->
+  <parameter name="DecayChainRPTracksCollectionName" type="string" lcioOutType="ReconstructedParticle">ZVRESDecayChainRPTracks </parameter>  
+  <!--Name of the ReconstructedParticle collection that represents jets-->
+  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">ZVRESSelectedJets </parameter>
+  <!--Name of the Vertex collection that contains found vertices-->
+  <parameter name="VertexCollection" type="string" lcioOutType="Vertex">ZVRESVertices </parameter>
+
+</processor>
+
+
+<processor name="FTRPCutProcessor" type="RPCutProcessor">
+
+ <!--RPCutProcessor - cuts tracks based on several criteria-->  
+  <!--Enable a cut on the value of each tracks chi squared over degrees of freedom-->
+  <!--parameter name="a1_Chi2OverDOFEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="a2_Chi2OverDOFCutLowerThan" type="bool">false </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="a3_Chi2OverDOFCutValue" type="float">10 </parameter-->
+  
+  <!--Enable a cut on the value of each tracks d0 (no correction for ref point position)-->
+  <parameter name="b1_D0Enable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="b2_D0CutLowerThan" type="bool">false </parameter>
+  <!--Cut Value-->
+  <parameter name="b3_D0CutValue" type="float">20 </parameter>
+  
+  <!--Enable a cut on the value of each tracks d0 Error (sqrt(covariance(d0,d0))-->
+  <!--parameter name="c1_D0ErrEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="c2_D0ErrCutLowerThan" type="bool">false </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="c3_D0ErrCutValue" type="float">0.025 </parameter-->
+  
+  <!--Enable a cut on the value of each tracks Z0 (no correction for ref point position)-->
+  <parameter name="d1_Z0Enable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="d2_Z0CutLowerThan" type="bool">false </parameter>
+  <!--Cut Value-->
+  <parameter name="d3_Z0CutValue" type="float">20 </parameter>
+  
+  <!--Enable a cut on the value of each tracks z0 Error (sqrt(covariance(z0,z0))-->
+  <!--parameter name="e1_Z0ErrEnable" type="bool">false </parameter-->
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <!--parameter name="e2_Z0ErrCutLowerThan" type="bool">true </parameter-->
+  <!--Cut Value-->
+  <!--parameter name="e3_Z0ErrCutValue" type="float">0.025 </parameter-->
+  
+  <!--Enable a cut on the value of each tracks PT (radial magnitude of ReconstructedParticle->momentum())-->
+  <parameter name="f1_PTEnable" type="bool">true </parameter>
+  <!--If true values lower than the cut value will be cut, if false values higher will be cut-->
+  <parameter name="f2_PTCutLowerThan" type="bool">true </parameter>
+  <!--Cut Value-->
+  <parameter name="f3_PTCutValue" type="float">0.1 </parameter>
+  
+  <!--Enable a cut on the number seen hits in sub detectors - for more details see documentation-->
+  <parameter name="g1_DetectorHitsEnable" type="bool">true </parameter>
+  <!--Sub detector names in same order as result of Track->getSubdetectorHitNumbers()-->
+  <parameter name="g2_SubDetectorNames" type="StringVec">VTX FTD SIT TPC </parameter>
+  <!--Sub detector names of detectors defining the boundary between region 1 and region 2-->
+  <parameter name="g3_DetectorHitsBoundaryDetectorNames" type="StringVec">TPC FTD  </parameter>
+  <!--Corresponding to the order of DetectorHitsBoundaryDetectorNames the max number of hits for each detector for region 1, if any of the sub detectors has a higher number of hits then region 2 is used-->
+  <parameter name="g4_DetectorHitsBoundaryCuts" type="IntVec">20 3  </parameter>
+  <!--Sub detector names of detectors used for cutting in region 1-->
+  <parameter name="g5_DetectorHitsRegion1DetectorNames" type="StringVec">VTX  </parameter>
+  <!--Corresponding to the order of DetectorHitsRegion1DetectorNames the minimum number of hits for region 1 for a track to pass-->
+  <parameter name="g6_DetectorHitsRegion1Cuts" type="IntVec">3  </parameter>
+  <!--Sub detector names of detectors used for cutting in region 2-->
+  <parameter name="g7_DetectorHitsRegion2DetectorNames" type="StringVec">VTX  </parameter>
+  <!--Corresponding to the order of DetectorHitsRegion2DetectorNames the minimum number of hits for region 2 for a track to pass-->
+  <parameter name="g8_DetectorHitsRegion2Cuts" type="IntVec">0  </parameter>
+  
+  <!--Enable a cut on the PDG code of the Monte Carlo particle associated with the track. Set the codes to cut on in CutPIDS and the LCRelation collection name to the MC data in MonteCarloLCRelationCollection-->
+  <parameter name="h1_MCPIDEnable" type="bool">true </parameter>
+  <!--A list of all the PDG codes of the parent Monte Carlo particle to cut-->
+  <parameter name="h2_CutPIDS" type="IntVec">310 -310 3122 -3122  </parameter>
+  <!--Name of the LCRelation collection which links InputRCPCollection to the Monte Carlo data. Required only if MCPIDEnable is true-->
+  <parameter name="h3_MonteCarloLCRelationCollection" type="string" lcioInType="LCRelation">LDCTracksMCP</parameter>
+  <!--Enable a cut on tracks with NaN parameters or covariances-->
+  <parameter name="i1_BadParametersEnable" type="bool">true </parameter>
+
+ <!--RPCutProcessor - cuts tracks based on several criteria-->
+  <!--Name of the ReconstructedParticle collection which will be cut-->
+  <parameter name="InputRCPCollection" type="string" lcioInType="ReconstructedParticle">Jets </parameter>
+  <!--Name of the output ReconstructedParticle collection when WriteNewCollection is true-->
+  <parameter name="OutputRCPCollection" type="string" lcioOutType="ReconstructedParticle">FTSelectedJets </parameter>
+  <!--If true cuts tracks from the particle lists of particles in InputRCPCollection, if false just cuts particles from InputRCPCollection-->
+
+  <!--If true cuts tracks from the particle lists of particles in InputRCPCollection, if false just cuts particles from InputRCPCollection-->
+  <parameter name="SubParticleLists" type="bool">true </parameter>
+  <!--Name of the Track collection - this is just used to get the sub dectector indices-->
+  <parameter name="WriteNewCollection" type="bool">true </parameter>
+</processor>
+
+
+
+<processor name="MyFlavourTagInputsProcessor" type="FlavourTagInputsProcessor">
+
+ <!--FlavourTagInputsProcessor - takes a set of vertices as a decay chain with its associated jet and calculates flavour tag inputs stroring them in the Jet RP's pid-->
+  <!--Momentum cuts will be applied on number of LayersHit and LayersHit minus one-->
+  <!--parameter name="LayersHit" type="double">5 </parameter-->   
+  <!--Cut on the minimum momentum if track hits LayersHit-->
+  <!--parameter name="AllLayersMomentumCut" type="double">1 </parameter-->
+  <!--Cut on the minimum momentum if track hits LayersHit minus one-->
+  <!--parameter name="AllbutOneLayersMomentumCut" type="double">2 </parameter-->
+  <!--Upper cut on track distance of closest approach to the seed axis for the B-Charge -->
+  <!--parameter name="BChargeCloseapproachCut" type="double">1 </parameter-->
+  <!--Cut determining the maximum L/D for the B-Charge-->
+  <!--parameter name="BChargeLoDCutmax" type="double">2.5 </parameter-->
+  <!--Cut determining the minimum L/D for the B-Charge-->
+  <!--parameter name="BChargeLoDCutmin" type="double">0.18 </parameter-->
+  <!--Upper cut on track distance of closest approach to the seed axis for the C-Charge -->
+  <!--parameter name="CChargeCloseapproachCut" type="double">1 </parameter-->
+  <!--Cut determining the maximum L/D for the C-Charge-->
+  <!--parameter name="CChargeLoDCutmax" type="double">2.5 </parameter-->
+  <!--Cut determining the minimum L/D for the C-Charge-->
+  <!--parameter name="CChargeLoDCutmin" type="double">0.5 </parameter-->
+  <!--Upper Cut on the maximum value of d0 significance-->
+  <!--parameter name="JProbMaxD0Significance" type="double">200 </parameter-->
+  <!--Upper Cut on the maximum value of d0 and of z0-->
+  <!--parameter name="JProbMaxD0andZ0" type="double">5 </parameter-->
+  <!--Momentum cuts will be applied on number of LayersHit and LayersHit minus one-->
+  <!--parameter name="LayersHit" type="double">5 </parameter-->
+  <!--Cut on the Chi squared of the two tracks beinig in the same vertex.-->
+  <!--parameter name="PIDChi2Cut" type="double">6.63 </parameter-->
+  <!--Cut on the upper limit of the photon candidate mass-->
+  <!--parameter name="PIDMaxGammaMass" type="double">0.02 </parameter-->
+  <!--Cut on the upper limit of the Ks candidate mass-->
+  <!--parameter name="PIDMaxKsMass" type="double">0.525 </parameter-->
+  <!--Cut on the lower limit of the Ks candidate mass-->
+  <!--parameter name="PIDMinKsMass" type="double">0.475 </parameter-->
+  <!--Cut on the maximum RPhi of the Ks/gamma decay vertex candidate-->
+  <!--parameter name="PIDRPhiCut" type="double">20 </parameter-->
+  <!--Cut on the minimum RPhi significance of the tracks-->
+  <!--parameter name="PIDSignificanceCut" type="double">3 </parameter-->
+  <!--Cut on the minimum number of tracks in the seed vertex.-->
+  <!--parameter name="SecondVertexNtrackscut" type="double">1 </parameter-->
+  <!--Cut on the Chi Squared of the seed vertex-->
+  <!--parameter name="SecondVertexProbChisquarecut" type="double">20 </parameter-->
+  <!--Upper cut on track distance of closest approach to the seed axis for the track attachment-->
+  <!--parameter name="TrackAttachCloseapproachCut" type="double">1 </parameter-->
+  <!--Cut determining the maximum L/D for the track attachment-->
+  <!--parameter name="TrackAttachLoDCutmax" type="double">2.5 </parameter-->
+  <!--Cut determining the minimum L/D for the track attachment-->
+  <!--parameter name="TrackAttachLoDCutmin" type="double">0.18 </parameter-->
+  <!--Maximum Sigma (based on error matrix) that the vertex axis can move when kinematic correction is applied-->
+  <!--parameter name="VertexMassMaxKinematicCorrectionSigma" type="double">2 </parameter-->
+  <!--Upper cut on angle between momentum of vertex and the vertex axis-->
+  <!--parameter name="VertexMassMaxMomentumAngle" type="double">3 </parameter-->
+  <!--Maximum factor, by which vertex mass can be corrected-->
+  <!--parameter name="VertexMassMaxMomentumCorrection" type="double">2 </parameter-->
+  <!--Name of the Vertex collection that contains the primary vertex (Optional)-->
+  <parameter name="IPVertexCollection" type="string" lcioInType="Vertex">IPVertex </parameter> 
+
+
+ <!--Name of the ReconstructedParticle collection that represents decay chains-->
+  <parameter name="DecayChainRPCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChains </parameter>
+  <!--Name of the LCFloatVec Collection that will be created to contain the flavour tag inputs-->
+  <parameter name="FlavourTagInputsCollection" type="string" lcioOutType="LCFloatVec">FlavourTagInputs </parameter>
+  <!--Name of the ReconstructedParticle collection that represents jets-->
+  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
+
+</processor>
+
+ <processor name="MyFlavourTag" type="FlavourTag">
+ <!--Performs a flavour tag using previously trained neural nets-->
+  <!--Name of the collection of ReconstructedParticles that is the jet-->
+  <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
+  <!--Name of the LCFloatVec Collection that will be created to contain the flavour tag result-->
+  <parameter name="FlavourTagCollection" type="string" lcioOutType="LCFloatVec">FlavourTag </parameter>
+  <!--Name of the LCFloatVec Collection that contains the flavour tag inputs (in same order as jet collection)-->
+  <parameter name="FlavourTagInputsCollection" type="string" lcioInType="LCFloatVec">FlavourTagInputs </parameter>
+  <!--Filename of the previously trained 1 vertex b-tag net-->
+  <parameter name="Filename-b_net-1vtx" type="string">nets/b_net-1vtx.xml</parameter>
+  <!--Filename of the previously trained 2 vertex b-tag net-->
+  <parameter name="Filename-b_net-2vtx" type="string">nets/b_net-2vtx.xml</parameter>
+  <!--Filename of the previously trained 3 (or more) vertex b-tag net-->
+  <parameter name="Filename-b_net-3plusvtx" type="string">nets/b_net-3vtx.xml</parameter>
+  <!--Filename of the previously trained 1 vertex c-tag (b background only) net-->
+  <parameter name="Filename-bc_net-1vtx" type="string"> nets/bc_net-1vtx.xml</parameter>
+  <!--Filename of the previously trained 2 vertex c-tag (b background only) net-->
+  <parameter name="Filename-bc_net-2vtx" type="string"> nets/bc_net-2vtx.xml</parameter>
+  <!--Filename of the previously trained 3 (or more) vertex c-tag (b background only) net-->
+  <parameter name="Filename-bc_net-3plusvtx" type="string">nets/bc_net-3vtx.xml </parameter>
+  <!--Filename of the previously trained 1 vertex c-tag net-->
+  <parameter name="Filename-c_net-1vtx" type="string"> nets/c_net-1vtx.xml</parameter>
+  <!--Filename of the previously trained 2 vertex c-tag net-->
+  <parameter name="Filename-c_net-2vtx" type="string">nets/c_net-2vtx.xml </parameter>
+  <!--Filename of the previously trained 3 (or more) vertex c-tag net-->
+  <parameter name="Filename-c_net-3plusvtx" type="string"> nets/c_net-3vtx.xml</parameter>
+</processor>
+
+ <processor name="BVertexChargeProcessor" type="VertexChargeProcessor">
+ <!--VertexChargeProcessor - takes a set of vertices as a decay chain with its associated jet and calculates the vertex charge.-->
+  <!--Parameter determining whether all tracks from secondary are included in the B-Charge-->
+  <!--parameter name="ChargeAllSecondaryTracks" type="bool">true </parameter-->
+  <!--Upper cut on track distance of closest approach to the seed axis for the B-Charge -->
+  <!--parameter name="ChargeCloseapproachCut" type="double">1 </parameter-->
+  <!--Cut determining the maximum L/D for the B-Charge-->
+  <!--parameter name="ChargeLoDCutmax" type="double">2.5 </parameter-->
+  <!--Cut determining the minimum L/D for the B-Charge-->
+  <!--parameter name="ChargeLoDCutmin" type="double">0.18 </parameter-->
+  <!--Name of the ReconstructedParticle collection that represents decay chains-->
+  <parameter name="DecayChainRPCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChains</parameter>
+  <!--Name of the Vertex collection that contains the primary vertex (Optional)-->
+  <parameter name="IPVertexCollection" type="string" lcioInType="Vertex">IPVertex </parameter>
+  <!--Name of the ReconstructedParticle collection that represents jets-->
+  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
+  <!--Name of the LCFloatVec Collection that will be created to contain the flavour tag inputs-->
+  <parameter name="VertexChargeCollection" type="string" lcioOutType="LCFloatVec">BCharge </parameter>
+</processor>
+
+
+ <processor name="CVertexChargeProcessor" type="VertexChargeProcessor">
+ <!--VertexChargeProcessor - takes a set of vertices as a decay chain with its associated jet and calculates the vertex charge.-->
+  <!--Parameter determining whether all tracks from secondary are included in the C-Charge-->
+  <parameter name="ChargeAllSecondaryTracks" type="bool">false </parameter>
+  <!--Upper cut on track distance of closest approach to the seed axis for the C-Charge -->
+  <parameter name="ChargeCloseapproachCut" type="double">1 </parameter>
+  <!--Cut determining the maximum L/D for the C-Charge-->
+  <parameter name="ChargeLoDCutmax" type="double">2.5 </parameter>
+  <!--Cut determining the minimum L/D for the C-Charge-->
+  <parameter name="ChargeLoDCutmin" type="double">0.5 </parameter>
+  <!--Name of the ReconstructedParticle collection that represents decay chains-->
+  <parameter name="DecayChainRPCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChains </parameter>
+  <!--Name of the Vertex collection that contains the primary vertex (Optional)-->
+  <parameter name="IPVertexCollection" type="string" lcioInType="Vertex">IPVertex </parameter>
+  <!--Name of the ReconstructedParticle collection that represents jets-->
+  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
+  <!--Name of the LCFloatVec Collection that will be created to contain the flavour tag inputs-->
+  <parameter name="VertexChargeCollection" type="string" lcioOutType="LCFloatVec">CCharge </parameter>
+</processor>
+
+
+ <processor name="MyPlot" type="Plot">
+ <!--Plots various outputs from the flavour tag-->
+  <!--Name of the collection of ReconstructedParticles that is the jet-->
+  <parameter name="JetCollectionName" type="string">FTSelectedJets </parameter>
+  <!--Filename for the output-->
+  <parameter name="OutputFilename" type="string">PlotProcessorOutput </parameter>
+</processor>
+
+
+ <processor name="MyAIDAProcessor" type="AIDAProcessor">
+ <!--Processor that handles AIDA files. Creates on directory per processor.  Processors only need to create and fill the histograms, clouds and tuples. Needs to be the first ActiveProcessor-->
+  <!-- compression of output file 0: false >0: true (default) -->
+  <parameter name="Compress" type="int">0 </parameter>
+  <!-- filename without extension-->
+  <parameter name="FileName" type="string">LCFIPlot </parameter>
+  <!-- type of output file xml (recommended for JAIDA) or root (recommended for RAIDA)-->
+  <parameter name="FileType" type="string">xml</parameter>
+</processor>
+
+
+
+ <processor name="MyLCFIAIDAPlotProcessor" type="LCFIAIDAPlotProcessor">
+ <!--Creates an AIDA plot of the LCFIVertex tagging efficiency-purity values and various other things.  Make sure that MarlinAIDAProcessor is run before this.-->
+  <!--Cut determining the Neural Net cut used to select B-Jets-->
+  <!--parameter name="BTagNNCut" type="double">0.7 </parameter-->
+  <!--Name of collection containing the vertex charge of the jets, assuming they are B-jets-->
+  <parameter name="BVertexChargeCollection" type="string" lcioInType="LCFloatVec">BCharge </parameter>
+  <!--Cut determining the Neural Net cut used to select C-Jets-->
+  <!--parameter name="CTagNNCut" type="double">0.7 </parameter-->
+  <!--Name of collection containing the vertex charge of the jets, assuming they are C-jets-->
+  <parameter name="CVertexChargeCollection" type="string" lcioInType="LCFloatVec">CCharge </parameter>
+  <!--Cut determining the maximum cos(theta) of the jet.  Default: |cos(theta)|<0.9-->
+  <!--parameter name="CosThetaJetMax" type="double">0.9 </parameter-->
+  <!--Cut determining the minimum cos(theta) of the jet.  Default: no lower cut.-->
+  <!--parameter name="CosThetaJetMin" type="double">0 </parameter-->
+  <!--Names of the LCFloatVec Collections that contain the flavour tags (one purity efficiency plot per tag) (in same order as jet collection)-->
+  <parameter name="FlavourTagCollections" type="StringVec">FlavourTag  </parameter>
+  <!--Name of the collection of ReconstructedParticles that is the jet-->
+  <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
+  <!--Name of the collection that holds all MC particles. -->
+  <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticle </parameter>
+  <!--Set true to make a tuple of the flavour tag input variables.  Default is true.-->
+  <!--parameter name="MakeTuple" type="bool">true </parameter-->
+  <!--Output filename for the NN values (output).  Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out.-->
+  <!--parameter name="NeuralNetOutputFile" type="string"> </parameter-->
+  <!--Cut determining the maximum momentum of the jet.  Default: 10000 GeV/c-->
+  <!--parameter name="PJetMax" type="double">10000 </parameter-->
+  <!--Cut determining the minimum momentum of the jet.  Default: no lower cut.-->
+  <!--parameter name="PJetMin" type="double">0 </parameter-->
+  <!--Set true if you want a print-out of the NN values (output) for the various flavour tags-->
+  <!--parameter name="PrintNeuralNetOutput" type="bool">false </parameter-->
+  <!--Names of the LCFloatVec Collections that contain the flavour tag inputs (in same order as jet collection)-->
+  <parameter name="TagInputsCollections" type="StringVec">FlavourTagInputs  </parameter>
+  <!--Name of the LCIntVec collection containing the true flavour of the jets (same order as jets)-->
+  <parameter name="TrueJetFlavourCollection" type="string" lcioInType="LCIntVec">TrueJetFlavour </parameter>
+  <!--Name of the LCFloatVec collection containing the true hadron charge of the jets (same order as jets)-->
+  <parameter name="TrueJetHadronChargeCollection" type="string" lcioInType="LCFloatVec">TrueJetHadronCharge </parameter>
+  <!--Name of the LCIntVec collection containing the true PDG code of the jets (same order as jets)-->
+  <parameter name="TrueJetPDGCodeCollection" type="string" lcioInType="LCIntVec">TrueJetPDGCode </parameter>
+  <!--Name of the LCFloatVec collection containing the true parton charge of the jets (same order as jets)-->
+  <parameter name="TrueJetPartonChargeCollection" type="string" lcioInType="LCFloatVec">TrueJetPartonCharge </parameter>
+  <!--Integer parameter determing which FlavourTag Collection to use the determine C-Jets and B-Jets in Vertex Charge Plots-->
+  <!--parameter name="UseFlavourTagCollectionForVertexCharge" type="int">0 </parameter-->
+  <!--Name of the collection that holds the Vertices-->
+  <parameter name="VertexCollection" type="string" lcioInType="Vertex">ZVRESVertices </parameter>
+  <!--Name of the ZVRES DecayChain collection-->
+  <parameter name="ZVRESDecayChainCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChains </parameter>
+  <!--Output filename for the NN values (output).  Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out.-->
+  <!--parameter name="ZVRESOutputFile" type="string"> </parameter-->
+  <!--Name of the ZVRES Selected Jets collection-->
+  <parameter name="ZVRESSelectedJetsCollection" type="string" lcioInType="ReconstructedParticle">ZVRESSelectedJets </parameter>
+</processor>
+
+
+
+
+</marlin>
