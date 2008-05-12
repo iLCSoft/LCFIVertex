@@ -53,7 +53,7 @@ public:
 	int numberOfInputs() const {return _numberOfInputs;}
 	std::vector<double> weights() const;
 	void setWeights(const std::vector<double> &newWeights);
-	NeuronLayer *layer(const int i);
+	NeuronLayer *layer(const int i) const;
 	void setTargetNormalisationOffsets(const std::vector<double> &offsets);
 	void setTargetNormalisationRanges(const std::vector<double> &ranges);
 	std::vector<double> targetNormalisationOffsets() const {return _targetNormalisationOffsets;}
