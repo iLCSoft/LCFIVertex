@@ -132,6 +132,9 @@
   <!--Upper Cut on the maximum value of d0 and of z0-->
   <!--parameter name="JProbMaxD0andZ0" type="double">5 </parameter-->
   <!--Momentum cuts will be applied on number of LayersHit and LayersHit minus one-->
+ <!--parameter name="JProbResolutionParameterRphi" type="FloatVec">1.01313 0.0246351 0.102198 0.0411203 0.0157711  </parameter-->
+  <!--Standard deviations of the impact parameters in Z direction-->
+  <!--parameter name="JProbResolutionParameterZ" type="FloatVec">1.0163 0.0271387 0.0948112 0.0410759 0.0148686  </parameter-->
   <!--parameter name="LayersHit" type="double">5 </parameter-->
   <!--Cut on the Chi squared of the two tracks beinig in the same vertex.-->
   <!--parameter name="PIDChi2Cut" type="double">6.63 </parameter-->
