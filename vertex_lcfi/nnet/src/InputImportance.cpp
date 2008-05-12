@@ -9,6 +9,9 @@
 #include <functional>
 #include <string>
 
+//using namespace nnet for the LCFI vertex package
+using namespace nnet;
+
 namespace NeuralNetUtils {
 template <typename T>
 class Square

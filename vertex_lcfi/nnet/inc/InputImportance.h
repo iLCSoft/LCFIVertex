@@ -7,6 +7,10 @@
 
 #include <vector>
 
+//namespace nnet added for the LCFI vertex package
+namespace nnet
+{
+
 class
 #ifndef __CINT__
 NEURALNETDLL
@@ -16,4 +20,7 @@ InputImportance
 public:
 	std::vector<double> operator()(const NeuralNet &theNet,const NeuralNetDataSet &theData) const;
 };
+
+}//namespace nnet
+
 #endif
