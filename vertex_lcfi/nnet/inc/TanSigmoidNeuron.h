@@ -1,5 +1,5 @@
-#ifndef SIGMOIDNEURON_H
-#define SIGMOIDNEURON_H
+#ifndef TANSIGMOIDNEURON_H
+#define TANSIGMOIDNEURON_H
 
 #include "NeuralNetConfig.h"
 #include "Neuron.h"
