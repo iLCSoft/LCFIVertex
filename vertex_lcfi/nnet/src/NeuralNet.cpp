@@ -663,7 +663,7 @@ void NeuralNet::setWeights(const std::vector<double> &newWeights)
 	}
 }
 
-NeuronLayer *NeuralNet::layer(const int i)
+NeuronLayer *NeuralNet::layer(const int i) const
 {
 	if ((i>=0)&&(i<(int)_theLayers.size()))
 	{
