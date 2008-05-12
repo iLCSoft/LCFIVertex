@@ -2,6 +2,49 @@ The LCFI Vertex Package
 
 releases:
 
+ --------------
+| v00-02-03-pre|
+ --------------
+ 
+   release for full-chain tests for ILD mass reconstruction, fixing a number of small issues   
+   found since last release and adding further functionality:
+ 
+   - steering files updated to include steering file running FullLDCTracking, PandoraPFA
+     (instead of cheattracks+jetfind);
+     based on current version of steering file for mass reconstruction from ILD mailing list
+     (Clare Lynch)
+ 
+   - LCFIAIDAPlotProcessor: now compatible with RAIDA;    (Victoria Martin)
+     corrected: "ptmasscorrection" --> "ptcorrectedmass"  (Roberval Walsh)
+ 
+   - RPCutProcessor: small bug fix: this processor should not require GEAR unless hadronic
+     interaction removal is selected  (Kristian Harder)
+ 
+   - ZVRES: small bug fix in LCFIVertex/vertex_lcfi/zvtop/src/vertexfinderclassic.cpp
+     to ensure consistency with ZVTOP paper  (Ben Jeffery)
+ 
+   - ZVKIN: return IP if no vertices found;
+     sort found vertices wrt decay length from IP, in ascending order (Ben Jeffery)
+ 
+   - flavour tag inputs: code added to obtain new parameters for calculation of joint probability 
+     from fit; currently only available if the package is run with JAIDA (Erik Devetak)
+
+   - neural network code: 
+      minor fixes: ensured code compiles with gcc 4.2.1; (Kristian Harder, Dave Bailey)
+      missing "const" added;
+      at request of CALICE added class to determine the importance of the input variables
+      for a given data set and trained network based on the approach used in the TMVA package,
+      see http://tmva.sourceforge.net/docu/TMVAUsersGuide.pdf p66 (Dave Bailey)
+
+   - NOTE: with this version, a new dependence on MarlinUtil is introduced;
+     this became necessary for the ConversionTagger processor, currently
+     under development - don't use this processor yet!  (Kristian Harder)
+ 
+
+(Sonja Hillert, S.Hillert1@physics.ox.ac.uk)
+ 
+-------------------------------------------------------------
+
  ----------
 | v00-02-02|
  ----------
