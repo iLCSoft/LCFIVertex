@@ -60,7 +60,7 @@ FlavourTagInputsProcessor::FlavourTagInputsProcessor() : Processor("FlavourTagIn
 			      std::string("Jets") ) ;
   registerInputCollection( lcio::LCIO::VERTEX,
 			      "IPVertexCollection" , 
-			      "Name of the Vertex collection that contains the primary vertex"  ,
+			      "Name of the Vertex collection that contains the primary vertex (Optional)"  ,
 			      _IPVertexCollectionName ,
 			      std::string("IPVertex") ) ;
   registerInputCollection( lcio::LCIO::RECONSTRUCTEDPARTICLE,
@@ -233,7 +233,7 @@ void FlavourTagInputsProcessor::init()
 	_JointProb->setDoubleParameter("MaxD0Significance",_JProbMaxD0Significance);
 	_JointProb->setDoubleParameter("MaxD0andZ0",_JProbMaxD0andZ0);
 	std::vector<double> temp;  
-	/*temp.push_back(_JProbResolutionParameterRphi[0]);
+	temp.push_back(_JProbResolutionParameterRphi[0]);
 	temp.push_back(_JProbResolutionParameterRphi[1]);
 	temp.push_back(_JProbResolutionParameterRphi[2]);
 	temp.push_back(_JProbResolutionParameterRphi[3]);
@@ -246,7 +246,7 @@ void FlavourTagInputsProcessor::init()
 	temp2.push_back(_JProbResolutionParameterZ[3]);
 	temp2.push_back(_JProbResolutionParameterZ[4]);
 	_JointProb->setPointerParameter("ResolutionParameterZ",  &temp2);
-	*/
+	
 	_TwoTrackPID = new TwoTrackPid();
  	MemoryManager<Algo<Jet*, std::map<PidCutType,vector< vertex_lcfi::Track* > > > >::Run()->registerObject( _TwoTrackPID);
 	_TwoTrackPID->setDoubleParameter("MaxGammaMass",_PIDMaxGammaMass);

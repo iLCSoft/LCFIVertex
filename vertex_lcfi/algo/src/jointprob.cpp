@@ -48,7 +48,7 @@ namespace vertex_lcfi
     _ParameterNames.push_back("MaxD0andZ0");
     _ParameterNames.push_back("ResolutionParameterRphi");
     _ParameterNames.push_back("ResolutionParameterZ");
-    _ParameterNames.push_back("ResolutionParameter3D"); 
+    //_ParameterNames.push_back("ResolutionParameter3D"); 
     _ParameterValues.push_back(makeString(_MaxD0Significance));
     _ParameterValues.push_back(makeString(_MaxD0andZ0));
     _ParameterValues.push_back("Default Values");
@@ -72,8 +72,16 @@ namespace vertex_lcfi
     _ParameterValues.clear();
     _ParameterValues.push_back(makeString(_MaxD0Significance));
     _ParameterValues.push_back(makeString(_MaxD0andZ0));
-    //_ParameterValues.push_back(makeString(_ResolutionParameterRphi));
-    //_ParameterValues.push_back(makeString(_ResolutionParameterZ));
+    _ParameterValues.push_back(makeString(_ResolutionParameterRphi[0]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterRphi[1]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterRphi[2]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterRphi[3]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterRphi[4]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterZ[0]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterZ[1]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterZ[2]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterZ[3]));
+    _ParameterValues.push_back(makeString(_ResolutionParameterZ[4]));
     //_ParameterValues.push_back(makeString(_ResolutionParameter3D));
     return _ParameterValues;
   }	
