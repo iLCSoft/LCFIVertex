@@ -1,0 +1,45 @@
+<marlin>
+ <execute>
+  <processor name="MyAIDAProcessor"/>
+  <processor name="MySignificanceFit"/>
+ </execute>
+
+ <global>
+  <parameter name="LCIOInputFiles"> joined.slcio </parameter>
+  <!-- limit the number of processed records (run+evt): -->  
+   <parameter name="GearXMLFile"> gearfile.xml </parameter>  
+  </global>
+
+
+<processor name="MySignificanceFit" type="SignificanceFit">
+ <!--Processor used to calculate resolution parameters for the joint probability flavour tag -->
+  <!--Maximum value for the local fitting of the first exponential, starting point Cutoffgauss-->
+  <!--parameter name="Cutoffexp1" type="double">40 </parameter-->
+  <!--Maximum value for the local fitting of the second exponential, starting point Cutoffexp1-->
+  <!--parameter name="Cutoffexp2" type="double">200 </parameter-->
+  <!--Maximum value for the local fitting of the gaussian, starting point 0-->
+  <!--parameter name="Cutoffgauss" type="double">5 </parameter-->
+  <!--Initialization value for amplitude of both exponentials in the exponentials local fit-->
+  <!--parameter name="ExpAmlitudeInit" type="double">100 </parameter-->
+  <!--Initialization value for decay constant of both exponentials in the exponentials local fit-->
+  <!--parameter name="ExpLambdaInit" type="double">0 </parameter-->
+  <!--Initialization value for Gauss amplitude in the Gaussian local fit-->
+  <!--parameter name="GaussAmlitudeInit" type="double">5000 </parameter-->
+  <!--Initialization value for Gauss sigma in the Gaussian local fit-->
+  <!--parameter name="GaussSigmaInit" type="double">2 </parameter-->
+  <!--Name of the Vertex collection that contains the primary vertex (Optional)-->
+  <parameter name="IPVertexCollection" type="string" lcioInType="Vertex">IPVertex </parameter>
+  <!--Name of the ReconstructedParticle collection that represents jets-->
+  <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">Jets </parameter>
+</processor>
+
+
+ <processor name="MyAIDAProcessor" type="AIDAProcessor">
+ <!--Processor that handles AIDA files. Creates on directory per processor.  Processors only need to create and fill the histograms, clouds and tuples. Needs to be the first ActiveProcessor-->
+  <!-- compression of output file 0: false >0: true (default) -->
+  <parameter name="Compress" type="int">1 </parameter>
+  <!-- filename without extension-->
+  <parameter name="FileName" type="string">aida_file </parameter>
+  <!-- type of output file xml (default) or root ( only OpenScientist)-->
+  <parameter name="FileType" type="string">xml </parameter>
+</processor>
