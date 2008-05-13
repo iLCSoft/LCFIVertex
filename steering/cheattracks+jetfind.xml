@@ -33,7 +33,7 @@
     </processor>
     <processor name="MyFTDDigiProcessor" type="FTDDigiProcessor">
         <!-- FTD Digitization-->
-        <parameter name="CollectionName" type="string" lcioInType="SimTrackerHit">SFtd02_FTD</parameter>
+        <parameter name="CollectionName" type="string" lcioInType="SimTrackerHit">FTDCollection</parameter>
         <parameter name="PointResolution" type="float">0.010</parameter>
         <parameter name="RemoveDrays" type="int">0</parameter>
         <!--Name of the TrackerHit output collection-->
@@ -41,7 +41,7 @@
     </processor>
     <processor name="MyTPCDigiProcessor" type="TPCDigiProcessor">
         <!--Produces TPC TrackerHit collection from SimTrackerHit collection, smeared in RPhi and Z-->
-        <parameter name="CollectionName" type="string" lcioInType="SimTrackerHit">tpc07_TPC</parameter>
+        <parameter name="CollectionName" type="string" lcioInType="SimTrackerHit">TPCCollection</parameter>
         <parameter name="TPCTrackerHitsCol" type="string" lcioOutType="TrackerHit">TPCTrackerHits</parameter>
     </processor>
     <processor name="MyVTXDigiProcessor" type="VTXDigiProcessor">
@@ -51,8 +51,8 @@
         <parameter name="PointResolutionZ_VTX" type="float">0.004</parameter>
         <parameter name="PointResolutionRPhi_SIT" type="float">0.01</parameter>
         <parameter name="PointResolutionZ_SIT" type="float">0.01</parameter>
-        <parameter name="VTXCollectionName" type="string" lcioInType="SimTrackerHit">vxd01_VXD</parameter>
-        <parameter name="SITCollectionName" type="string" lcioInType="SimTrackerHit">sit01_SIT</parameter>
+        <parameter name="VTXCollectionName" type="string" lcioInType="SimTrackerHit">VXDCollection</parameter>
+        <parameter name="SITCollectionName" type="string" lcioInType="SimTrackerHit">SITCollection</parameter>
         <parameter name="RemoveDrays" type="int">0</parameter>
         <!--Name of the sit TrackerHit output collection-->
         <parameter name="SITHitCollection" type="string" lcioOutType="TrackerHit" value="SITTrackerHits" />
@@ -66,7 +66,7 @@
         <!--Calibration coefficients for HCAL-->
         <parameter name="CalibrHCAL" type="FloatVec">27.3</parameter>
         <!--ECAL Collection Names-->
-        <parameter name="ECALCollections" type="StringVec">SEcal02_EcalBarrel SEcal02_EcalEndcap</parameter>
+        <parameter name="ECALCollections" type="StringVec">EcalBarrelCollection EcalEndcapCollection EcalEndcapRingCollection</parameter>
         <!--Index of ECal Layers-->
         <parameter name="ECALLayers" type="IntVec">30 100</parameter>
         <!--ECAL Collection of real Hits-->
@@ -74,7 +74,7 @@
         <!--Threshold for ECAL Hits in GeV-->
         <parameter name="ECALThreshold" type="float">1e-04</parameter>
         <!--HCAL Collection Names-->
-        <parameter name="HCALCollections" type="StringVec">SHcal03_HcalBarrelEnd SHcal03_HcalBarrelReg SHcal03_HcalEndcaps</parameter>
+        <parameter name="HCALCollections" type="StringVec">HcalBarrelRegCollection HcalBarrelEndCollection HcalEndcapsCollection HcalEndcapRingsCollection</parameter>
         <!--Index of HCal Layers-->
         <parameter name="HCALLayers" type="IntVec">100</parameter>
         <!--HCAL Collection of real Hits-->
@@ -188,7 +188,7 @@
     <processor name="MyLCIOOutputProcessor" type="LCIOOutputProcessor">
         <!--Writes the current event to the specified LCIO outputfile. Needs to be the last ActiveProcessor.-->
         <!--drops the named collections from the event-->
-        <!--<parameter name="DropCollectionNames" type="StringVec">MCParticle vxd01_VXD sit01_SIT tpc07_TPC SFtd02_FTD tpc07_FCH FTDTrackerHits SITTrackerHits TPCTrackerHits VTXTrackerHits LumiCalS_LumiCal SEcal02_EcalBarrel SEcal02_EcalEndcap SHcal03_HcalBarrelEnd SHcal03_HcalBarrelReg SHcal03_HcalEndcaps HCAL ECAL RelationCaloHit TrueClusters TrueClustersToMCP</parameter-->
+        <!--<parameter name="DropCollectionNames" type="StringVec">MCParticle VXDCollection SITCollection TPCCollection FTDCollection ETDCollection FTDTrackerHits SITTrackerHits TPCTrackerHits VTXTrackerHits LumiCalCollection EcalBarrelCollection EcalEndcapCollection EcalEndcapRingCollection HcalBarrelRegCollection HcalBarrelEndCollection HcalEndcapsCollection HcalEndcapRingsCollection HCAL ECAL RelationCaloHit TrueClusters TrueClustersToMCP</parameter-->
         <!--parameter name="DropCollectionNames" type="StringVec">RelationCaloHit</parameter-->
         <!--drops all collections of the given type from the event-->
         <!--parameter name="DropCollectionTypes" type="StringVec">SimTrackerHit SimCalorimeterHit TrackerHit CalorimeterHit</parameter-->
