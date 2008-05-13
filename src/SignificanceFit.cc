@@ -1,3 +1,17 @@
+// First of all, make sure that AIDA was enabled by setting the environment
+// // variable MARLIN_USE_AIDA when Marlin was compiled. The makefile will then
+// // have done the setup and defined this macro.
+//
+#ifndef MARLIN_USE_AIDA
+
+#warning "--------------------------------------------------------------------------------"
+#warning "- SignificanceFit requires MARLIN_USE_AIDA to be defined. Did you enable -"
+#warning "- AIDA when compiling Marlin? SignificanceFit will not be compiled.      -"
+#warning "--------------------------------------------------------------------------------"
+
+// Can't do anything else.
+#else
+
 //change USING_RAIDA to USING_JAIDA if you are interested in using this processor! In RAIDA the processor is only a place holder! This is really due to the limited functionality of RAIDA!!!
 #define USING_RAIDA
 
@@ -477,3 +491,9 @@ void SignificanceFit::end(){
  	    << std::endl ;
 
 }
+
+
+
+#endif // end if ifdef MARLIN_USE_AIDA
+
+
