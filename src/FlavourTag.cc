@@ -17,6 +17,8 @@
 #include "util/inc/vector3.h"
 
 #include "nnet/inc/NeuralNet.h"
+#include "nnet/inc/InputImportance.h"
+
 
 using std::set;
 using std::string;
@@ -150,6 +152,12 @@ void FlavourTagProcessor::processRunHeader( LCRunHeader* pRun )
 	//Get the current list of variable names
 	std::vector<std::string> VarNames;
 	(pRun->parameters()).getStringVals(_FlavourTagInputsCollectionName,VarNames);
+	
+
+	for( int iii=0;iii<3;iii++)
+	{
+	    _dataSet.push_back(new nnet::NeuralNetDataSet());
+	}
 	
 	set<string> AvailableNames;
 	//Fill the map realting names and indexes
@@ -287,24 +295,30 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 		std::vector<double> bTagOutput;
 		std::vector<double> cTagOutput;
 		std::vector<double> cTagbBackgroundOutput;
-	
+		std::vector<double> target;
+		target.push_back(1);
+
 		if( NumVertices==1 )
-		{
-			bTagOutput=_NeuralNet["b_net-1vtx"]->output( inputs );
-			cTagOutput=_NeuralNet["c_net-1vtx"]->output( inputs );
-			cTagbBackgroundOutput=_NeuralNet["bc_net-1vtx"]->output( inputs );
+		{			
+		  bTagOutput=_NeuralNet["b_net-1vtx"]->output( inputs );
+		  cTagOutput=_NeuralNet["c_net-1vtx"]->output( inputs );
+		  cTagbBackgroundOutput=_NeuralNet["bc_net-1vtx"]->output( inputs );
+		  _dataSet[0]->addDataItem( inputs, target );
+		  
 		}
 		else if( NumVertices==2 )
-		{
-			bTagOutput=_NeuralNet["b_net-2vtx"]->output( inputs );
-			cTagOutput=_NeuralNet["c_net-2vtx"]->output( inputs );
-			cTagbBackgroundOutput=_NeuralNet["bc_net-2vtx"]->output( inputs );
-		}
+		  {
+		    bTagOutput=_NeuralNet["b_net-2vtx"]->output( inputs );
+		    cTagOutput=_NeuralNet["c_net-2vtx"]->output( inputs );
+		    cTagbBackgroundOutput=_NeuralNet["bc_net-2vtx"]->output( inputs );
+		    _dataSet[1]->addDataItem( inputs, target );
+		  }
 		else if( NumVertices>=3 )
-		{
-			bTagOutput=_NeuralNet["b_net-3vtx"]->output( inputs );
-			cTagOutput=_NeuralNet["c_net-3vtx"]->output( inputs );
-			cTagbBackgroundOutput=_NeuralNet["bc_net-3vtx"]->output( inputs );
+		  {
+		    bTagOutput=_NeuralNet["b_net-3vtx"]->output( inputs );
+		    cTagOutput=_NeuralNet["c_net-3vtx"]->output( inputs );
+		    cTagbBackgroundOutput=_NeuralNet["bc_net-3vtx"]->output( inputs );
+		    _dataSet[2]->addDataItem( inputs, target );
 		}
 		else
 		{
@@ -365,11 +379,73 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 	vertex_lcfi::MetaMemoryManager::Event()->delAllObjects();
 }
 
-void FlavourTagProcessor::end()
+void FlavourTagProcessor::end
+()
 {
+    
+  for( std::map<std::string,std::string>::iterator iName1=_filename.begin(); iName1!=_filename.end(); ++iName1 )
+	{
+	  std::vector<double> results;
+	  std::vector<std::string> Variablenamesone;
+	  std::vector<std::string> Variablenamestwo;
+	  std::vector<std::string> Variables;
+
+	  Variablenamesone.push_back("D0Significance1");
+	  Variablenamesone.push_back("D0Significance2");
+	  Variablenamesone.push_back("Z0Significance1");
+	  Variablenamesone.push_back("Z0Significance2");
+	  Variablenamesone.push_back("JointProbRPhi");
+	  Variablenamesone.push_back("JointProbZ");
+	  Variablenamesone.push_back("Momentum1");
+	  Variablenamesone.push_back("Momentum2");
+	  Variablenamestwo.push_back("DecayLengthSignificance");
+	  Variablenamestwo.push_back("DecayLength");
+	  Variablenamestwo.push_back("PTCorrectedMass");
+	  Variablenamestwo.push_back("RawMomentum");
+	  Variablenamestwo.push_back("JointProbRPhi");
+	  Variablenamestwo.push_back("JointProbZ");
+	  Variablenamestwo.push_back("NumTracksInVertices");
+	  Variablenamestwo.push_back("SecondaryVertexProbability");
+
+	  // we need to add name
+
+	  nnet::InputImportance Tempimportance;
+	  if((*iName1).first == "b_net-1vtx" || (*iName1).first == "c_net-1vtx" || (*iName1).first == "bc_net-1vtx" )
+	    {
+	      results = Tempimportance( * _NeuralNet[(*iName1).first], * _dataSet[0]);
+	      Variables = Variablenamesone;
+
+	    }
+	  if((*iName1).first == "b_net-2vtx" || (*iName1).first == "c_net-2vtx" || (*iName1).first == "bc_net-2vtx" )
+	    {
+	      results = Tempimportance( * _NeuralNet[(*iName1).first], * _dataSet[1]);
+	      Variables = Variablenamestwo;
+
+	    } 
+	   if((*iName1).first == "b_net-3vtx" || (*iName1).first == "c_net-3vtx" || (*iName1).first == "bc_net-3vtx" )
+	    {
+	      results = Tempimportance( * _NeuralNet[(*iName1).first], * _dataSet[2]);
+	      Variables = Variablenamestwo;
+
+	    }
+
+	   std::cout<<std::endl;
+	   std::cout<<std::endl;
+	   std::cout<<(*iName1).first<<std::endl;
+	   for(unsigned int jjj= 0; jjj<results.size(); jjj++ ) 
+	     {
+	       std::cout<<Variables[jjj]<<" -   Input Importance:  "<<results[jjj]<<std::endl;
+	     }
+	   
+	   
+	}
+ 
 	//ofile.close();
 	//free up stuff
-	vertex_lcfi::MetaMemoryManager::Run()->delAllObjects();
+  
+   vertex_lcfi::MetaMemoryManager::Run()->delAllObjects();
+	     
+
 }
 
 void FlavourTagProcessor::_displayCollectionNames( lcio::LCEvent* pEvent )

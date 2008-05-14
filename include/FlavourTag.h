@@ -83,7 +83,9 @@ protected:
 	//ofstream ofile;
 	//This map holds the position of the Inputs in the LCFloatVec
 	std::map<std::string,unsigned int> _IndexOf;
-	
+
+	std::vector<nnet::NeuralNetDataSet*> _dataSet;
+
 	void _displayCollectionNames( lcio::LCEvent* pEvent );
 	
 };
