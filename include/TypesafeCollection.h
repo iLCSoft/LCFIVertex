@@ -14,6 +14,7 @@
 #include "EVENT/LCFloatVec.h"
 #include "EVENT/MCParticle.h"
 #include "EVENT/LCRelation.h"
+#include "EVENT/Vertex.h"
 
 template<class T>
 class TypesafeCollection

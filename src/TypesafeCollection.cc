@@ -30,3 +30,9 @@ bool TypesafeCollection<lcio::LCRelation>::_checkCollectionType()
 {
 	return ( _pCollection->getTypeName()==LCIO::LCRELATION ); //return true if they're equal, false otherwise
 }
+
+template<>
+bool TypesafeCollection<lcio::Vertex>::_checkCollectionType()
+{
+  return ( _pCollection->getTypeName()==LCIO::VERTEX); //return true if they're equal, false otherwise
+}
