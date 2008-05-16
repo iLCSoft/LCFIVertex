@@ -58,7 +58,7 @@
   <!--Set true to make a tuple of the flavour tag input variables.  Default is true.-->
   <!--parameter name="MakeTuple" type="bool">true </parameter-->
   <!--Output filename for the NN values (output).  Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out.-->
-  <!--parameter name="NeuralNetOutputFile" type="string"> </parameter-->
+  <parameter name="NeuralNetOutputFile" type="string"> TrackVertexTables.txt </parameter>
   <!--Cut determining the maximum momentum of the jet.  Default: 10000 GeV/c-->
   <!--parameter name="PJetMax" type="double">10000 </parameter-->
   <!--Cut determining the minimum momentum of the jet.  Default: no lower cut.-->
@@ -75,12 +75,16 @@
   <parameter name="TrueJetPDGCodeCollection" type="string" lcioInType="LCIntVec">TrueJetPDGCode </parameter>
   <!--Name of the LCFloatVec collection containing the true parton charge of the jets (same order as jets)-->
   <parameter name="TrueJetPartonChargeCollection" type="string" lcioInType="LCFloatVec">TrueJetPartonCharge </parameter>
+  <!--Name of collection linking the fitted true tracks and the Monte Carlo Particles-->
+  <parameter name="TrueTracksToMCPCollection" type="string" lcioInType="LCCollection">LDCTracksMCP </parameter>
   <!--Integer parameter determing which FlavourTag Collection to use the determine C-Jets and B-Jets in Vertex Charge Plots-->
   <!--parameter name="UseFlavourTagCollectionForVertexCharge" type="int">0 </parameter-->
   <!--Name of the collection that holds the Vertices-->
   <parameter name="VertexCollection" type="string" lcioInType="Vertex">ZVRESVertices </parameter>
   <!--Name of the ZVRES DecayChain collection-->
   <parameter name="ZVRESDecayChainCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChains </parameter>
+  <!--Name of the ZVRES Decay Chain Tracks Collection-->
+  <parameter name="ZVRESDecayChainTrackCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChainRPTracks </parameter>
   <!--Output filename for the NN values (output).  Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out.-->
   <!--parameter name="ZVRESOutputFile" type="string"> </parameter-->
   <!--Name of the ZVRES Selected Jets collection-->
