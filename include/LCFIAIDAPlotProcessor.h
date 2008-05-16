@@ -126,9 +126,9 @@ protected:
 	std::string _CVertexChargeCollection;
 	std::string _BVertexChargeCollection;
 
-	//zvrestable//  	std::string _TrueTracksToMCPCollection;
-  	std::string _ZVRESSelectedJetsCollection;
-  	//zvrestable//std::string _ZVRESDecayChainRPTracksCollection;
+	std::string _TrueTracksToMCPCollection;
+	std::string _ZVRESSelectedJetsCollection;
+	std::string _ZVRESDecayChainRPTracksCollection;
 	std::string _ZVRESDecayChainCollection;
 				  
 
@@ -297,9 +297,9 @@ protected:
 	
 	int GetPDGFlavour(int code);
 
-	//zvrestable//    	void FillZVRESTable(LCEvent* pEvent);
+	void FillZVRESTable(LCEvent* pEvent);
 	void PrintNNOutput();
-	//zvrestable//    	void PrintZVRESTable();
+	void PrintZVRESTable();
 	
 	void InternalVectorInitialisation();
 	

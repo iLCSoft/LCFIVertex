@@ -138,12 +138,12 @@ LCFIAIDAPlotProcessor::LCFIAIDAPlotProcessor() : marlin::Processor( "LCFIAIDAPlo
 			   _BVertexChargeCollection,
 			   std::string("BCharge") ) ;
   
-  //zvrestable//    registerInputCollection( LCIO::LCCOLLECTION,
-  //zvrestable//  			   "TrueTracksToMCPCollection",
-  //zvrestable//  			   "Name of collection linking the fitted true tracks and the Monte Carlo Particles",
-  //zvrestable//  			   _TrueTracksToMCPCollection,
-  //zvrestable//  			   std::string("FittedTrueTracksMCP") ) ;
-  
+  registerInputCollection( LCIO::LCCOLLECTION,
+			   "TrueTracksToMCPCollection",
+			   "Name of collection linking the fitted true tracks and the Monte Carlo Particles",
+			   _TrueTracksToMCPCollection,
+			   std::string("FittedTrueTracksMCP") ) ;
+
   registerInputCollection( LCIO::RECONSTRUCTEDPARTICLE,
     			   "ZVRESDecayChainCollection" , 
     			   "Name of the ZVRES DecayChain collection"  ,
@@ -151,18 +151,18 @@ LCFIAIDAPlotProcessor::LCFIAIDAPlotProcessor() : marlin::Processor( "LCFIAIDAPlo
     			   std::string("ZVRESDecayChains") );
   
   registerInputCollection( LCIO::RECONSTRUCTEDPARTICLE,
-  			   "ZVRESSelectedJetsCollection" , 
-  			   "Name of the ZVRES Selected Jets collection"  ,
-  			   _ZVRESSelectedJetsCollection ,
-  			   std::string("ZVRESSelectedJets") );
-    
-    
-  //zvrestable//  registerInputCollection( LCIO::RECONSTRUCTEDPARTICLE,
-  //zvrestable//			   "ZVRESDecayChainTrackCollectionName" , 
-  //zvrestable//			   "Name of the ZVRES Decay Chain Tracks Collection"  ,
-  //zvrestable//			   _ZVRESDecayChainRPTracksCollection ,
-  //zvrestable//			   std::string("ZVRESDecayRPChainTracks") );
+			   "ZVRESSelectedJetsCollection" , 
+			   "Name of the ZVRES Selected Jets collection"  ,
+			   _ZVRESSelectedJetsCollection ,
+			   std::string("ZVRESSelectedJets") );
   
+  
+  registerInputCollection( LCIO::RECONSTRUCTEDPARTICLE,
+			   "ZVRESDecayChainTrackCollection" , 
+			   "Name of the ZVRES Decay Chain Tracks Collection"  ,
+			   _ZVRESDecayChainRPTracksCollection ,
+			   std::string("ZVRESDecayChainRPTracks") );
+
 
  
   FlavourTagCollectionNamesDefault.clear();
@@ -777,23 +777,21 @@ void LCFIAIDAPlotProcessor::processEvent( LCEvent* pEvent )
 	      FillVertexPlots( pEvent, jetNumber );
 	    }
 
-	  //need to find the verticies in the jet
 	}
 
-      //zvrestable//  FillZVRESTable(pEvent);
+      //Look at the track-vertex matching
+      FillZVRESTable(pEvent);
    
-      
-      //this code here needs to be tidied up
-      try{
-	LCCollection* vertexCol = pEvent->getCollection(_VertexColName);
+      // Plots of the vertex quantities, if there is a vertex collection 
+      TypesafeCollection<lcio::Vertex> vertexCol(pEvent, _VertexColName);
 
+      if (vertexCol.is_valid()) {
+      
 	float primaryVertexPostion[] = {0.,0.,0.};
 	
-	for (int ii=0 ; ii < vertexCol->getNumberOfElements() ; ii++){
+	for (int ii=0 ; ii < vertexCol.getNumberOfElements() ; ii++){
 	  
-	  Vertex* myVertex =  dynamic_cast<Vertex*>(vertexCol->getElementAt(ii));
-	  
-	  //	std::cout << "vertex is primary: " << myVertex->isPrimary() << " asoc particle: " << myVertex->getAssociatedParticle() << std::endl;
+	  Vertex* myVertex =  dynamic_cast<Vertex*>(vertexCol.getElementAt(ii));
 	  
 	  const float* vertexPosition = myVertex->getPosition();
 	  if (myVertex->isPrimary()) {
@@ -803,9 +801,9 @@ void LCFIAIDAPlotProcessor::processEvent( LCEvent* pEvent )
 	  }
 	}
 	
-	for (int ii=0 ; ii < vertexCol->getNumberOfElements() ; ii++){
+	for (int ii=0 ; ii < vertexCol.getNumberOfElements() ; ii++){
 	  
-	  Vertex* myVertex =  dynamic_cast<Vertex*>(vertexCol->getElementAt(ii));
+	  Vertex* myVertex =  dynamic_cast<Vertex*>(vertexCol.getElementAt(ii));
 	  const float* vertexPosition = myVertex->getPosition();
 	  
 	  double px =  double(vertexPosition[0]);
@@ -838,8 +836,6 @@ void LCFIAIDAPlotProcessor::processEvent( LCEvent* pEvent )
 	  
 	}
       }
-      
-      catch( DataNotAvailableException &e){}
       
     }
 }
@@ -1039,7 +1035,7 @@ void LCFIAIDAPlotProcessor::end()
    
   
   if (_PrintNeuralNetOutput) PrintNNOutput();
-  //zvrestable//  PrintZVRESTable();
+  PrintZVRESTable();
   
 }
 
@@ -1761,6 +1757,29 @@ AIDA::IDataPointSet* LCFIAIDAPlotProcessor::CreateEfficiencyPlot2(const AIDA::IH
   return pDataPointSet;
 }
 
+AIDA::IHistogram1D* LCFIAIDAPlotProcessor::CreateIntegralHistogram(const AIDA::IHistogram1D* pNN, AIDA::IHistogram1D* pIntegral)
+{
+  //the errors on these entries are wrong...
+  
+  const int numberOfBins=pNN->axis().bins();
+
+  double integral=pNN->binHeight(AIDA::IAxis::OVERFLOW_BIN);
+  pIntegral->fill(pNN->axis().binLowerEdge(AIDA::IAxis::OVERFLOW_BIN)+pNN->axis().binWidth(numberOfBins-1)/2.,integral);
+  
+  for( int binNumber=numberOfBins-1; binNumber>=0; --binNumber )
+    {
+      integral+= pNN->binHeight( binNumber );
+      pIntegral->fill( pNN->axis().binLowerEdge(binNumber)+pNN->axis().binWidth(binNumber)/2.,integral);
+    }
+  
+  integral+= pNN->binHeight(AIDA::IAxis::UNDERFLOW_BIN);
+  pIntegral->fill(pNN->axis().binUpperEdge(AIDA::IAxis::UNDERFLOW_BIN)-pNN->axis().binWidth(0)/2.,integral);
+
+  return pIntegral;
+}
+
+
+
 AIDA::IDataPointSet* LCFIAIDAPlotProcessor::CreateIntegralPlot(const AIDA::IHistogram1D* pNN, AIDA::IDataPointSet* pDataPointSet )
 {
   //it might make more sense to make this a histogram, but then the error on the entries are wrong
@@ -1909,26 +1928,6 @@ void LCFIAIDAPlotProcessor::CreateVertexChargeLeakagePlot(AIDA::IDataPointSet* p
 #endif
 
 
-AIDA::IHistogram1D* LCFIAIDAPlotProcessor::CreateIntegralHistogram(const AIDA::IHistogram1D* pNN, AIDA::IHistogram1D* pIntegral)
-{
-  //the errors on these entries are wrong...
-  
-  const int numberOfBins=pNN->axis().bins();
-
-  double integral=pNN->binHeight(AIDA::IAxis::OVERFLOW_BIN);
-  pIntegral->fill(pNN->axis().binLowerEdge(AIDA::IAxis::OVERFLOW_BIN)+pNN->axis().binWidth(numberOfBins-1)/2.,integral);
-  
-  for( int binNumber=numberOfBins-1; binNumber>=0; --binNumber )
-    {
-      integral+= pNN->binHeight( binNumber );
-      pIntegral->fill( pNN->axis().binLowerEdge(binNumber)+pNN->axis().binWidth(binNumber)/2.,integral);
-    }
-  
-  integral+= pNN->binHeight(AIDA::IAxis::UNDERFLOW_BIN);
-  pIntegral->fill(pNN->axis().binUpperEdge(AIDA::IAxis::UNDERFLOW_BIN)-pNN->axis().binWidth(0)/2.,integral);
-
-  return pIntegral;
-}
 
 void LCFIAIDAPlotProcessor::CreateVertexChargeLeakagePlot()
 {
@@ -2129,532 +2128,547 @@ void LCFIAIDAPlotProcessor::FillVertexPlots( LCEvent* pEvent, unsigned int jetNu
 
 }
 
-//zvrestable//  void LCFIAIDAPlotProcessor::FillZVRESTable(LCEvent* pEvent)
-//zvrestable//  {
-//zvrestable//  
-//zvrestable//    TypesafeCollection<lcio::ReconstructedParticle> ftjetCollection( pEvent, _JetCollectionName );
-//zvrestable//    TypesafeCollection<lcio::ReconstructedParticle> zvresjetCollection( pEvent, _ZVRESSelectedJetsCollection );
-//zvrestable//    TypesafeCollection<lcio::ReconstructedParticle> zvresdcrptrackCollection( pEvent,  _ZVRESDecayChainRPTracksCollection);
-//zvrestable//    TypesafeCollection<lcio::ReconstructedParticle> zvresdcCollection( pEvent,  _ZVRESDecayChainCollection );
-//zvrestable//    
-//zvrestable//    
-//zvrestable//    LCCollection* relationTrackCollection = pEvent->getCollection(_TrueTracksToMCPCollection);
-//zvrestable//    
-//zvrestable//    UTIL::LCRelationNavigator* MCRelationNavigator  =  (relationTrackCollection!=NULL)  ? new LCRelationNavigator(relationTrackCollection) : NULL;
-//zvrestable//      
-//zvrestable//    //these are to store the primary, secondary and tertiary vertices in the jet
-//zvrestable//    std::vector<Vertex*> primaryVertices; 
-//zvrestable//    std::vector<Vertex*> secondaryVertices;
-//zvrestable//    std::vector<Vertex*> tertiaryVertices;
-//zvrestable//    std::vector<Vertex*> allVertices;
-//zvrestable//    //to store pairs of vertices with a track in between
-//zvrestable//    std::vector< std::pair<Vertex*,Vertex*> > myVertexPairVector;
-//zvrestable//    primaryVertices.clear();
-//zvrestable//    secondaryVertices.clear();
-//zvrestable//    tertiaryVertices.clear();
-//zvrestable//    allVertices.clear();
-//zvrestable//    myVertexPairVector.clear();
-//zvrestable//  
-//zvrestable//  
-//zvrestable//    //loop over all the jets to find the verticies.  Only ZVRESDecayChains know about their vertices.
-//zvrestable//    
-//zvrestable//    for (int iDecayChain = 0 ; iDecayChain < zvresdcCollection.getNumberOfElements(); iDecayChain++) {
-//zvrestable//      
-//zvrestable//      lcio::ReconstructedParticle*  pDecayChain=zvresdcCollection.getElementAt(iDecayChain);
-//zvrestable//    
-//zvrestable//      //to store pairs of vertices with a track in between
-//zvrestable//      std::pair<Vertex*,Vertex*> myVertexPair;
-//zvrestable//      std::vector< std::pair<Vertex*,Vertex*> > myVertexPairVector;
-//zvrestable//      
-//zvrestable//      myVertexPairVector.clear();
-//zvrestable//      
-//zvrestable//      //these are all the particles within the jet - these guys know about their vertices
-//zvrestable//      std::vector<lcio::ReconstructedParticle*> decayChainPartColl = pDecayChain->getParticles();
-//zvrestable//  
-//zvrestable//      for (unsigned int iPart = 0 ; iPart < decayChainPartColl.size(); iPart++) {
-//zvrestable//   
-//zvrestable//        lcio::ReconstructedParticle*  decayChainPart = dynamic_cast< lcio::ReconstructedParticle*> (decayChainPartColl[iPart]);
-//zvrestable//  
-//zvrestable//        myVertexPair.first = decayChainPart->getStartVertex();
-//zvrestable//        myVertexPair.second = decayChainPart->getEndVertex();  
-//zvrestable//      
-//zvrestable//        bool pairAlreadyContained = false;
-//zvrestable//  
-//zvrestable//        for (std::vector< std::pair<Vertex*,Vertex*> >::const_iterator iter = myVertexPairVector.begin(); iter != myVertexPairVector.end(); iter++) {
-//zvrestable//        	if ((*iter).first == myVertexPair.first && (*iter).second == myVertexPair.second) pairAlreadyContained = true;
-//zvrestable//        }
-//zvrestable//        
-//zvrestable//        if (!pairAlreadyContained) myVertexPairVector.push_back(myVertexPair);
-//zvrestable//      }
-//zvrestable//  
-//zvrestable//      
-//zvrestable//      
-//zvrestable//      //first find the primary, and secondary vertices, and count up the total number of vertices
-//zvrestable//      for (std::vector< std::pair<Vertex*,Vertex*> >::const_iterator iter = myVertexPairVector.begin(); iter != myVertexPairVector.end(); iter++) {
-//zvrestable//        
-//zvrestable//        //look to see if we have a primary vertex.  It will always be in the first element, due to the way we set up the pair
-//zvrestable//        if ((*iter).first && (*iter).first->isPrimary()) 
-//zvrestable//  	{
-//zvrestable//  	  bool primaryAlreadyContained = false;
-//zvrestable//  	  for (std::vector<Vertex*>::const_iterator piter=primaryVertices.begin(); piter != primaryVertices.end(); piter++) 
-//zvrestable//  	    {
-//zvrestable//  	      if (*piter == (*iter).first) primaryAlreadyContained = true; 
-//zvrestable//  	    }
-//zvrestable//  	  if (!primaryAlreadyContained) primaryVertices.push_back((*iter).first);
-//zvrestable//  	  
-//zvrestable//        
-//zvrestable//  	  // if the first vertex in the pair is a primary, the second must be a secondary
-//zvrestable//  	  if ((*iter).second != 0) 
-//zvrestable//  	    {
-//zvrestable//  	      bool secondaryAlreadyContained = false;
-//zvrestable//  	      for (std::vector<Vertex*>::const_iterator siter=secondaryVertices.begin(); siter != secondaryVertices.end(); siter++) 
-//zvrestable//  		{
-//zvrestable//  		  if (*siter == (*iter).second) secondaryAlreadyContained = true; 
-//zvrestable//  		}	  
-//zvrestable//  	      if (!secondaryAlreadyContained) secondaryVertices.push_back((*iter).second);
-//zvrestable//  	    }
-//zvrestable//  	}
-//zvrestable//        
-//zvrestable//  
-//zvrestable//        // make an exclusive list of vertices
-//zvrestable//        bool firstAlreadyContained=false, secondAlreadyContained=false;
-//zvrestable//        for (std::vector<Vertex*>::const_iterator aiter = allVertices.begin(); aiter != allVertices.end(); aiter++) 
-//zvrestable//  	{
-//zvrestable//  	  if ( (*iter).first  && *aiter == (*iter).first)   firstAlreadyContained=true;
-//zvrestable//  	  if ( (*iter).second && *aiter == (*iter).second ) secondAlreadyContained=true;
-//zvrestable//  	  
-//zvrestable//  	}
-//zvrestable//        if ( !firstAlreadyContained && (*iter).first)  allVertices.push_back((*iter).first);
-//zvrestable//        if (!secondAlreadyContained && (*iter).second) allVertices.push_back((*iter).second);
-//zvrestable//      }
-//zvrestable//      
-//zvrestable//      //next find the tertiary vertices   
-//zvrestable//      for (std::vector< std::pair<Vertex*,Vertex*> >::const_iterator iter = myVertexPairVector.begin(); iter != myVertexPairVector.end(); iter++) 
-//zvrestable//        {
-//zvrestable//  	for (std::vector<Vertex*>::const_iterator siter = secondaryVertices.begin(); siter != secondaryVertices.end(); siter++) 
-//zvrestable//  	  {
-//zvrestable//  	    if ((*iter).first && (*iter).first == (*siter) && (*iter).second) 
-//zvrestable//  	      {
-//zvrestable//  		bool tertiaryAlreadyContained = false;
-//zvrestable//  		for (std::vector<Vertex*>::const_iterator titer=tertiaryVertices.begin(); titer != tertiaryVertices.end(); titer++) 
-//zvrestable//  		  {
-//zvrestable//  		    if (*titer == (*iter).second) tertiaryAlreadyContained=false;
-//zvrestable//  		  }
-//zvrestable//  		if (!tertiaryAlreadyContained) tertiaryVertices.push_back((*iter).second);
-//zvrestable//  	      }
-//zvrestable//  	  }
-//zvrestable//  	
-//zvrestable//        }
-//zvrestable//      
-//zvrestable//    }
-//zvrestable//    
-//zvrestable//  
-//zvrestable//    //ok now loop over all the ZVRESSelectedJets
-//zvrestable//    for (int iJet = 0 ; iJet < zvresjetCollection.getNumberOfElements(); iJet++) {
-//zvrestable//      lcio::ReconstructedParticle*  pJet=zvresjetCollection.getElementAt(iJet);
-//zvrestable//  
-//zvrestable//      //get the particle within the jets
-//zvrestable//      std::vector<lcio::ReconstructedParticle*> jetParticles = pJet->getParticles();
-//zvrestable//      
-//zvrestable//      //get the true jet flavour
-//zvrestable//      int jetType = FindJetType( pEvent,  iJet );
-//zvrestable//  
-//zvrestable//      if (jetType == B_JET || jetType == C_JET) {  
-//zvrestable//        //loop over the particles within the jet
-//zvrestable//        for (unsigned int iPart = 0 ; iPart < jetParticles.size(); iPart++) 
-//zvrestable//  	{
-//zvrestable//  	  lcio::ReconstructedParticle*  myJetParticle = dynamic_cast< lcio::ReconstructedParticle*> (jetParticles[iPart]);
-//zvrestable//  	  
-//zvrestable//  	  //do we find a match in the decay chain?
-//zvrestable//  	  bool decayChainMatch = false;
-//zvrestable//  	  //do we find a match in the decay chain RPs?
-//zvrestable//  	  bool decayChainRPMatch = false;
-//zvrestable//  	  
-//zvrestable//  	  //look for particle in ZVRESDecayChain collection
-//zvrestable//  	  lcio::ReconstructedParticle* myDecayChain = 0;
-//zvrestable//  	  //look for particle in ZVRESDecayChainsRPTrack collection
-//zvrestable//  	  lcio::ReconstructedParticle* myDecayChainRP = 0;
-//zvrestable//  	  	  
-//zvrestable//  	  //count the number of vertices in the DecayChain
-//zvrestable//  	  std::vector<Vertex*> myVertexVector;
-//zvrestable//  	  myVertexVector.clear();
-//zvrestable//  	  
-//zvrestable//  	  for (int iDCJet = 0 ; iDCJet < zvresdcrptrackCollection.getNumberOfElements(); iDCJet++) {
-//zvrestable//  
-//zvrestable//  	    lcio::ReconstructedParticle* myDCJetRP = zvresdcrptrackCollection.getElementAt(iDCJet);
-//zvrestable//  
-//zvrestable//  	    lcio::ReconstructedParticle* myDCJetRPTrack = myDCJetRP->getParticles()[0];
-//zvrestable//  	    
-//zvrestable//  	    if (myDCJetRPTrack==myJetParticle) {
-//zvrestable//  	      decayChainRPMatch = true;
-//zvrestable//  	      myDecayChainRP = myDCJetRP;
-//zvrestable//  	    }
-//zvrestable//  	  }
-//zvrestable//  
-//zvrestable//  	  //look for a matching decay chain - if we have found a matching RP - use that information
-//zvrestable//  	  //otherwise look directly in ZVRESDecayChain and assume they match directly to the ZVRESSelectedJet
-//zvrestable//  	  
-//zvrestable//  	  if (decayChainRPMatch) {
-//zvrestable//  	    
-//zvrestable//  	    //need to find the decay chain the RP belongs to, in order to find out the number of vertices
-//zvrestable//  	    for (int iDecayChain = 0 ; iDecayChain < zvresdcCollection.getNumberOfElements(); iDecayChain++) {
-//zvrestable//  	      lcio::ReconstructedParticle*  pDecayChain=zvresdcCollection.getElementAt(iDecayChain);
-//zvrestable//  	      std::vector<lcio::ReconstructedParticle*> decayChainParticles = pDecayChain->getParticles();
-//zvrestable//  	      for (unsigned int iDCPart = 0 ; iDCPart < decayChainParticles.size(); iDCPart++) {
-//zvrestable//  		lcio::ReconstructedParticle*  myDecayChainParticle = dynamic_cast< lcio::ReconstructedParticle*> (decayChainParticles[iDCPart]);
-//zvrestable//  		if (myDecayChainParticle == myDecayChainRP) {
-//zvrestable//  		  decayChainMatch = true;
-//zvrestable//  		  myDecayChain = pDecayChain;
-//zvrestable//  		}
-//zvrestable//  	      }
-//zvrestable//  	    }
-//zvrestable//  	  } else {
-//zvrestable//  	  
-//zvrestable//  	    //we are looking at the iJet-th ZVRESSelectedJet
-//zvrestable//  	    //assume that the iJet-th ZVRESDecayChain refer to the same jet
-//zvrestable//  	    
-//zvrestable//  	    lcio::ReconstructedParticle*  pDecayChain=zvresdcCollection.getElementAt(iJet);
-//zvrestable//  	    myDecayChain = pDecayChain;
-//zvrestable//  	    if (pDecayChain)  decayChainMatch = true;
-//zvrestable//  	  }
-//zvrestable//  
-//zvrestable//  	  if (decayChainMatch) {
-//zvrestable//  	    
-//zvrestable//  	      std::vector<lcio::ReconstructedParticle*> myDecayChainParticles = myDecayChain->getParticles();
-//zvrestable//  	      for (unsigned int iDCPart = 0 ; iDCPart < myDecayChainParticles.size(); iDCPart++) {
-//zvrestable//  		
-//zvrestable//  		lcio::ReconstructedParticle*  myDecayChainParticle = dynamic_cast< lcio::ReconstructedParticle*> (myDecayChainParticles[iDCPart]);
-//zvrestable//  		
-//zvrestable//  		bool startAlreadyContained = false;
-//zvrestable//  		bool endAlreadyContained = false;
-//zvrestable//  		
-//zvrestable//  		for (std::vector<Vertex*>::const_iterator iter=myVertexVector.begin(); iter!=myVertexVector.end(); iter++)
-//zvrestable//  		  {
-//zvrestable//  		    if (*iter == myDecayChainParticle->getStartVertex()) startAlreadyContained = true;
-//zvrestable//  		  }
-//zvrestable//  		if (!startAlreadyContained && myDecayChainParticle->getStartVertex()) myVertexVector.push_back(myDecayChainParticle->getStartVertex());
-//zvrestable//  		
-//zvrestable//  		
-//zvrestable//  		for (std::vector<Vertex*>::const_iterator iter=myVertexVector.begin(); iter!=myVertexVector.end(); iter++)
-//zvrestable//  		  {
-//zvrestable//  		    if (*iter == myDecayChainParticle->getEndVertex()) endAlreadyContained = true;
-//zvrestable//  		  }
-//zvrestable//  		if (!endAlreadyContained && myDecayChainParticle->getEndVertex())  myVertexVector.push_back(myDecayChainParticle->getEndVertex());
-//zvrestable//  		
-//zvrestable//  	      }
-//zvrestable//  	    }
-//zvrestable//  	    
-//zvrestable//  	  int numVertex=myVertexVector.size();
-//zvrestable//  	  
-//zvrestable//  	  bool trackFromPrimaryLight = false,  trackFromSecondaryC = false, trackFromSecondaryB = false, trackFromTertiaryC = false;
-//zvrestable//  	  bool trackHasNoAssociatedMCP = false;
-//zvrestable//  	  
-//zvrestable//  	  //find the origin of these tracks through the MCRelationNavigator.
-//zvrestable//  	  std::vector<Track*> myTracks;
-//zvrestable//  	  
-//zvrestable//  	  if  (decayChainRPMatch) myTracks = myDecayChainRP->getParticles()[0]->getTracks();
-//zvrestable//  	  else {
-//zvrestable//  	    myTracks = myJetParticle->getTracks();
-//zvrestable//  	   	    
-//zvrestable//  	  }
-//zvrestable//  	  
-//zvrestable//  	  if (myTracks.size()==0) 
-//zvrestable//  	    {
-//zvrestable//  	      
-//zvrestable//  	      //look at the matching MC version info
-//zvrestable//  	      
-//zvrestable//  	      trackHasNoAssociatedMCP = true;
-//zvrestable//  	      
-//zvrestable//  	      //std::cerr << "Number of elements in Track vector is: " << myDecayChainRP->getParticles()[0]->getTracks().size() << std::endl;
-//zvrestable//  	    }
-//zvrestable//  	  
-//zvrestable//  	  else if (myTracks.size()>0) 
-//zvrestable//  	    {
-//zvrestable//  	      
-//zvrestable//  	      lcio::Track* Track = myTracks[0];
-//zvrestable//  	      
-//zvrestable//  	      std::vector<lcio::LCObject*> RelatedMCParticles = MCRelationNavigator->getRelatedToObjects(Track);
-//zvrestable//  	      
-//zvrestable//  	      //Not sure what to do if it has more than one related MC particle.  For now just print a warning and ignore.
-//zvrestable//  	      if( RelatedMCParticles.size()!=1 )
-//zvrestable//  		{
-//zvrestable//  		  std::cerr << std::cout << "In run number: " << pEvent->getRunNumber() << ", event number: " <<  pEvent->getEventNumber() << ";  " <<RelatedMCParticles.size() << " MCParticles related to this track! No cuts performed on MC PDG code." << std::endl;
-//zvrestable//  		  //return false;
-//zvrestable//  		}
-//zvrestable//  	      else
-//zvrestable//  		{
-//zvrestable//  		  lcio::MCParticle* MCP = dynamic_cast<lcio::MCParticle*>(RelatedMCParticles[0]);
-//zvrestable//  		  std::vector<lcio::MCParticle*> Parents = dynamic_cast<lcio::MCParticle*>(RelatedMCParticles[0])->getParents();
-//zvrestable//  		  
-//zvrestable//  		  if (Parents.empty())
-//zvrestable//  		    std::cerr << "particle has no parents" << std::endl;
-//zvrestable//  		  //ERROR NO PARENT;
-//zvrestable//  		  else
-//zvrestable//  		    {
-//zvrestable//  		      int truePDGCode=MCP->getPDG();
-//zvrestable//  		      int truePDGFlavour = GetPDGFlavour(truePDGCode);
-//zvrestable//  		      std::vector<int> pdgCodeVector;
-//zvrestable//  		      std::vector<int> pdgFlavourVector;
-//zvrestable//  		      std::vector<float> pdgDecayLengths;
-//zvrestable//  		      
-//zvrestable//  		      pdgCodeVector.push_back(truePDGCode);
-//zvrestable//  		      pdgFlavourVector.push_back(truePDGFlavour);
-//zvrestable//  		      
-//zvrestable//  		      std::vector<lcio::MCParticle*> ParentVec0 = MCP->getParents();
-//zvrestable//  		  
-//zvrestable//  		      if (ParentVec0.size()>0)  {
-//zvrestable//  			lcio::MCParticle* Parent0 = ParentVec0[0];
-//zvrestable//  			
-//zvrestable//  			if (Parent0) {
-//zvrestable//  			  
-//zvrestable//  			  pdgCodeVector.push_back(Parent0->getPDG());
-//zvrestable//  			  pdgFlavourVector.push_back(GetPDGFlavour(Parent0->getPDG()));
-//zvrestable//  			  std::vector<lcio::MCParticle*> ParentVec1 = Parent0->getParents();
-//zvrestable//  			  pdgDecayLengths.push_back(CalculateDistance(Parent0->getVertex(),Parent0->getEndpoint()));
-//zvrestable//  			  
-//zvrestable//  			  if (ParentVec1.size()>0) {
-//zvrestable//  			    lcio::MCParticle* Parent1 = ParentVec1[0];
-//zvrestable//  			    
-//zvrestable//  			    if (Parent1)  {
-//zvrestable//  			      pdgCodeVector.push_back(Parent1->getPDG());
-//zvrestable//  			      pdgFlavourVector.push_back(GetPDGFlavour(Parent1->getPDG()));
-//zvrestable//  			      std::vector<lcio::MCParticle*> ParentVec2 = Parent1->getParents();
-//zvrestable//  			      pdgDecayLengths.push_back(CalculateDistance(Parent1->getVertex(),Parent1->getEndpoint()));
-//zvrestable//  			      
-//zvrestable//  			      if (ParentVec2.size()>0) {
-//zvrestable//  				lcio::MCParticle* Parent2 = ParentVec2[0];
-//zvrestable//  				
-//zvrestable//  				if (Parent2)  {
-//zvrestable//  				  pdgCodeVector.push_back(Parent2->getPDG());
-//zvrestable//  				  pdgFlavourVector.push_back(GetPDGFlavour(Parent2->getPDG()));
-//zvrestable//  				  std::vector<lcio::MCParticle*> ParentVec3 = Parent2->getParents();			  
-//zvrestable//  				  pdgDecayLengths.push_back(CalculateDistance(Parent2->getVertex(),Parent2->getEndpoint()));
-//zvrestable//  				  
-//zvrestable//  				  if (ParentVec3.size()>0) {
-//zvrestable//  				    lcio::MCParticle* Parent3 = ParentVec3[0];
-//zvrestable//  				    
-//zvrestable//  				    if (Parent3)  {
-//zvrestable//  				      pdgCodeVector.push_back(Parent3->getPDG());
-//zvrestable//  				      pdgFlavourVector.push_back(GetPDGFlavour(Parent3->getPDG()));
-//zvrestable//  				      std::vector<lcio::MCParticle*> ParentVec4 = Parent3->getParents();
-//zvrestable//  				      pdgDecayLengths.push_back(CalculateDistance(Parent3->getVertex(),Parent3->getEndpoint()));
-//zvrestable//  				      
-//zvrestable//  				      if (ParentVec4.size()>0) {
-//zvrestable//  					lcio::MCParticle* Parent4 = ParentVec4[0];
-//zvrestable//  					
-//zvrestable//  					if (Parent4) {
-//zvrestable//  					  pdgCodeVector.push_back(Parent4->getPDG());
-//zvrestable//  					  pdgFlavourVector.push_back(GetPDGFlavour(Parent4->getPDG()));
-//zvrestable//  					  std::vector<lcio::MCParticle*> ParentVec5 = Parent4->getParents();
-//zvrestable//  					  pdgDecayLengths.push_back(CalculateDistance(Parent4->getVertex(),Parent4->getEndpoint()));
-//zvrestable//  					  
-//zvrestable//  					  if (ParentVec5.size()>0) {
-//zvrestable//  					    lcio::MCParticle* Parent5 = ParentVec5[0];
-//zvrestable//  					    
-//zvrestable//  					    if (Parent5) {
-//zvrestable//  					      pdgCodeVector.push_back(Parent5->getPDG());
-//zvrestable//  					      pdgFlavourVector.push_back(GetPDGFlavour(Parent5->getPDG()));
-//zvrestable//  					      std::vector<lcio::MCParticle*> ParentVec6 = Parent5->getParents();
-//zvrestable//  					      pdgDecayLengths.push_back(CalculateDistance(Parent5->getVertex(),Parent5->getEndpoint()));
-//zvrestable//  					      
-//zvrestable//  					      if (ParentVec6.size()>0) {
-//zvrestable//  						lcio::MCParticle* Parent6 = ParentVec6[0];
-//zvrestable//  						
-//zvrestable//  						if (Parent6) {
-//zvrestable//  						  pdgCodeVector.push_back(Parent6->getPDG());
-//zvrestable//  						  pdgFlavourVector.push_back(GetPDGFlavour(Parent6->getPDG()));
-//zvrestable//  						  pdgDecayLengths.push_back(CalculateDistance(Parent6->getVertex(),Parent6->getEndpoint()));
-//zvrestable//  						  
-//zvrestable//  						}   //eh hope that's enough...
-//zvrestable//  					      }
-//zvrestable//  					    }
-//zvrestable//  					  }
-//zvrestable//  					}
-//zvrestable//  				      }
-//zvrestable//  				    }
-//zvrestable//  				  }
-//zvrestable//  				}
-//zvrestable//  			      }
-//zvrestable//  			    }
-//zvrestable//  			  }
-//zvrestable//  			}
-//zvrestable//  		      }
-//zvrestable//  		      
-//zvrestable//  		      
-//zvrestable//  		      //assign a flavour to the jet.
-//zvrestable//  		      bool isLight = false;
-//zvrestable//  		      bool isC = false;
-//zvrestable//  		      bool isB = false;
-//zvrestable//  		      
-//zvrestable//  		      
-//zvrestable//  		      for (std::vector<int>::const_iterator iter = pdgFlavourVector.begin();
-//zvrestable//  			   iter != pdgFlavourVector.end(); iter++) {
-//zvrestable//  			if ((*iter) == 1) isLight = true;
-//zvrestable//  			if ((*iter) == C_JET) isC = true;
-//zvrestable//  			if ((*iter) == B_JET) isB = true;
-//zvrestable//  		      }
-//zvrestable//  		      
-//zvrestable//  		      
-//zvrestable//  		      //if it's all "1"s --> then primary
-//zvrestable//  		      //if there's a "4" and no "5" --> then D (secondary)
-//zvrestable//  		      //if there's a "4" AND a "5"  --> then B and D (secondary and tertiary)
-//zvrestable//  		      
-//zvrestable//  		      if (isLight && !isC && !isB) trackFromPrimaryLight = true;
-//zvrestable//  		      if (isC && !isB) trackFromSecondaryC = true;
-//zvrestable//  		      if (!isC && isB) trackFromSecondaryB = true;
-//zvrestable//  		      if (isC && isB)  trackFromTertiaryC = true;
-//zvrestable//  		      
-//zvrestable//  		    }
-//zvrestable//  		}
-//zvrestable//  	    }
-//zvrestable//  	  
-//zvrestable//  	  //find the vertex depth - only possible if we've found the RP corresponding to the track
-//zvrestable//  	  
-//zvrestable//  	  bool isPrimary=false, isSecondary=false, isTertiary=false;
-//zvrestable//  	  
-//zvrestable//  	  if (decayChainRPMatch) {
-//zvrestable//  	    
-//zvrestable//  	    lcio::Vertex* partVertex = myDecayChainRP->getStartVertex();
-//zvrestable//  	    
-//zvrestable//  	    for (std::vector<Vertex*>::const_iterator piter = primaryVertices.begin(); piter != primaryVertices.end(); piter++) 
-//zvrestable//  	      {
-//zvrestable//  		if ((*piter) == partVertex) isPrimary=true;
-//zvrestable//  	      }
-//zvrestable//  	    for (std::vector<Vertex*>::const_iterator siter = secondaryVertices.begin(); siter != secondaryVertices.end(); siter++) 
-//zvrestable//  	      {
-//zvrestable//  		if ((*siter) == partVertex) isSecondary=true;
-//zvrestable//  	      }
-//zvrestable//  	    for (std::vector<Vertex*>::const_iterator titer = tertiaryVertices.begin(); titer != tertiaryVertices.end(); titer++) 
-//zvrestable//  	      {
-//zvrestable//  		if ((*titer) == partVertex) isTertiary=true;
-//zvrestable//  	      }
-//zvrestable//  	    
-//zvrestable//  	  }
-//zvrestable//  
-//zvrestable//  	  if (numVertex == 2) 
-//zvrestable//  	    {
-//zvrestable//  	      if (trackHasNoAssociatedMCP) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)   _nb_twoVertex_Primary_noMCP++;
-//zvrestable//  		  else if (isSecondary) _nb_twoVertex_Secondary_noMCP++;
-//zvrestable//  		  else   _nb_twoVertex_Isolated_noMCP++;                 
-//zvrestable//  		}
-//zvrestable//  	      
-//zvrestable//  	      if (trackFromSecondaryB && jetType == B_JET ) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nb_twoVertex_bTrack_Primary++;
-//zvrestable//  		  else if (isSecondary)  _nb_twoVertex_bTrack_Secondary++;
-//zvrestable//  		  //else if (isTertiary)   _nb_twoVertex_bTrack_Tertiary++;
-//zvrestable//  		  else                   _nb_twoVertex_bTrack_Isolated++;
-//zvrestable//  		} 
-//zvrestable//  	      else if ((trackFromSecondaryC || trackFromTertiaryC) && jetType == B_JET ) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nb_twoVertex_cTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary)  _nb_twoVertex_cTrack_Secondary++;
-//zvrestable//  		  //else if (isTertiary)   _nb_twoVertex_cTrack_Tertiary++;
-//zvrestable//  		  else                   _nb_twoVertex_cTrack_Isolated++;
-//zvrestable//  		} 
-//zvrestable//  	      else if (trackFromPrimaryLight && jetType == B_JET) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nb_twoVertex_lTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary)  _nb_twoVertex_lTrack_Secondary++;
-//zvrestable//  		  //else if (isTertiary)   _nb_twoVertex_lTrack_Tertiary++;
-//zvrestable//  		  else                   _nb_twoVertex_lTrack_Isolated++;
-//zvrestable//  		}
-//zvrestable//  	      
-//zvrestable//  	      if (trackHasNoAssociatedMCP && jetType == C_JET) {
-//zvrestable//  		
-//zvrestable//  		if (isPrimary)   _nc_twoVertex_Primary_noMCP++;
-//zvrestable//  		else if (isSecondary) _nc_twoVertex_Secondary_noMCP++;
-//zvrestable//  		else   _nc_twoVertex_Isolated_noMCP++;                 
-//zvrestable//  	      }
-//zvrestable//  	      
-//zvrestable//  	      if (trackFromSecondaryB && jetType == C_JET ) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nc_twoVertex_bTrack_Primary++;
-//zvrestable//  		  else if (isSecondary)  _nc_twoVertex_bTrack_Secondary++;
-//zvrestable//  		  //else if (isTertiary)   _nc_twoVertex_bTrack_Tertiary++;
-//zvrestable//  		  else                   _nc_twoVertex_bTrack_Isolated++;
-//zvrestable//  		} 
-//zvrestable//  	      else if ((trackFromSecondaryC || trackFromTertiaryC) && jetType == C_JET)
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nc_twoVertex_cTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary)  _nc_twoVertex_cTrack_Secondary++;
-//zvrestable//  		  //else if (isTertiary)   _nc_twoVertex_cTrack_Tertiary++;
-//zvrestable//  		  else                   _nc_twoVertex_cTrack_Isolated++;
-//zvrestable//  		} 
-//zvrestable//  	      else if (trackFromPrimaryLight && jetType == C_JET) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nc_twoVertex_lTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary)  _nc_twoVertex_lTrack_Secondary++;
-//zvrestable//  		  //else if (isTertiary)   _nc_twoVertex_lTrack_Tertiary++;
-//zvrestable//  		  else                   _nc_twoVertex_lTrack_Isolated++;
-//zvrestable//  		}
-//zvrestable//  	    } 
-//zvrestable//  	  else if (numVertex == 3 ) 
-//zvrestable//  	    {
-//zvrestable//  	      if (trackHasNoAssociatedMCP && jetType == B_JET) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)   _nb_twoVertex_Primary_noMCP++;
-//zvrestable//  		  else if (isSecondary) _nb_twoVertex_Secondary_noMCP++;
-//zvrestable//  		  else if (isTertiary) _nb_twoVertex_Tertiary_noMCP++;
-//zvrestable//  		  else   _nb_twoVertex_Isolated_noMCP++;                 
-//zvrestable//  		}
-//zvrestable//  	      
-//zvrestable//  	      if (trackFromSecondaryB && jetType == B_JET) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nb_threeVertex_bTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary)  _nb_threeVertex_bTrack_Secondary++;
-//zvrestable//  		  else if (isTertiary)   _nb_threeVertex_bTrack_Tertiary++;
-//zvrestable//  		  else                   _nb_threeVertex_bTrack_Isolated++;
-//zvrestable//  		} 
-//zvrestable//  	      else if ((trackFromSecondaryC || trackFromTertiaryC) && jetType == B_JET)
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)        _nb_threeVertex_cTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary) _nb_threeVertex_cTrack_Secondary++;
-//zvrestable//  		  else if (isTertiary)  _nb_threeVertex_cTrack_Tertiary++;
-//zvrestable//  		  else                  _nb_threeVertex_cTrack_Isolated++;
-//zvrestable//  		} 
-//zvrestable//  	      else if (trackFromPrimaryLight && jetType == B_JET)
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nb_threeVertex_lTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary)  _nb_threeVertex_lTrack_Secondary++;
-//zvrestable//  		  else if (isTertiary)   _nb_threeVertex_lTrack_Tertiary++;
-//zvrestable//  		  else                   _nb_threeVertex_lTrack_Isolated++;
-//zvrestable//  		}
-//zvrestable//  	      if (trackHasNoAssociatedMCP && jetType == C_JET) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)   _nc_twoVertex_Primary_noMCP++;
-//zvrestable//  		  else if (isSecondary) _nc_twoVertex_Secondary_noMCP++;
-//zvrestable//  		  else if (isTertiary) _nc_twoVertex_Tertiary_noMCP++;
-//zvrestable//  		  else   _nc_twoVertex_Isolated_noMCP++;                 
-//zvrestable//  		}
-//zvrestable//  	      else if (trackFromSecondaryB && jetType == C_JET)
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nc_threeVertex_bTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary)  _nc_threeVertex_bTrack_Secondary++;
-//zvrestable//  		  else if (isTertiary)   _nc_threeVertex_bTrack_Tertiary++;
-//zvrestable//  		  else                   _nc_threeVertex_bTrack_Isolated++;
-//zvrestable//  		} 
-//zvrestable//  	      else if ((trackFromSecondaryC || trackFromTertiaryC) && jetType == C_JET)
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)        _nc_threeVertex_cTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary) _nc_threeVertex_cTrack_Secondary++;
-//zvrestable//  		  else if (isTertiary)  _nc_threeVertex_cTrack_Tertiary++;
-//zvrestable//  		  else                  _nc_threeVertex_cTrack_Isolated++;
-//zvrestable//  		} 
-//zvrestable//  	      else if (trackFromPrimaryLight && jetType == C_JET) 
-//zvrestable//  		{
-//zvrestable//  		  if (isPrimary)         _nc_threeVertex_lTrack_Primary++; 
-//zvrestable//  		  else if (isSecondary)  _nc_threeVertex_lTrack_Secondary++;
-//zvrestable//  		  else if (isTertiary)   _nc_threeVertex_lTrack_Tertiary++;
-//zvrestable//  		  else                   _nc_threeVertex_lTrack_Isolated++;
-//zvrestable//  		}
-//zvrestable//  	    }  
-//zvrestable//  	}
-//zvrestable//      } //jet type is B_JET or C_JET
-//zvrestable//    }
-//zvrestable//  }
+void LCFIAIDAPlotProcessor::FillZVRESTable(LCEvent* pEvent)
+{
+  TypesafeCollection<lcio::ReconstructedParticle> ftjetCollection( pEvent, _JetCollectionName );
+  TypesafeCollection<lcio::ReconstructedParticle> zvresjetCollection( pEvent, _ZVRESSelectedJetsCollection );
+  TypesafeCollection<lcio::ReconstructedParticle> zvresdcrptrackCollection( pEvent,  _ZVRESDecayChainRPTracksCollection);
+  TypesafeCollection<lcio::ReconstructedParticle> zvresdcCollection( pEvent,  _ZVRESDecayChainCollection );
+  
+  LCCollection* relationTrackCollection = pEvent->getCollection(_TrueTracksToMCPCollection);
+  
+  UTIL::LCRelationNavigator* MCRelationNavigator  =  (relationTrackCollection!=NULL)  ? new LCRelationNavigator(relationTrackCollection) : NULL;
+  
+  
+  if (MCRelationNavigator==NULL)
+    std::cerr << __FILE__ << "(" << __LINE__ << "), run number: " << pEvent->getRunNumber() << ", event number: " <<  pEvent->getEventNumber()<< " LCCollection " << _TrueTracksToMCPCollection << " is not valid." << std::endl;
+  
+  if (!ftjetCollection.is_valid())
+    std::cerr << __FILE__ << "(" << __LINE__ << "), run number: " << pEvent->getRunNumber() << ", event number: " <<  pEvent->getEventNumber()<< " ReconstructedParticle " << _JetCollectionName << " is not valid." << std::endl;
+  if (!zvresjetCollection.is_valid()) 
+    std::cerr << __FILE__ << "(" << __LINE__ << "), run number: " << pEvent->getRunNumber() << ", event number: " <<  pEvent->getEventNumber()<< " ReconstructedParticle " << _ZVRESSelectedJetsCollection << " is not valid." << std::endl;
+  if (!zvresdcrptrackCollection.is_valid()) 
+    std::cerr << __FILE__ << "(" << __LINE__ << "), run number: " << pEvent->getRunNumber() << ", event number: " <<  pEvent->getEventNumber()<< " ReconstructedParticle " << _ZVRESDecayChainRPTracksCollection << " is not valid." << std::endl;
+  if (!zvresdcCollection.is_valid())
+    std::cerr << __FILE__ << "(" << __LINE__ << "), run number: " << pEvent->getRunNumber() << ", event number: " <<  pEvent->getEventNumber()<< " ReconstructedParticle " << _ZVRESDecayChainCollection << " is not valid." << std::endl;
+ 
+
+
+  //these are to store the primary, secondary and tertiary vertices in the jet
+  std::vector<Vertex*> primaryVertices; 
+  std::vector<Vertex*> secondaryVertices;
+  std::vector<Vertex*> tertiaryVertices;
+  std::vector<Vertex*> allVertices;
+  //to store pairs of vertices with a track in between
+  std::vector< std::pair<Vertex*,Vertex*> > myVertexPairVector;
+  primaryVertices.clear();
+  secondaryVertices.clear();
+  tertiaryVertices.clear();
+  allVertices.clear();
+  myVertexPairVector.clear();
+
+
+  //loop over all the jets to find the verticies.  Only ZVRESDecayChains know about their vertices.
+  
+  for (int iDecayChain = 0 ; iDecayChain < zvresdcCollection.getNumberOfElements(); iDecayChain++) {
+    
+    lcio::ReconstructedParticle*  pDecayChain=zvresdcCollection.getElementAt(iDecayChain);
+  
+    //to store pairs of vertices with a track in between
+    std::pair<Vertex*,Vertex*> myVertexPair;
+    std::vector< std::pair<Vertex*,Vertex*> > myVertexPairVector;
+    
+    myVertexPairVector.clear();
+    
+    //these are all the particles within the jet - these guys know about their vertices
+    std::vector<lcio::ReconstructedParticle*> decayChainPartColl = pDecayChain->getParticles();
+
+    for (unsigned int iPart = 0 ; iPart < decayChainPartColl.size(); iPart++) {
+ 
+      lcio::ReconstructedParticle*  decayChainPart = dynamic_cast< lcio::ReconstructedParticle*> (decayChainPartColl[iPart]);
+
+      myVertexPair.first = decayChainPart->getStartVertex();
+      myVertexPair.second = decayChainPart->getEndVertex();  
+    
+      bool pairAlreadyContained = false;
+
+      for (std::vector< std::pair<Vertex*,Vertex*> >::const_iterator iter = myVertexPairVector.begin(); iter != myVertexPairVector.end(); iter++) {
+      	if ((*iter).first == myVertexPair.first && (*iter).second == myVertexPair.second) pairAlreadyContained = true;
+      }
+      
+      if (!pairAlreadyContained) myVertexPairVector.push_back(myVertexPair);
+    }
+
+    
+    
+    //first find the primary, and secondary vertices, and count up the total number of vertices
+    for (std::vector< std::pair<Vertex*,Vertex*> >::const_iterator iter = myVertexPairVector.begin(); iter != myVertexPairVector.end(); iter++) {
+      
+      //look to see if we have a primary vertex.  It will always be in the first element, due to the way we set up the pair
+      if ((*iter).first && (*iter).first->isPrimary()) 
+	{
+	  bool primaryAlreadyContained = false;
+	  for (std::vector<Vertex*>::const_iterator piter=primaryVertices.begin(); piter != primaryVertices.end(); piter++) 
+	    {
+	      if (*piter == (*iter).first) primaryAlreadyContained = true; 
+	    }
+	  if (!primaryAlreadyContained) primaryVertices.push_back((*iter).first);
+	  
+      
+	  // if the first vertex in the pair is a primary, the second must be a secondary
+	  if ((*iter).second != 0) 
+	    {
+	      bool secondaryAlreadyContained = false;
+	      for (std::vector<Vertex*>::const_iterator siter=secondaryVertices.begin(); siter != secondaryVertices.end(); siter++) 
+		{
+		  if (*siter == (*iter).second) secondaryAlreadyContained = true; 
+		}	  
+	      if (!secondaryAlreadyContained) secondaryVertices.push_back((*iter).second);
+	    }
+	}
+      
+
+      // make an exclusive list of vertices
+      bool firstAlreadyContained=false, secondAlreadyContained=false;
+      for (std::vector<Vertex*>::const_iterator aiter = allVertices.begin(); aiter != allVertices.end(); aiter++) 
+	{
+	  if ( (*iter).first  && *aiter == (*iter).first)   firstAlreadyContained=true;
+	  if ( (*iter).second && *aiter == (*iter).second ) secondAlreadyContained=true;
+	  
+	}
+      if ( !firstAlreadyContained && (*iter).first)  allVertices.push_back((*iter).first);
+      if (!secondAlreadyContained && (*iter).second) allVertices.push_back((*iter).second);
+    }
+    
+    //next find the tertiary vertices   
+    for (std::vector< std::pair<Vertex*,Vertex*> >::const_iterator iter = myVertexPairVector.begin(); iter != myVertexPairVector.end(); iter++) 
+      {
+	for (std::vector<Vertex*>::const_iterator siter = secondaryVertices.begin(); siter != secondaryVertices.end(); siter++) 
+	  {
+	    if ((*iter).first && (*iter).first == (*siter) && (*iter).second) 
+	      {
+		bool tertiaryAlreadyContained = false;
+		for (std::vector<Vertex*>::const_iterator titer=tertiaryVertices.begin(); titer != tertiaryVertices.end(); titer++) 
+		  {
+		    if (*titer == (*iter).second) tertiaryAlreadyContained=false;
+		  }
+		if (!tertiaryAlreadyContained) tertiaryVertices.push_back((*iter).second);
+	      }
+	  }
+	
+      }
+    
+    
+  }
+  
+
+  //ok now loop over all the ZVRESSelectedJets
+  for (int iJet = 0 ; iJet < zvresjetCollection.getNumberOfElements(); iJet++) {
+    lcio::ReconstructedParticle*  pJet=zvresjetCollection.getElementAt(iJet);
+
+    //get the particle within the jets
+    std::vector<lcio::ReconstructedParticle*> jetParticles = pJet->getParticles();
+    
+    //get the true jet flavour
+    int jetType = FindJetType( pEvent,  iJet );
+
+    if (jetType == B_JET || jetType == C_JET) {  
+      //loop over the particles within the jet
+      for (unsigned int iPart = 0 ; iPart < jetParticles.size(); iPart++) 
+	{
+	  lcio::ReconstructedParticle*  myJetParticle = dynamic_cast< lcio::ReconstructedParticle*> (jetParticles[iPart]);
+	  
+	  //do we find a match in the decay chain?
+	  bool decayChainMatch = false;
+	  //do we find a match in the decay chain RPs?
+	  bool decayChainRPMatch = false;
+	  
+	  //look for particle in ZVRESDecayChain collection
+	  lcio::ReconstructedParticle* myDecayChain = 0;
+	  //look for particle in ZVRESDecayChainsRPTrack collection
+	  lcio::ReconstructedParticle* myDecayChainRP = 0;
+	  	  
+	  //count the number of vertices in the DecayChain
+	  std::vector<Vertex*> myVertexVector;
+	  myVertexVector.clear();
+	  
+	  for (int iDCJet = 0 ; iDCJet < zvresdcrptrackCollection.getNumberOfElements(); iDCJet++) {
+
+	    lcio::ReconstructedParticle* myDCJetRP = zvresdcrptrackCollection.getElementAt(iDCJet);
+
+	    lcio::ReconstructedParticle* myDCJetRPTrack = myDCJetRP->getParticles()[0];
+	    
+	    if (myDCJetRPTrack==myJetParticle) {
+	      decayChainRPMatch = true;
+	      myDecayChainRP = myDCJetRP;
+	    }
+	  }
+
+	  //look for a matching decay chain - if we have found a matching RP - use that information
+	  //otherwise look directly in ZVRESDecayChain and assume they match directly to the ZVRESSelectedJet
+	  
+	  if (decayChainRPMatch) {
+	    
+	    //need to find the decay chain the RP belongs to, in order to find out the number of vertices
+	    for (int iDecayChain = 0 ; iDecayChain < zvresdcCollection.getNumberOfElements(); iDecayChain++) {
+	      lcio::ReconstructedParticle*  pDecayChain=zvresdcCollection.getElementAt(iDecayChain);
+	      std::vector<lcio::ReconstructedParticle*> decayChainParticles = pDecayChain->getParticles();
+	      for (unsigned int iDCPart = 0 ; iDCPart < decayChainParticles.size(); iDCPart++) {
+		lcio::ReconstructedParticle*  myDecayChainParticle = dynamic_cast< lcio::ReconstructedParticle*> (decayChainParticles[iDCPart]);
+		if (myDecayChainParticle == myDecayChainRP) {
+		  decayChainMatch = true;
+		  myDecayChain = pDecayChain;
+		}
+	      }
+	    }
+	  } else {
+	  
+	    //we are looking at the iJet-th ZVRESSelectedJet
+	    //assume that the iJet-th ZVRESDecayChain refer to the same jet
+	    
+	    lcio::ReconstructedParticle*  pDecayChain=zvresdcCollection.getElementAt(iJet);
+	    myDecayChain = pDecayChain;
+	    if (pDecayChain)  decayChainMatch = true;
+	  }
+
+	  if (decayChainMatch) {
+	    
+	      std::vector<lcio::ReconstructedParticle*> myDecayChainParticles = myDecayChain->getParticles();
+	      for (unsigned int iDCPart = 0 ; iDCPart < myDecayChainParticles.size(); iDCPart++) {
+		
+		lcio::ReconstructedParticle*  myDecayChainParticle = dynamic_cast< lcio::ReconstructedParticle*> (myDecayChainParticles[iDCPart]);
+		
+		bool startAlreadyContained = false;
+		bool endAlreadyContained = false;
+		
+		for (std::vector<Vertex*>::const_iterator iter=myVertexVector.begin(); iter!=myVertexVector.end(); iter++)
+		  {
+		    if (*iter == myDecayChainParticle->getStartVertex()) startAlreadyContained = true;
+		  }
+		if (!startAlreadyContained && myDecayChainParticle->getStartVertex()) myVertexVector.push_back(myDecayChainParticle->getStartVertex());
+		
+		
+		for (std::vector<Vertex*>::const_iterator iter=myVertexVector.begin(); iter!=myVertexVector.end(); iter++)
+		  {
+		    if (*iter == myDecayChainParticle->getEndVertex()) endAlreadyContained = true;
+		  }
+		if (!endAlreadyContained && myDecayChainParticle->getEndVertex())  myVertexVector.push_back(myDecayChainParticle->getEndVertex());
+		
+	      }
+	    }
+	    
+	  int numVertex=myVertexVector.size();
+	  
+	  bool trackFromPrimaryLight = false,  trackFromSecondaryC = false, trackFromSecondaryB = false, trackFromTertiaryC = false;
+	  bool trackHasNoAssociatedMCP = false;
+	  
+	  //find the origin of these tracks through the MCRelationNavigator.
+	  std::vector<Track*> myTracks;
+	  
+	  if  (decayChainRPMatch) myTracks = myDecayChainRP->getParticles()[0]->getTracks();
+	  else {
+	    myTracks = myJetParticle->getTracks();
+	   	    
+	  }
+	  
+	  if (myTracks.size()==0) 
+	    {
+	      
+	      //look at the matching MC version info
+	      
+	      trackHasNoAssociatedMCP = true;
+	    
+	    }
+	  
+	  else if (myTracks.size()>0) 
+	    {
+	      
+	      lcio::Track* Track = myTracks[0];
+	      
+	      std::vector<lcio::LCObject*> RelatedMCParticles = MCRelationNavigator->getRelatedToObjects(Track);
+	      
+	      //VJM 14/05/08
+	      //If more than one related MC particle, seems (on a brief visual inspection) that they just all comes from the same original hadron
+	      // - just from different parts of the decay chain.  
+	      //So at the moment I'll just use the first MCP in the list.  It will (should) give the same answer as any other. 
+	      
+	      lcio::MCParticle* MCP = dynamic_cast<lcio::MCParticle*>(RelatedMCParticles[0]);
+	      std::vector<lcio::MCParticle*> Parents = dynamic_cast<lcio::MCParticle*>(RelatedMCParticles[0])->getParents();
+	      
+	      if (Parents.empty())
+		std::cerr << " In " << __FILE__ << "(" << __LINE__ << "), run number: " << pEvent->getRunNumber() << ", event number: " <<  pEvent->getEventNumber()<< " : MCP has no parents" << std::endl;
+	      //ERROR NO PARENT;
+	      else
+		{
+		  int truePDGCode=MCP->getPDG();
+		  int truePDGFlavour = GetPDGFlavour(truePDGCode);
+		  std::vector<int> pdgCodeVector;
+		  std::vector<int> pdgFlavourVector;
+		  std::vector<float> pdgDecayLengths;
+		  
+		  pdgCodeVector.push_back(truePDGCode);
+		  pdgFlavourVector.push_back(truePDGFlavour);
+		  
+		  std::vector<lcio::MCParticle*> ParentVec0 = MCP->getParents();
+		  
+		  //If there are two parents, then they point to the same original flavour
+		  //if (ParentVec0.size()>1) {
+		  //  std::cerr << " In " << __FILE__ << "(" << __LINE__ << "), run number: " << pEvent->getRunNumber() << ", event number: ";
+		  //  std::cerr <<  pEvent->getEventNumber()<< " ;  Size of ParentVec0: " << ParentVec0.size() << std::endl;
+		  //}
+		  if (ParentVec0.size()>0)  {
+		    lcio::MCParticle* Parent0 = ParentVec0[0];
+		    
+		    if (Parent0) {
+		      
+		      pdgCodeVector.push_back(Parent0->getPDG());
+		      pdgFlavourVector.push_back(GetPDGFlavour(Parent0->getPDG()));
+		      std::vector<lcio::MCParticle*> ParentVec1 = Parent0->getParents();
+		      pdgDecayLengths.push_back(CalculateDistance(Parent0->getVertex(),Parent0->getEndpoint()));
+		      
+		      if (ParentVec1.size()>0) {
+			lcio::MCParticle* Parent1 = ParentVec1[0];
+			
+			if (Parent1)  {
+			  pdgCodeVector.push_back(Parent1->getPDG());
+			  pdgFlavourVector.push_back(GetPDGFlavour(Parent1->getPDG()));
+			  std::vector<lcio::MCParticle*> ParentVec2 = Parent1->getParents();
+			  pdgDecayLengths.push_back(CalculateDistance(Parent1->getVertex(),Parent1->getEndpoint()));
+			  
+			  if (ParentVec2.size()>0) {
+			    lcio::MCParticle* Parent2 = ParentVec2[0];
+			    
+			    if (Parent2)  {
+			      pdgCodeVector.push_back(Parent2->getPDG());
+			      pdgFlavourVector.push_back(GetPDGFlavour(Parent2->getPDG()));
+			      std::vector<lcio::MCParticle*> ParentVec3 = Parent2->getParents();			  
+			      pdgDecayLengths.push_back(CalculateDistance(Parent2->getVertex(),Parent2->getEndpoint()));
+			      
+			      if (ParentVec3.size()>0) {
+				lcio::MCParticle* Parent3 = ParentVec3[0];
+				
+				if (Parent3)  {
+				  pdgCodeVector.push_back(Parent3->getPDG());
+				  pdgFlavourVector.push_back(GetPDGFlavour(Parent3->getPDG()));
+				  std::vector<lcio::MCParticle*> ParentVec4 = Parent3->getParents();
+				  pdgDecayLengths.push_back(CalculateDistance(Parent3->getVertex(),Parent3->getEndpoint()));
+				  
+				  if (ParentVec4.size()>0) {
+				    lcio::MCParticle* Parent4 = ParentVec4[0];
+				    
+				    if (Parent4) {
+				      pdgCodeVector.push_back(Parent4->getPDG());
+				      pdgFlavourVector.push_back(GetPDGFlavour(Parent4->getPDG()));
+				      std::vector<lcio::MCParticle*> ParentVec5 = Parent4->getParents();
+				      pdgDecayLengths.push_back(CalculateDistance(Parent4->getVertex(),Parent4->getEndpoint()));
+				      
+				      if (ParentVec5.size()>0) {
+					lcio::MCParticle* Parent5 = ParentVec5[0];
+					
+					if (Parent5) {
+					  pdgCodeVector.push_back(Parent5->getPDG());
+					  pdgFlavourVector.push_back(GetPDGFlavour(Parent5->getPDG()));
+					  std::vector<lcio::MCParticle*> ParentVec6 = Parent5->getParents();
+					  pdgDecayLengths.push_back(CalculateDistance(Parent5->getVertex(),Parent5->getEndpoint()));
+					  
+					  if (ParentVec6.size()>0) {
+					    lcio::MCParticle* Parent6 = ParentVec6[0];
+					    
+					    if (Parent6) {
+					      pdgCodeVector.push_back(Parent6->getPDG());
+					      pdgFlavourVector.push_back(GetPDGFlavour(Parent6->getPDG()));
+					      pdgDecayLengths.push_back(CalculateDistance(Parent6->getVertex(),Parent6->getEndpoint()));
+					      
+					    }   //eh hope that's enough...
+					  }
+					}
+				      }
+				    }
+				  }
+				}
+			      }
+			    }
+			  }
+			}
+		      }
+		    }
+		  }
+		  
+		  
+		  //assign a flavour to the jet.
+		  bool isLight = false;
+		  bool isC = false;
+		  bool isB = false;
+		  
+		  
+		  for (std::vector<int>::const_iterator iter = pdgFlavourVector.begin();
+		       iter != pdgFlavourVector.end(); iter++) {
+		    if ((*iter) == 1) isLight = true;
+		    if ((*iter) == C_JET) isC = true;
+		    if ((*iter) == B_JET) isB = true;
+		  }
+		  
+		  
+		  //if it's all "1"s --> then primary
+		  //if there's a "4" and no "5" --> then D (secondary)
+		  //if there's a "4" AND a "5"  --> then B and D (secondary and tertiary)
+		  
+		  if (isLight && !isC && !isB) trackFromPrimaryLight = true;
+		  if (isC && !isB) trackFromSecondaryC = true;
+		  if (!isC && isB) trackFromSecondaryB = true;
+		  if (isC && isB)  trackFromTertiaryC = true;
+		  
+		}
+	    }
+	  
+	  //find the vertex depth - only possible if we've found the RP corresponding to the track
+	  
+	  bool isPrimary=false, isSecondary=false, isTertiary=false;
+	  
+	  if (decayChainRPMatch) {
+	    
+	    lcio::Vertex* partVertex = myDecayChainRP->getStartVertex();
+	    
+	    for (std::vector<Vertex*>::const_iterator piter = primaryVertices.begin(); piter != primaryVertices.end(); piter++) 
+	      {
+		if ((*piter) == partVertex) isPrimary=true;
+	      }
+	    for (std::vector<Vertex*>::const_iterator siter = secondaryVertices.begin(); siter != secondaryVertices.end(); siter++) 
+	      {
+		if ((*siter) == partVertex) isSecondary=true;
+	      }
+	    for (std::vector<Vertex*>::const_iterator titer = tertiaryVertices.begin(); titer != tertiaryVertices.end(); titer++) 
+	      {
+		if ((*titer) == partVertex) isTertiary=true;
+	      }
+	    
+	  }
+
+	  if (numVertex == 2) 
+	    {
+	      if (trackHasNoAssociatedMCP) 
+		{
+		  if (isPrimary)   _nb_twoVertex_Primary_noMCP++;
+		  else if (isSecondary) _nb_twoVertex_Secondary_noMCP++;
+		  else   _nb_twoVertex_Isolated_noMCP++;                 
+		}
+	      
+	      if (trackFromSecondaryB && jetType == B_JET ) 
+		{
+		  if (isPrimary)         _nb_twoVertex_bTrack_Primary++;
+		  else if (isSecondary)  _nb_twoVertex_bTrack_Secondary++;
+		  //else if (isTertiary)   _nb_twoVertex_bTrack_Tertiary++;
+		  else                   _nb_twoVertex_bTrack_Isolated++;
+		} 
+	      else if ((trackFromSecondaryC || trackFromTertiaryC) && jetType == B_JET ) 
+		{
+		  if (isPrimary)         _nb_twoVertex_cTrack_Primary++; 
+		  else if (isSecondary)  _nb_twoVertex_cTrack_Secondary++;
+		  //else if (isTertiary)   _nb_twoVertex_cTrack_Tertiary++;
+		  else                   _nb_twoVertex_cTrack_Isolated++;
+		} 
+	      else if (trackFromPrimaryLight && jetType == B_JET) 
+		{
+		  if (isPrimary)         _nb_twoVertex_lTrack_Primary++; 
+		  else if (isSecondary)  _nb_twoVertex_lTrack_Secondary++;
+		  //else if (isTertiary)   _nb_twoVertex_lTrack_Tertiary++;
+		  else                   _nb_twoVertex_lTrack_Isolated++;
+		}
+	      
+	      if (trackHasNoAssociatedMCP && jetType == C_JET) {
+		
+		if (isPrimary)   _nc_twoVertex_Primary_noMCP++;
+		else if (isSecondary) _nc_twoVertex_Secondary_noMCP++;
+		else   _nc_twoVertex_Isolated_noMCP++;                 
+	      }
+	      
+	      if (trackFromSecondaryB && jetType == C_JET ) 
+		{
+		  if (isPrimary)         _nc_twoVertex_bTrack_Primary++;
+		  else if (isSecondary)  _nc_twoVertex_bTrack_Secondary++;
+		  //else if (isTertiary)   _nc_twoVertex_bTrack_Tertiary++;
+		  else                   _nc_twoVertex_bTrack_Isolated++;
+		} 
+	      else if ((trackFromSecondaryC || trackFromTertiaryC) && jetType == C_JET)
+		{
+		  if (isPrimary)         _nc_twoVertex_cTrack_Primary++; 
+		  else if (isSecondary)  _nc_twoVertex_cTrack_Secondary++;
+		  //else if (isTertiary)   _nc_twoVertex_cTrack_Tertiary++;
+		  else                   _nc_twoVertex_cTrack_Isolated++;
+		} 
+	      else if (trackFromPrimaryLight && jetType == C_JET) 
+		{
+		  if (isPrimary)         _nc_twoVertex_lTrack_Primary++; 
+		  else if (isSecondary)  _nc_twoVertex_lTrack_Secondary++;
+		  //else if (isTertiary)   _nc_twoVertex_lTrack_Tertiary++;
+		  else                   _nc_twoVertex_lTrack_Isolated++;
+		}
+	    } 
+	  else if (numVertex == 3 ) 
+	    {
+	      if (trackHasNoAssociatedMCP && jetType == B_JET) 
+		{
+		  if (isPrimary)   _nb_twoVertex_Primary_noMCP++;
+		  else if (isSecondary) _nb_twoVertex_Secondary_noMCP++;
+		  else if (isTertiary) _nb_twoVertex_Tertiary_noMCP++;
+		  else   _nb_twoVertex_Isolated_noMCP++;                 
+		}
+	      
+	      if (trackFromSecondaryB && jetType == B_JET) 
+		{
+		  if (isPrimary)         _nb_threeVertex_bTrack_Primary++; 
+		  else if (isSecondary)  _nb_threeVertex_bTrack_Secondary++;
+		  else if (isTertiary)   _nb_threeVertex_bTrack_Tertiary++;
+		  else                   _nb_threeVertex_bTrack_Isolated++;
+		} 
+	      else if ((trackFromSecondaryC || trackFromTertiaryC) && jetType == B_JET)
+		{
+		  if (isPrimary)        _nb_threeVertex_cTrack_Primary++; 
+		  else if (isSecondary) _nb_threeVertex_cTrack_Secondary++;
+		  else if (isTertiary)  _nb_threeVertex_cTrack_Tertiary++;
+		  else                  _nb_threeVertex_cTrack_Isolated++;
+		} 
+	      else if (trackFromPrimaryLight && jetType == B_JET)
+		{
+		  if (isPrimary)         _nb_threeVertex_lTrack_Primary++; 
+		  else if (isSecondary)  _nb_threeVertex_lTrack_Secondary++;
+		  else if (isTertiary)   _nb_threeVertex_lTrack_Tertiary++;
+		  else                   _nb_threeVertex_lTrack_Isolated++;
+		}
+	      if (trackHasNoAssociatedMCP && jetType == C_JET) 
+		{
+		  if (isPrimary)   _nc_twoVertex_Primary_noMCP++;
+		  else if (isSecondary) _nc_twoVertex_Secondary_noMCP++;
+		  else if (isTertiary) _nc_twoVertex_Tertiary_noMCP++;
+		  else   _nc_twoVertex_Isolated_noMCP++;                 
+		}
+	      else if (trackFromSecondaryB && jetType == C_JET)
+		{
+		  if (isPrimary)         _nc_threeVertex_bTrack_Primary++; 
+		  else if (isSecondary)  _nc_threeVertex_bTrack_Secondary++;
+		  else if (isTertiary)   _nc_threeVertex_bTrack_Tertiary++;
+		  else                   _nc_threeVertex_bTrack_Isolated++;
+		} 
+	      else if ((trackFromSecondaryC || trackFromTertiaryC) && jetType == C_JET)
+		{
+		  if (isPrimary)        _nc_threeVertex_cTrack_Primary++; 
+		  else if (isSecondary) _nc_threeVertex_cTrack_Secondary++;
+		  else if (isTertiary)  _nc_threeVertex_cTrack_Tertiary++;
+		  else                  _nc_threeVertex_cTrack_Isolated++;
+		} 
+	      else if (trackFromPrimaryLight && jetType == C_JET) 
+		{
+		  if (isPrimary)         _nc_threeVertex_lTrack_Primary++; 
+		  else if (isSecondary)  _nc_threeVertex_lTrack_Secondary++;
+		  else if (isTertiary)   _nc_threeVertex_lTrack_Tertiary++;
+		  else                   _nc_threeVertex_lTrack_Isolated++;
+		}
+	    }  
+	}
+    } //jet type is B_JET or C_JET
+  }
+
+}
 
 float LCFIAIDAPlotProcessor::CalculateDistance(const float* pos1, const float* pos2){
   return sqrt(pow((pos1[0]-pos2[0]),2)+pow((pos1[1]-pos2[1]),2)+pow((pos1[2]-pos2[2]),2));
@@ -2664,227 +2678,428 @@ double LCFIAIDAPlotProcessor::CalculateDistance(const double* pos1, const double
   return sqrt(pow((pos1[0]-pos2[0]),2)+pow((pos1[1]-pos2[1]),2)+pow((pos1[2]-pos2[2]),2));
 }
 
-//zvrestable//  void LCFIAIDAPlotProcessor::PrintZVRESTable()
-//zvrestable//  {
-//zvrestable//  
-//zvrestable//    //if there is a _ZVRESOutputFile string defined use that as the output stream, if not use std::cout
-//zvrestable//    std::filebuf* fb = new std::filebuf;  
-//zvrestable//    
-//zvrestable//    std::ostream outputFile( (!_ZVRESOutputFile.empty()) ?                                  
-//zvrestable//  			   fb->open(_NeuralNetOutputFile.c_str(),
-//zvrestable//  				    std::ios_base::out|std::ios_base::trunc):  
-//zvrestable//  			   std::cout.rdbuf());
-//zvrestable//  
-//zvrestable//    
-//zvrestable//    //no longer required
-//zvrestable//    //float twoVertex_bTrack = _nb_twoVertex_bTrack_Primary+_nb_twoVertex_bTrack_Secondary+_nb_twoVertex_bTrack_Isolated;
-//zvrestable//    //float twoVertex_cTrack = _nb_twoVertex_cTrack_Primary+_nb_twoVertex_cTrack_Secondary+_nb_twoVertex_cTrack_Isolated;
-//zvrestable//    //float twoVertex_lTrack = _nb_twoVertex_lTrack_Primary+_nb_twoVertex_lTrack_Secondary+_nb_twoVertex_lTrack_Isolated;
-//zvrestable//    
-//zvrestable//    //float threeVertex_bTrack = _nb_threeVertex_bTrack_Primary+_nb_threeVertex_bTrack_Secondary+_nb_threeVertex_bTrack_Tertiary+_nb_threeVertex_bTrack_Isolated;
-//zvrestable//    //float threeVertex_cTrack = _nb_threeVertex_cTrack_Primary+_nb_threeVertex_cTrack_Secondary+_nb_threeVertex_cTrack_Tertiary+_nb_threeVertex_cTrack_Isolated;
-//zvrestable//    //float threeVertex_lTrack = _nb_threeVertex_lTrack_Primary+_nb_threeVertex_lTrack_Secondary+_nb_threeVertex_lTrack_Tertiary+_nb_threeVertex_lTrack_Isolated;
-//zvrestable//    
-//zvrestable//  
-//zvrestable//    float  b_twoVertex_Primary = _nb_twoVertex_bTrack_Primary+_nb_twoVertex_cTrack_Primary+_nb_twoVertex_lTrack_Primary;
-//zvrestable//    float  b_twoVertex_Secondary = _nb_twoVertex_bTrack_Secondary+_nb_twoVertex_cTrack_Secondary+_nb_twoVertex_lTrack_Secondary;
-//zvrestable//    float  b_twoVertex_Isolated = _nb_twoVertex_bTrack_Isolated+_nb_twoVertex_cTrack_Isolated+_nb_twoVertex_lTrack_Isolated;  
-//zvrestable//    float  b_twoVertex = b_twoVertex_Primary+b_twoVertex_Secondary+b_twoVertex_Isolated;
-//zvrestable//  
-//zvrestable//    float  b_threeVertex_Primary = _nb_threeVertex_bTrack_Primary+_nb_threeVertex_cTrack_Primary+_nb_threeVertex_lTrack_Primary;
-//zvrestable//    float  b_threeVertex_Secondary = _nb_threeVertex_bTrack_Secondary+_nb_threeVertex_cTrack_Secondary+_nb_threeVertex_lTrack_Secondary;
-//zvrestable//    float  b_threeVertex_Tertiary = _nb_threeVertex_bTrack_Tertiary+_nb_threeVertex_cTrack_Tertiary+_nb_threeVertex_lTrack_Tertiary;
-//zvrestable//    float  b_threeVertex_Isolated = _nb_threeVertex_bTrack_Isolated+_nb_threeVertex_cTrack_Isolated+_nb_threeVertex_lTrack_Isolated; 
-//zvrestable//    float  b_threeVertex = b_threeVertex_Primary+b_threeVertex_Secondary+b_threeVertex_Tertiary+b_threeVertex_Isolated;
-//zvrestable//     
-//zvrestable//  
-//zvrestable//  
-//zvrestable//    float frac_b_twoVertex_bTrack_Primary =     100.*float(_nb_twoVertex_bTrack_Primary) / float(b_twoVertex_Primary); 
-//zvrestable//    float frac_b_twoVertex_bTrack_Secondary =   100.*float(_nb_twoVertex_bTrack_Secondary) / float(b_twoVertex_Secondary);    
-//zvrestable//    //float frac_b_twoVertex_bTrack_Tertiary =    100.*float(_nb_twoVertex_bTrack_Tertiary) / float(b_twoVertex_Tertiary);	   
-//zvrestable//    float frac_b_twoVertex_bTrack_Isolated =    100.*float(_nb_twoVertex_bTrack_Isolated) / float(b_twoVertex_Isolated);	   
-//zvrestable//    					  
-//zvrestable//    float frac_b_twoVertex_cTrack_Primary =     100.*float(_nb_twoVertex_cTrack_Primary) / float(b_twoVertex_Primary); 	   
-//zvrestable//    float frac_b_twoVertex_cTrack_Secondary =   100.*float(_nb_twoVertex_cTrack_Secondary) / float(b_twoVertex_Secondary);   
-//zvrestable//    //float frac_b_twoVertex_cTrack_Tertiary =    100.*float(_nb_twoVertex_cTrack_Tertiary) / float(b_twoVertex_Tertiary);    
-//zvrestable//    float frac_b_twoVertex_cTrack_Isolated =    100.*float(_nb_twoVertex_cTrack_Isolated) / float(b_twoVertex_Isolated);    
-//zvrestable//    					  
-//zvrestable//    float frac_b_twoVertex_lTrack_Primary =     100.*float(_nb_twoVertex_lTrack_Primary) / float(b_twoVertex_Primary); 	   
-//zvrestable//    float frac_b_twoVertex_lTrack_Secondary =   100.*float(_nb_twoVertex_lTrack_Secondary) / float(b_twoVertex_Secondary);   
-//zvrestable//    //float frac_b_twoVertex_lTrack_Tertiary =    100.*float(_nb_twoVertex_lTrack_Tertiary) / float(b_twoVertex_Tertiary);	   
-//zvrestable//    float frac_b_twoVertex_lTrack_Isolated =    100.*float(_nb_twoVertex_lTrack_Isolated) / float(b_twoVertex_Isolated);	   
-//zvrestable//    					                                 
-//zvrestable//    float frac_b_threeVertex_bTrack_Primary =     100.*float(_nb_threeVertex_bTrack_Primary) / float(b_threeVertex_Primary);   
-//zvrestable//    float frac_b_threeVertex_bTrack_Secondary =   100.*float(_nb_threeVertex_bTrack_Secondary) / float(b_threeVertex_Secondary); 
-//zvrestable//    float frac_b_threeVertex_bTrack_Tertiary =    100.*float(_nb_threeVertex_bTrack_Tertiary) / float(b_threeVertex_Tertiary);  
-//zvrestable//    float frac_b_threeVertex_bTrack_Isolated =    100.*float(_nb_threeVertex_bTrack_Isolated) / float(b_threeVertex_Isolated);  
-//zvrestable//    					   
-//zvrestable//    float frac_b_threeVertex_cTrack_Primary =     100.*float(_nb_threeVertex_cTrack_Primary) / float(b_threeVertex_Primary);   
-//zvrestable//    float frac_b_threeVertex_cTrack_Secondary =   100.*float(_nb_threeVertex_cTrack_Secondary) / float(b_threeVertex_Secondary); 
-//zvrestable//    float frac_b_threeVertex_cTrack_Tertiary =    100.*float(_nb_threeVertex_cTrack_Tertiary) / float(b_threeVertex_Tertiary);  
-//zvrestable//    float frac_b_threeVertex_cTrack_Isolated =    100.*float(_nb_threeVertex_cTrack_Isolated) / float(b_threeVertex_Isolated);  
-//zvrestable//    					   
-//zvrestable//    float frac_b_threeVertex_lTrack_Primary =     100.*float(_nb_threeVertex_lTrack_Primary) / float(b_threeVertex_Primary);   
-//zvrestable//    float frac_b_threeVertex_lTrack_Secondary =   100.*float(_nb_threeVertex_lTrack_Secondary) / float(b_threeVertex_Secondary); 
-//zvrestable//    float frac_b_threeVertex_lTrack_Tertiary =    100.*float(_nb_threeVertex_lTrack_Tertiary) / float(b_threeVertex_Tertiary);  
-//zvrestable//    float frac_b_threeVertex_lTrack_Isolated =    100.*float(_nb_threeVertex_lTrack_Isolated) / float(b_threeVertex_Isolated);  
-//zvrestable//  
-//zvrestable//    float frac_b_twoVertex_Primary = 100.*float(b_twoVertex_Primary) / float(b_twoVertex);
-//zvrestable//    float frac_b_twoVertex_Secondary = 100.*float(b_twoVertex_Secondary) / float(b_twoVertex);
-//zvrestable//    float frac_b_twoVertex_Isolated = 100.*float(b_twoVertex_Isolated) / float(b_twoVertex);
-//zvrestable//   
-//zvrestable//    float frac_b_threeVertex_Primary = 100.*float(b_threeVertex_Primary) / float(b_threeVertex);
-//zvrestable//    float frac_b_threeVertex_Secondary = 100.*float(b_threeVertex_Secondary) / float(b_threeVertex);
-//zvrestable//    float frac_b_threeVertex_Tertiary = 100.*float(b_threeVertex_Tertiary) / float(b_threeVertex);
-//zvrestable//    float frac_b_threeVertex_Isolated = 100.*float(b_threeVertex_Isolated) / float(b_threeVertex);
-//zvrestable//   
-//zvrestable//    
-//zvrestable//  
-//zvrestable//  
-//zvrestable//  //  frac_twoVertex_bTrack_Primary =     float(_nb_twoVertex_bTrack_Primary);
-//zvrestable//  //  frac_twoVertex_bTrack_Secondary =   float(_nb_twoVertex_bTrack_Secondary);
-//zvrestable//  //  //frac_twoVertex_bTrack_Tertiary =    float(_nb_twoVertex_bTrack_Tertiary);
-//zvrestable//  //  frac_twoVertex_bTrack_Isolated =    float(_nb_twoVertex_bTrack_Isolated);
-//zvrestable//  //  				  
-//zvrestable//  //  frac_twoVertex_cTrack_Primary =     float(_nb_twoVertex_cTrack_Primary);
-//zvrestable//  //  frac_twoVertex_cTrack_Secondary =   float(_nb_twoVertex_cTrack_Secondary);
-//zvrestable//  //  //frac_twoVertex_cTrack_Tertiary =    float(_nb_twoVertex_cTrack_Tertiary);
-//zvrestable//  //  frac_twoVertex_cTrack_Isolated =    float(_nb_twoVertex_cTrack_Isolated);
-//zvrestable//  //  
-//zvrestable//  //  frac_twoVertex_lTrack_Primary =     float(_nb_twoVertex_lTrack_Primary);
-//zvrestable//  //  frac_twoVertex_lTrack_Secondary =   float(_nb_twoVertex_lTrack_Secondary);
-//zvrestable//  //  //frac_twoVertex_lTrack_Tertiary =    float(_nb_twoVertex_lTrack_Tertiary);
-//zvrestable//  //  frac_twoVertex_lTrack_Isolated =    float(_nb_twoVertex_lTrack_Isolated);
-//zvrestable//  //  
-//zvrestable//  //  frac_threeVertex_bTrack_Primary =     float(_nb_threeVertex_bTrack_Primary);
-//zvrestable//  //  frac_threeVertex_bTrack_Secondary =   float(_nb_threeVertex_bTrack_Secondary);
-//zvrestable//  //  frac_threeVertex_bTrack_Tertiary =    float(_nb_threeVertex_bTrack_Tertiary);
-//zvrestable//  //  frac_threeVertex_bTrack_Isolated =    float(_nb_threeVertex_bTrack_Isolated);
-//zvrestable//  //  
-//zvrestable//  //  frac_threeVertex_cTrack_Primary =     float(_nb_threeVertex_cTrack_Primary);
-//zvrestable//  //  frac_threeVertex_cTrack_Secondary =   float(_nb_threeVertex_cTrack_Secondary);
-//zvrestable//  //  frac_threeVertex_cTrack_Tertiary =    float(_nb_threeVertex_cTrack_Tertiary);
-//zvrestable//  //  frac_threeVertex_cTrack_Isolated =    float(_nb_threeVertex_cTrack_Isolated);
-//zvrestable//  //  
-//zvrestable//  //  frac_threeVertex_lTrack_Primary =     float(_nb_threeVertex_lTrack_Primary);
-//zvrestable//  //  frac_threeVertex_lTrack_Secondary =   float(_nb_threeVertex_lTrack_Secondary);
-//zvrestable//  //  frac_threeVertex_lTrack_Tertiary =    float(_nb_threeVertex_lTrack_Tertiary);
-//zvrestable//  //  frac_threeVertex_lTrack_Isolated =    float(_nb_threeVertex_lTrack_Isolated);
-//zvrestable//  
-//zvrestable//  
-//zvrestable//  
-//zvrestable//    outputFile << std::endl;
-//zvrestable//    outputFile << "               Purity of reconstructed track-vertex association (%)           " << std::endl;
-//zvrestable//    outputFile << "   ---------------------------------------------------------------------------" << std::endl;
-//zvrestable//    outputFile << "    Monte Carlo               Reconstructed track-vertex association         " << std::endl;
-//zvrestable//    outputFile << "    track origin        Two-vertex case               Three-vertex case       " << std::endl;
-//zvrestable//    outputFile << "   ---------------------------------------------------------------------------" << std::endl;
-//zvrestable//    outputFile << "                     Pri.    Sec.    Iso.       Pri.    Sec.    Ter.    Iso. " << std::endl;   
-//zvrestable//    outputFile << "   ---------------------------------------------------------------------------" << std::endl;
-//zvrestable//    outputFile << "    Primary       ";
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_lTrack_Primary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_lTrack_Secondary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_lTrack_Isolated << "   " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_lTrack_Primary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_lTrack_Secondary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_lTrack_Tertiary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_lTrack_Isolated << " " ;
-//zvrestable//    outputFile << std::endl;
-//zvrestable//    
-//zvrestable//    outputFile << "    B decay       ";
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_bTrack_Primary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_bTrack_Secondary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_bTrack_Isolated << "   " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_bTrack_Primary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_bTrack_Secondary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_bTrack_Tertiary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_bTrack_Isolated << " " ;
-//zvrestable//    outputFile << std::endl;
-//zvrestable//    
-//zvrestable//    outputFile << "    D decay       ";
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_cTrack_Primary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_cTrack_Secondary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_cTrack_Isolated << "   " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_cTrack_Primary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_cTrack_Secondary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_cTrack_Tertiary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_cTrack_Isolated << " " ;
-//zvrestable//    outputFile << std::endl;
-//zvrestable//    outputFile << "   ----------------------------------------------------------------------------" << std::endl;
-//zvrestable//    outputFile << "    All above     ";
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_Primary  << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_Secondary  << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_twoVertex_Isolated  << "   " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_Primary  << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_Secondary  << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_Tertiary << " " ;
-//zvrestable//    outputFile.width(7);
-//zvrestable//    outputFile.precision(3);
-//zvrestable//    outputFile << frac_b_threeVertex_Isolated  << " " ;
-//zvrestable//    outputFile << std::endl;
-//zvrestable//    outputFile << "   ----------------------------------------------------------------------------" << std::endl;
-//zvrestable//    outputFile << std::endl;
-//zvrestable//  
-//zvrestable//  
-//zvrestable//  
-//zvrestable//    outputFile << std::endl;
-//zvrestable//   
-//zvrestable//  
-//zvrestable//  }
+void LCFIAIDAPlotProcessor::PrintZVRESTable()
+{
+
+  //if there is a _ZVRESOutputFile string defined use that as the output stream, if not use std::cout
+  std::filebuf* fb = new std::filebuf;  
+  
+  std::ostream outputFile( (!_ZVRESOutputFile.empty()) ?                                  
+			   fb->open(_NeuralNetOutputFile.c_str(),
+				    std::ios_base::out|std::ios_base::trunc):  
+			   std::cout.rdbuf());
+
+  
+  //no longer required
+  //float twoVertex_bTrack = _nb_twoVertex_bTrack_Primary+_nb_twoVertex_bTrack_Secondary+_nb_twoVertex_bTrack_Isolated;
+  //float twoVertex_cTrack = _nb_twoVertex_cTrack_Primary+_nb_twoVertex_cTrack_Secondary+_nb_twoVertex_cTrack_Isolated;
+  //float twoVertex_lTrack = _nb_twoVertex_lTrack_Primary+_nb_twoVertex_lTrack_Secondary+_nb_twoVertex_lTrack_Isolated;
+  
+  //float threeVertex_bTrack = _nb_threeVertex_bTrack_Primary+_nb_threeVertex_bTrack_Secondary+_nb_threeVertex_bTrack_Tertiary+_nb_threeVertex_bTrack_Isolated;
+  //float threeVertex_cTrack = _nb_threeVertex_cTrack_Primary+_nb_threeVertex_cTrack_Secondary+_nb_threeVertex_cTrack_Tertiary+_nb_threeVertex_cTrack_Isolated;
+  //float threeVertex_lTrack = _nb_threeVertex_lTrack_Primary+_nb_threeVertex_lTrack_Secondary+_nb_threeVertex_lTrack_Tertiary+_nb_threeVertex_lTrack_Isolated;
+  
+
+  float  b_twoVertex_Primary = _nb_twoVertex_bTrack_Primary+_nb_twoVertex_cTrack_Primary+_nb_twoVertex_lTrack_Primary;
+  float  b_twoVertex_Secondary = _nb_twoVertex_bTrack_Secondary+_nb_twoVertex_cTrack_Secondary+_nb_twoVertex_lTrack_Secondary;
+  float  b_twoVertex_Isolated = _nb_twoVertex_bTrack_Isolated+_nb_twoVertex_cTrack_Isolated+_nb_twoVertex_lTrack_Isolated;  
+  float  b_twoVertex = b_twoVertex_Primary+b_twoVertex_Secondary+b_twoVertex_Isolated;
+
+  float  b_threeVertex_Primary = _nb_threeVertex_bTrack_Primary+_nb_threeVertex_cTrack_Primary+_nb_threeVertex_lTrack_Primary;
+  float  b_threeVertex_Secondary = _nb_threeVertex_bTrack_Secondary+_nb_threeVertex_cTrack_Secondary+_nb_threeVertex_lTrack_Secondary;
+  float  b_threeVertex_Tertiary = _nb_threeVertex_bTrack_Tertiary+_nb_threeVertex_cTrack_Tertiary+_nb_threeVertex_lTrack_Tertiary;
+  float  b_threeVertex_Isolated = _nb_threeVertex_bTrack_Isolated+_nb_threeVertex_cTrack_Isolated+_nb_threeVertex_lTrack_Isolated; 
+  float  b_threeVertex = b_threeVertex_Primary+b_threeVertex_Secondary+b_threeVertex_Tertiary+b_threeVertex_Isolated;
+   
+
+
+  float frac_b_twoVertex_bTrack_Primary =     100.*float(_nb_twoVertex_bTrack_Primary) / float(b_twoVertex_Primary); 
+  float frac_b_twoVertex_bTrack_Secondary =   100.*float(_nb_twoVertex_bTrack_Secondary) / float(b_twoVertex_Secondary);    
+  //float frac_b_twoVertex_bTrack_Tertiary =    100.*float(_nb_twoVertex_bTrack_Tertiary) / float(b_twoVertex_Tertiary);	   
+  float frac_b_twoVertex_bTrack_Isolated =    100.*float(_nb_twoVertex_bTrack_Isolated) / float(b_twoVertex_Isolated);	   
+  					  
+  float frac_b_twoVertex_cTrack_Primary =     100.*float(_nb_twoVertex_cTrack_Primary) / float(b_twoVertex_Primary); 	   
+  float frac_b_twoVertex_cTrack_Secondary =   100.*float(_nb_twoVertex_cTrack_Secondary) / float(b_twoVertex_Secondary);   
+  //float frac_b_twoVertex_cTrack_Tertiary =    100.*float(_nb_twoVertex_cTrack_Tertiary) / float(b_twoVertex_Tertiary);    
+  float frac_b_twoVertex_cTrack_Isolated =    100.*float(_nb_twoVertex_cTrack_Isolated) / float(b_twoVertex_Isolated);    
+  					  
+  float frac_b_twoVertex_lTrack_Primary =     100.*float(_nb_twoVertex_lTrack_Primary) / float(b_twoVertex_Primary); 	   
+  float frac_b_twoVertex_lTrack_Secondary =   100.*float(_nb_twoVertex_lTrack_Secondary) / float(b_twoVertex_Secondary);   
+  //float frac_b_twoVertex_lTrack_Tertiary =    100.*float(_nb_twoVertex_lTrack_Tertiary) / float(b_twoVertex_Tertiary);	   
+  float frac_b_twoVertex_lTrack_Isolated =    100.*float(_nb_twoVertex_lTrack_Isolated) / float(b_twoVertex_Isolated);	   
+  					                                 
+  float frac_b_threeVertex_bTrack_Primary =     100.*float(_nb_threeVertex_bTrack_Primary) / float(b_threeVertex_Primary);   
+  float frac_b_threeVertex_bTrack_Secondary =   100.*float(_nb_threeVertex_bTrack_Secondary) / float(b_threeVertex_Secondary); 
+  float frac_b_threeVertex_bTrack_Tertiary =    100.*float(_nb_threeVertex_bTrack_Tertiary) / float(b_threeVertex_Tertiary);  
+  float frac_b_threeVertex_bTrack_Isolated =    100.*float(_nb_threeVertex_bTrack_Isolated) / float(b_threeVertex_Isolated);  
+  					   
+  float frac_b_threeVertex_cTrack_Primary =     100.*float(_nb_threeVertex_cTrack_Primary) / float(b_threeVertex_Primary);   
+  float frac_b_threeVertex_cTrack_Secondary =   100.*float(_nb_threeVertex_cTrack_Secondary) / float(b_threeVertex_Secondary); 
+  float frac_b_threeVertex_cTrack_Tertiary =    100.*float(_nb_threeVertex_cTrack_Tertiary) / float(b_threeVertex_Tertiary);  
+  float frac_b_threeVertex_cTrack_Isolated =    100.*float(_nb_threeVertex_cTrack_Isolated) / float(b_threeVertex_Isolated);  
+  					   
+  float frac_b_threeVertex_lTrack_Primary =     100.*float(_nb_threeVertex_lTrack_Primary) / float(b_threeVertex_Primary);   
+  float frac_b_threeVertex_lTrack_Secondary =   100.*float(_nb_threeVertex_lTrack_Secondary) / float(b_threeVertex_Secondary); 
+  float frac_b_threeVertex_lTrack_Tertiary =    100.*float(_nb_threeVertex_lTrack_Tertiary) / float(b_threeVertex_Tertiary);  
+  float frac_b_threeVertex_lTrack_Isolated =    100.*float(_nb_threeVertex_lTrack_Isolated) / float(b_threeVertex_Isolated);  
+
+  float frac_b_twoVertex_Primary = 100.*float(b_twoVertex_Primary) / float(b_twoVertex);
+  float frac_b_twoVertex_Secondary = 100.*float(b_twoVertex_Secondary) / float(b_twoVertex);
+  float frac_b_twoVertex_Isolated = 100.*float(b_twoVertex_Isolated) / float(b_twoVertex);
+ 
+  float frac_b_threeVertex_Primary = 100.*float(b_threeVertex_Primary) / float(b_threeVertex);
+  float frac_b_threeVertex_Secondary = 100.*float(b_threeVertex_Secondary) / float(b_threeVertex);
+  float frac_b_threeVertex_Tertiary = 100.*float(b_threeVertex_Tertiary) / float(b_threeVertex);
+  float frac_b_threeVertex_Isolated = 100.*float(b_threeVertex_Isolated) / float(b_threeVertex);
+ 
+  
+
+//check//  //just for checks...
+//check//  frac_b_twoVertex_bTrack_Primary =     float(_nb_twoVertex_bTrack_Primary);
+//check//  frac_b_twoVertex_bTrack_Secondary =   float(_nb_twoVertex_bTrack_Secondary);
+//check//  //frac_b_twoVertex_bTrack_Tertiary =    float(_nb_twoVertex_bTrack_Tertiary);
+//check//  frac_b_twoVertex_bTrack_Isolated =    float(_nb_twoVertex_bTrack_Isolated);
+//check//  				  
+//check//  frac_b_twoVertex_cTrack_Primary =     float(_nb_twoVertex_cTrack_Primary);
+//check//  frac_b_twoVertex_cTrack_Secondary =   float(_nb_twoVertex_cTrack_Secondary);
+//check//  //frac_b_twoVertex_cTrack_Tertiary =    float(_nb_twoVertex_cTrack_Tertiary);
+//check//  frac_b_twoVertex_cTrack_Isolated =    float(_nb_twoVertex_cTrack_Isolated);
+//check//  
+//check//  frac_b_twoVertex_lTrack_Primary =     float(_nb_twoVertex_lTrack_Primary);
+//check//  frac_b_twoVertex_lTrack_Secondary =   float(_nb_twoVertex_lTrack_Secondary);
+//check//  //frac_b_twoVertex_lTrack_Tertiary =    float(_nb_twoVertex_lTrack_Tertiary);
+//check//  frac_b_twoVertex_lTrack_Isolated =    float(_nb_twoVertex_lTrack_Isolated);
+//check//  
+//check//  frac_b_threeVertex_bTrack_Primary =     float(_nb_threeVertex_bTrack_Primary);
+//check//  frac_b_threeVertex_bTrack_Secondary =   float(_nb_threeVertex_bTrack_Secondary);
+//check//  frac_b_threeVertex_bTrack_Tertiary =    float(_nb_threeVertex_bTrack_Tertiary);
+//check//  frac_b_threeVertex_bTrack_Isolated =    float(_nb_threeVertex_bTrack_Isolated);
+//check//  
+//check//  frac_b_threeVertex_cTrack_Primary =     float(_nb_threeVertex_cTrack_Primary);
+//check//  frac_b_threeVertex_cTrack_Secondary =   float(_nb_threeVertex_cTrack_Secondary);
+//check//  frac_b_threeVertex_cTrack_Tertiary =    float(_nb_threeVertex_cTrack_Tertiary);
+//check//  frac_b_threeVertex_cTrack_Isolated =    float(_nb_threeVertex_cTrack_Isolated);
+//check//  
+//check//  frac_b_threeVertex_lTrack_Primary =     float(_nb_threeVertex_lTrack_Primary);
+//check//  frac_b_threeVertex_lTrack_Secondary =   float(_nb_threeVertex_lTrack_Secondary);
+//check//  frac_b_threeVertex_lTrack_Tertiary =    float(_nb_threeVertex_lTrack_Tertiary);
+//check//  frac_b_threeVertex_lTrack_Isolated =    float(_nb_threeVertex_lTrack_Isolated);
+//check//  //end of checks
+
+
+
+  float  c_twoVertex_Primary = _nc_twoVertex_bTrack_Primary+_nc_twoVertex_cTrack_Primary+_nc_twoVertex_lTrack_Primary;
+  float  c_twoVertex_Secondary = _nc_twoVertex_bTrack_Secondary+_nc_twoVertex_cTrack_Secondary+_nc_twoVertex_lTrack_Secondary;
+  float  c_twoVertex_Isolated = _nc_twoVertex_bTrack_Isolated+_nc_twoVertex_cTrack_Isolated+_nc_twoVertex_lTrack_Isolated;  
+  float  c_twoVertex = c_twoVertex_Primary+c_twoVertex_Secondary+c_twoVertex_Isolated;
+
+  float  c_threeVertex_Primary = _nc_threeVertex_bTrack_Primary+_nc_threeVertex_cTrack_Primary+_nc_threeVertex_lTrack_Primary;
+  float  c_threeVertex_Secondary = _nc_threeVertex_bTrack_Secondary+_nc_threeVertex_cTrack_Secondary+_nc_threeVertex_lTrack_Secondary;
+  float  c_threeVertex_Tertiary = _nc_threeVertex_bTrack_Tertiary+_nc_threeVertex_cTrack_Tertiary+_nc_threeVertex_lTrack_Tertiary;
+  float  c_threeVertex_Isolated = _nc_threeVertex_bTrack_Isolated+_nc_threeVertex_cTrack_Isolated+_nc_threeVertex_lTrack_Isolated; 
+  float  c_threeVertex = c_threeVertex_Primary+c_threeVertex_Secondary+c_threeVertex_Tertiary+c_threeVertex_Isolated;
+   
+
+
+  //  float frac_c_twoVertex_bTrack_Primary =     100.*float(_nc_twoVertex_bTrack_Primary) / float(c_twoVertex_Primary); 
+  //float frac_c_twoVertex_bTrack_Secondary =   100.*float(_nc_twoVertex_bTrack_Secondary) / float(c_twoVertex_Secondary);    
+  //float frac_c_twoVertex_bTrack_Tertiary =    100.*float(_nc_twoVertex_bTrack_Tertiary) / float(c_twoVertex_Tertiary);	   
+  //float frac_c_twoVertex_bTrack_Isolated =    100.*float(_nc_twoVertex_bTrack_Isolated) / float(c_twoVertex_Isolated);	   
+  					  
+  float frac_c_twoVertex_cTrack_Primary =     100.*float(_nc_twoVertex_cTrack_Primary) / float(c_twoVertex_Primary); 	   
+  float frac_c_twoVertex_cTrack_Secondary =   100.*float(_nc_twoVertex_cTrack_Secondary) / float(c_twoVertex_Secondary);   
+  //float frac_c_twoVertex_cTrack_Tertiary =    100.*float(_nc_twoVertex_cTrack_Tertiary) / float(c_twoVertex_Tertiary);    
+  float frac_c_twoVertex_cTrack_Isolated =    100.*float(_nc_twoVertex_cTrack_Isolated) / float(c_twoVertex_Isolated);    
+  					  
+  float frac_c_twoVertex_lTrack_Primary =     100.*float(_nc_twoVertex_lTrack_Primary) / float(c_twoVertex_Primary); 	   
+  float frac_c_twoVertex_lTrack_Secondary =   100.*float(_nc_twoVertex_lTrack_Secondary) / float(c_twoVertex_Secondary);   
+  //float frac_c_twoVertex_lTrack_Tertiary =    100.*float(_nc_twoVertex_lTrack_Tertiary) / float(c_twoVertex_Tertiary);	   
+  float frac_c_twoVertex_lTrack_Isolated =    100.*float(_nc_twoVertex_lTrack_Isolated) / float(c_twoVertex_Isolated);	   
+  					                                 
+  //float frac_c_threeVertex_bTrack_Primary =     100.*float(_nc_threeVertex_bTrack_Primary) / float(c_threeVertex_Primary);   
+  //float frac_c_threeVertex_bTrack_Secondary =   100.*float(_nc_threeVertex_bTrack_Secondary) / float(c_threeVertex_Secondary); 
+  //float frac_c_threeVertex_bTrack_Tertiary =    100.*float(_nc_threeVertex_bTrack_Tertiary) / float(c_threeVertex_Tertiary);  
+  //float frac_c_threeVertex_bTrack_Isolated =    100.*float(_nc_threeVertex_bTrack_Isolated) / float(c_threeVertex_Isolated);  
+  					   
+  float frac_c_threeVertex_cTrack_Primary =     100.*float(_nc_threeVertex_cTrack_Primary) / float(c_threeVertex_Primary);   
+  float frac_c_threeVertex_cTrack_Secondary =   100.*float(_nc_threeVertex_cTrack_Secondary) / float(c_threeVertex_Secondary); 
+  float frac_c_threeVertex_cTrack_Tertiary =    100.*float(_nc_threeVertex_cTrack_Tertiary) / float(c_threeVertex_Tertiary);  
+  float frac_c_threeVertex_cTrack_Isolated =    100.*float(_nc_threeVertex_cTrack_Isolated) / float(c_threeVertex_Isolated);  
+  					   
+  float frac_c_threeVertex_lTrack_Primary =     100.*float(_nc_threeVertex_lTrack_Primary) / float(c_threeVertex_Primary);   
+  float frac_c_threeVertex_lTrack_Secondary =   100.*float(_nc_threeVertex_lTrack_Secondary) / float(c_threeVertex_Secondary); 
+  float frac_c_threeVertex_lTrack_Tertiary =    100.*float(_nc_threeVertex_lTrack_Tertiary) / float(c_threeVertex_Tertiary);  
+  float frac_c_threeVertex_lTrack_Isolated =    100.*float(_nc_threeVertex_lTrack_Isolated) / float(c_threeVertex_Isolated);  
+
+  float frac_c_twoVertex_Primary = 100.*float(c_twoVertex_Primary) / float(c_twoVertex);
+  float frac_c_twoVertex_Secondary = 100.*float(c_twoVertex_Secondary) / float(c_twoVertex);
+  float frac_c_twoVertex_Isolated = 100.*float(c_twoVertex_Isolated) / float(c_twoVertex);
+ 
+  float frac_c_threeVertex_Primary = 100.*float(c_threeVertex_Primary) / float(c_threeVertex);
+  float frac_c_threeVertex_Secondary = 100.*float(c_threeVertex_Secondary) / float(c_threeVertex);
+  float frac_c_threeVertex_Tertiary = 100.*float(c_threeVertex_Tertiary) / float(c_threeVertex);
+  float frac_c_threeVertex_Isolated = 100.*float(c_threeVertex_Isolated) / float(c_threeVertex);
+ 
+  
+
+//check//  //just for checks...
+//check//  frac_c_twoVertex_bTrack_Primary =     float(_nc_twoVertex_bTrack_Primary);
+//check//  frac_c_twoVertex_bTrack_Secondary =   float(_nc_twoVertex_bTrack_Secondary);
+//check//  //frac_c_twoVertex_bTrack_Tertiary =    float(_nc_twoVertex_bTrack_Tertiary);
+//check//  frac_c_twoVertex_bTrack_Isolated =    float(_nc_twoVertex_bTrack_Isolated);
+//check//  				  
+//check//  frac_c_twoVertex_cTrack_Primary =     float(_nc_twoVertex_cTrack_Primary);
+//check//  frac_c_twoVertex_cTrack_Secondary =   float(_nc_twoVertex_cTrack_Secondary);
+//check//  //frac_c_twoVertex_cTrack_Tertiary =    float(_nc_twoVertex_cTrack_Tertiary);
+//check//  frac_c_twoVertex_cTrack_Isolated =    float(_nc_twoVertex_cTrack_Isolated);
+//check//  
+//check//  frac_c_twoVertex_lTrack_Primary =     float(_nc_twoVertex_lTrack_Primary);
+//check//  frac_c_twoVertex_lTrack_Secondary =   float(_nc_twoVertex_lTrack_Secondary);
+//check//  //frac_c_twoVertex_lTrack_Tertiary =    float(_nc_twoVertex_lTrack_Tertiary);
+//check//  frac_c_twoVertex_lTrack_Isolated =    float(_nc_twoVertex_lTrack_Isolated);
+//check//  
+//check//  frac_c_threeVertex_bTrack_Primary =     float(_nc_threeVertex_bTrack_Primary);
+//check//  frac_c_threeVertex_bTrack_Secondary =   float(_nc_threeVertex_bTrack_Secondary);
+//check//  frac_c_threeVertex_bTrack_Tertiary =    float(_nc_threeVertex_bTrack_Tertiary);
+//check//  frac_c_threeVertex_bTrack_Isolated =    float(_nc_threeVertex_bTrack_Isolated);
+//check//  
+//check//  frac_c_threeVertex_cTrack_Primary =     float(_nc_threeVertex_cTrack_Primary);
+//check//  frac_c_threeVertex_cTrack_Secondary =   float(_nc_threeVertex_cTrack_Secondary);
+//check//  frac_c_threeVertex_cTrack_Tertiary =    float(_nc_threeVertex_cTrack_Tertiary);
+//check//  frac_c_threeVertex_cTrack_Isolated =    float(_nc_threeVertex_cTrack_Isolated);
+//check//  
+//check//  frac_c_threeVertex_lTrack_Primary =     float(_nc_threeVertex_lTrack_Primary);
+//check//  frac_c_threeVertex_lTrack_Secondary =   float(_nc_threeVertex_lTrack_Secondary);
+//check//  frac_c_threeVertex_lTrack_Tertiary =    float(_nc_threeVertex_lTrack_Tertiary);
+//check//  frac_c_threeVertex_lTrack_Isolated =    float(_nc_threeVertex_lTrack_Isolated);
+//check//  //end of checks
+
+
+
+  outputFile << std::endl;
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "                                   B-JETS                                     " << std::endl;
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "               Purity of reconstructed track-vertex association (%)           " << std::endl;
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "    Monte Carlo               Reconstructed track-vertex association         " << std::endl;
+  outputFile << "    track origin        Two-vertex case               Three-vertex case       " << std::endl;
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "                     Pri.    Sec.    Iso.       Pri.    Sec.    Ter.    Iso. " << std::endl;   
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "    Primary       ";
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_lTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_lTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_lTrack_Isolated << "   " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_lTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_lTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_lTrack_Tertiary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_lTrack_Isolated << " " ;
+  outputFile << std::endl;
+  
+  outputFile << "    B decay       ";
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_bTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_bTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_bTrack_Isolated << "   " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_bTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_bTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_bTrack_Tertiary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_bTrack_Isolated << " " ;
+  outputFile << std::endl;
+  
+  outputFile << "    D decay       ";
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_cTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_cTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_cTrack_Isolated << "   " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_cTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_cTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_cTrack_Tertiary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_cTrack_Isolated << " " ;
+  outputFile << std::endl;
+  outputFile << "   ----------------------------------------------------------------------------" << std::endl;
+  outputFile << "    All above     ";
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_Primary  << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_Secondary  << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_twoVertex_Isolated  << "   " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_Primary  << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_Secondary  << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_Tertiary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_b_threeVertex_Isolated  << " " ;
+  outputFile << std::endl;
+  outputFile << "   ----------------------------------------------------------------------------" << std::endl;
+  outputFile << std::endl;
+  outputFile << std::endl;
+ 
+
+  outputFile << std::endl;
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "                                   C-JETS                                     " << std::endl;
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "               Purity of reconstructed track-vertex association (%)           " << std::endl;
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "    Monte Carlo               Reconstructed track-vertex association         " << std::endl;
+  outputFile << "    track origin        Two-vertex case               Three-vertex case       " << std::endl;
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "                     Pri.    Sec.    Iso.       Pri.    Sec.    Ter.    Iso. " << std::endl;   
+  outputFile << "   ---------------------------------------------------------------------------" << std::endl;
+  outputFile << "    Primary       ";
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_lTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_lTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_lTrack_Isolated << "   " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_lTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_lTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_lTrack_Tertiary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_lTrack_Isolated << " " ;
+  outputFile << std::endl;
+  
+//check//  outputFile << "    B decay       ";
+//check//  outputFile.width(7);
+//check//  outputFile.precision(3);
+//check//  outputFile << frac_c_twoVertex_bTrack_Primary << " " ;
+//check//  outputFile.width(7);
+//check//  outputFile.precision(3);
+//check//  outputFile << frac_c_twoVertex_bTrack_Secondary << " " ;
+//check//  outputFile.width(7);
+//check//  outputFile.precision(3);
+//check//  outputFile << frac_c_twoVertex_bTrack_Isolated << "   " ;
+//check//  outputFile.width(7);
+//check//  outputFile.precision(3);
+//check//  outputFile << frac_c_threeVertex_bTrack_Primary << " " ;
+//check//  outputFile.width(7);
+//check//  outputFile.precision(3);
+//check//  outputFile << frac_c_threeVertex_bTrack_Secondary << " " ;
+//check//  outputFile.width(7);
+//check//  outputFile.precision(3);
+//check//  outputFile << frac_c_threeVertex_bTrack_Tertiary << " " ;
+//check//  outputFile.width(7);
+//check//  outputFile.precision(3);
+//check//  outputFile << frac_c_threeVertex_bTrack_Isolated << " " ;
+//check//  outputFile << std::endl;
+
+  outputFile << "    D decay       ";
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_cTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_cTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_cTrack_Isolated << "   " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_cTrack_Primary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_cTrack_Secondary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_cTrack_Tertiary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_cTrack_Isolated << " " ;
+  outputFile << std::endl;
+  outputFile << "   ----------------------------------------------------------------------------" << std::endl;
+  outputFile << "    All above     ";
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_Primary  << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_Secondary  << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_twoVertex_Isolated  << "   " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_Primary  << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_Secondary  << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_Tertiary << " " ;
+  outputFile.width(7);
+  outputFile.precision(3);
+  outputFile << frac_c_threeVertex_Isolated  << " " ;
+  outputFile << std::endl;
+  outputFile << "   ----------------------------------------------------------------------------" << std::endl;
+  outputFile << std::endl;
+  outputFile << std::endl;
+ 
+
+
+}
 
 void LCFIAIDAPlotProcessor::PrintNNOutput(){
   
@@ -2899,7 +3114,7 @@ void LCFIAIDAPlotProcessor::PrintNNOutput(){
   if (outputFile.rdbuf() != fb)
       {
 	delete fb;
-	std::cerr << "Unable to open file " <<  _NeuralNetOutputFile << "!  Redirecting output to standard out." << std::endl;
+	std::cerr << " In " << __FILE__ << "(" << __LINE__ << "): Unable to open output file " <<  _NeuralNetOutputFile << "!  Redirecting output to standard out." << std::endl;
 	outputFile << std::endl;
       }
 
@@ -3153,6 +3368,40 @@ void LCFIAIDAPlotProcessor::InternalVectorInitialisation()
   _nb_twoVertex_Tertiary_noMCP=0;
   _nb_twoVertex_Isolated_noMCP=0;
   
+  _nc_twoVertex_bTrack_Primary=0;	  
+  _nc_twoVertex_bTrack_Secondary=0;  
+  _nc_twoVertex_bTrack_Tertiary=0;
+  _nc_twoVertex_bTrack_Isolated=0;
+  _nc_twoVertex_cTrack_Primary=0; 	  
+  _nc_twoVertex_cTrack_Secondary=0;	  
+  _nc_twoVertex_cTrack_Tertiary=0; 	  
+  _nc_twoVertex_cTrack_Isolated=0; 
+  _nc_twoVertex_lTrack_Primary=0; 	  
+  _nc_twoVertex_lTrack_Secondary=0;	  
+  _nc_twoVertex_lTrack_Tertiary=0;	  
+  _nc_twoVertex_lTrack_Isolated=0;
+  _nc_threeVertex_bTrack_Primary=0;   
+  _nc_threeVertex_bTrack_Secondary=0;  
+  _nc_threeVertex_bTrack_Tertiary=0;    
+  _nc_threeVertex_bTrack_Isolated=0;  
+  _nc_threeVertex_cTrack_Primary=0;  
+  _nc_threeVertex_cTrack_Secondary=0; 
+  _nc_threeVertex_cTrack_Tertiary=0; 
+  _nc_threeVertex_cTrack_Isolated=0; 
+  _nc_threeVertex_lTrack_Primary=0;   
+  _nc_threeVertex_lTrack_Secondary=0;  
+  _nc_threeVertex_lTrack_Tertiary=0;   
+  _nc_threeVertex_lTrack_Isolated=0;
+ 
+  _nc_threeVertex_Primary_noMCP=0;
+  _nc_threeVertex_Secondary_noMCP=0;
+  _nc_threeVertex_Tertiary_noMCP=0;
+  _nc_threeVertex_Isolated_noMCP=0;
+  _nc_twoVertex_Primary_noMCP=0;
+  _nc_twoVertex_Secondary_noMCP=0;
+  _nc_twoVertex_Tertiary_noMCP=0;
+  _nc_twoVertex_Isolated_noMCP=0;
+  
 
 
 }
@@ -3178,7 +3427,7 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength( LCEvent* pEvent, unsigned in
     
     if (!mcParticleCollection.is_valid()) 
       { 
-	std::cerr << "some error here" << std::endl;
+	std::cerr << "In " << __FILE__ << "(" << __LINE__ << "): for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "mcParticleCollection is not valid" << std::endl;
 	return;
       } 
     else 
@@ -3348,7 +3597,8 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength2( LCEvent* pEvent, unsigned i
     
     if (!mcParticleCollection.is_valid()) 
       { 
-	std::cerr << "some error here" << std::endl;
+	std::cerr << __FILE__ << "(" << __LINE__ << "): MCParticle collection " <<  _MCParticleColName << " is not valid"	 
+		  << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << std::endl;
 	return;
       } 
     else 
@@ -3489,9 +3739,7 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength2( LCEvent* pEvent, unsigned i
 		double decay_length = *iter;
 		if (decay_length > c_decay_length0 ) c_decay_length0 = decay_length;
 	      }
-	    
-	     //std::cout << "In event number " <<  pEvent->getEventNumber() << " number of candiate lengths is: " << CJetDecayLengthVector.size() << "  " << BJetDecayLengthVector.size() << std::endl;
-
+	     
 	  }
 	}
       }
