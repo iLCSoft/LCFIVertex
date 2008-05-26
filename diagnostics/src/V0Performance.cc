@@ -395,6 +395,17 @@ void V0Performance::trackAnalysis( const LCEvent *evt,
   LCCollection *trkColl=evt->getCollection(collectionName);
   num_tracks_total[collectionName]+=trkColl->getNumberOfElements();
 
+  for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
+    // initialize track vectors for this LCCollection if necessary
+    if (!V0Candidates[iv0]->tracks[collectionName].size()) {
+      for (size_t idght=0;
+	   idght<V0Candidates[iv0]->daughters.size(); idght++) {
+	V0Candidates[iv0]->tracks[collectionName].push_back(NULL);
+	V0Candidates[iv0]->track_weights[collectionName].push_back(0);
+      }
+    }
+  }
+
   for (int itrk=0; itrk<trkColl->getNumberOfElements(); itrk++) {
     EVENT::Track *trk=dynamic_cast<EVENT::Track*>(trkColl->getElementAt(itrk));
 
@@ -422,14 +433,6 @@ void V0Performance::trackAnalysis( const LCEvent *evt,
     // V0 candidates and just get matching tracks for each daughter. However,
     // how would we then find out which collection a track belongs to?
     for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
-      // initialize track vectors for this LCCollection if necessary
-      if (!V0Candidates[iv0]->tracks[collectionName].size()) {
-	for (size_t idght=0;
-	     idght<V0Candidates[iv0]->daughters.size(); idght++) {
-	  V0Candidates[iv0]->tracks[collectionName].push_back(NULL);
-	  V0Candidates[iv0]->track_weights[collectionName].push_back(0);
-	}
-      }
       for (size_t idght=0; idght<V0Candidates[iv0]->daughters.size(); idght++) {
 	for (size_t imc=0; imc<mcp.size(); imc++) {
 	  if (V0Candidates[iv0]->daughters[idght]==mcp[imc]) {
@@ -473,6 +476,16 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
 
   LCCollection *recoColl=evt->getCollection(collectionName);
 
+  for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
+    // initialize recopart vectors for this LCCollection if necessary
+    if (!V0Candidates[iv0]->recopart[collectionName].size()) {
+      for (size_t idght=0;
+	   idght<V0Candidates[iv0]->daughters.size(); idght++) {
+	V0Candidates[iv0]->recopart[collectionName].push_back(NULL);
+      }
+    }
+  }
+
   for (int ipart=0; ipart<recoColl->getNumberOfElements(); ipart++) {
     EVENT::ReconstructedParticle *part
       =dynamic_cast<EVENT::ReconstructedParticle*>
@@ -499,16 +512,6 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
 			     << " tracks" << endl;
     }
 
-
-    for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
-      // initialize recopart vectors for this LCCollection if necessary
-      if (!V0Candidates[iv0]->recopart[collectionName].size()) {
-	for (size_t idght=0;
-	     idght<V0Candidates[iv0]->daughters.size(); idght++) {
-	  V0Candidates[iv0]->recopart[collectionName].push_back(NULL);
-	}
-      }
-    }
 
     // for all tracks associated with this particle, check whether they
     // point back to any track used in our V0 candidates
