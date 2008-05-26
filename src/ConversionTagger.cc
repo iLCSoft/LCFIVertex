@@ -197,6 +197,11 @@ void ConversionTagger::tagger( LCEvent *evt,
 	  if (mcp[i]->getParents().size()==0) continue;
 	  MCParticle* parent = mcp[i]->getParents()[0];
 	  int parpdg = abs(parent->getPDG());
+	  while (parpdg!=22 && parpdg!=130 && parpdg!=130 && parpdg!=3122
+		 && parent->getParents().size()>0) {
+	    parent=parent->getParents()[0];
+	    parpdg=abs(parent->getPDG());
+	  }
 	  if (parpdg==22 || parpdg==130 || parpdg==3122) mcmap[parent]+=mcp_weight[i];
 	}
 	double maxweight=0;
