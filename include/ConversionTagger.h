@@ -36,6 +36,13 @@ class ConversionTagger : public Processor {
 
   HistMap* histos;
 
+  std::vector<std::string> _InputCollections;
+  double _massRangePhoton;
+  double _massRangeKaon;
+  double _massRangeLambda;
+  double _distCutRPhi;
+  double _distCutZ;
+
   double _BField;
   double _twopi;
 } ;

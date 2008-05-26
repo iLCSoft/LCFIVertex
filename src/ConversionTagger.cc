@@ -32,6 +32,39 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
   _description = "ConversionTagger processor does conversion and V0 tagging" ;
   
   _twopi=2*acos(-1.0);
+
+  // input collections to run the conversion/V0 tagging on.
+  // default is empty list, which means the code will run over
+  // every single collection of type TRACK or RECONSTRUCTEDPARTICLE
+  std::vector<std::string> inputCollections;
+  inputCollections.clear();
+  registerInputCollections( LCIO::RECONSTRUCTEDPARTICLE, 
+			    "InputCollections" , 
+			    "Input Collection Names (TRACK or RECONSTRUCTEDPARTICLE)" ,
+			    _InputCollections ,
+			    inputCollections);
+
+  registerOptionalParameter("MassRangePhoton",
+			    "upper mass limit for photon conversion candidates"
+			    " (GeV)",
+			    _massRangePhoton,0.01);
+  registerOptionalParameter("MassRangeKaon",
+			    "Kshort candidates: max deviation of candidate mass"
+			    " from PDG Kshort mass (GeV)",
+			    _massRangeKaon,0.02);
+  registerOptionalParameter("MassRangeLambda",
+			    "Lambda candidates: max deviation of candidate mass"
+			    " from PDG Lambda mass",
+			    _massRangeLambda,0.02);
+  registerOptionalParameter("DistCutRPhi",
+			    "max distance of closest approach between two "
+			    " helices, rphi projection (mm)",
+			    _distCutRPhi,1.0);
+  registerOptionalParameter("DistCutZ",
+			    "max distance of closest approach between two "
+			    " helices, z projection (mm)",
+			    _distCutZ,1.0);
+
 }
 
 
@@ -49,12 +82,18 @@ void ConversionTagger::processEvent( LCEvent * evt ) {
 
   const StringVec* colNames = evt->getCollectionNames();
 
-  // try this for all track collections in the event
-  for (size_t i=0; i<colNames->size(); i++) {
-    LCCollection *collection=evt->getCollection((*colNames)[i]);
-    if ((collection->getTypeName()==LCIO::TRACK) ||
-	(collection->getTypeName()==LCIO::RECONSTRUCTEDPARTICLE)) {
-      tagger(evt,(*colNames)[i]);
+  if (_InputCollections.size()==0) {
+    // run over all track and reconstructed particle collections in the event
+    for (size_t i=0; i<colNames->size(); i++) {
+      LCCollection *collection=evt->getCollection((*colNames)[i]);
+      if ((collection->getTypeName()==LCIO::TRACK) ||
+	  (collection->getTypeName()==LCIO::RECONSTRUCTEDPARTICLE)) {
+	tagger(evt,(*colNames)[i]);
+      }
+    }
+  } else {
+    for (size_t i=0; i<_InputCollections.size(); i++) {
+      tagger(evt,_InputCollections[i]);
     }
   }
 
@@ -212,8 +251,8 @@ void ConversionTagger::tagger( LCEvent *evt,
       // cut on distance
       histos->fill("dist_rphi",dist_rphi,1,"helix distance in rphi",100,0,10);
       histos->fill("dist_z",dist_z,1,"helix distance in z",100,0,10);
-      if (dist_rphi>1) continue;
-      if (dist_z>1) continue;
+      if (dist_rphi>_distCutRPhi) continue;
+      if (dist_z>_distCutZ) continue;
 
       histos->fill("radius",vertex_radius,1,
 		   "radius of closest approach in z",100,0,2000);
@@ -246,10 +285,10 @@ void ConversionTagger::tagger( LCEvent *evt,
       histos->fill("Lambda_mass",Lambda_mass2);
 
       // check whether our candidate is either close to photon mass
-      // or K0 mass
-      if (conv_mass>0.01 && fabs(K0_mass-0.498)>0.02
-	  && fabs(Lambda_mass1-1.116)>0.02
-	  && fabs(Lambda_mass2-1.116)>0.02) continue;
+      // or K0 mass or Lambda0 mass
+      if (conv_mass>_massRangePhoton && fabs(K0_mass-0.498)>_massRangeKaon
+	  && fabs(Lambda_mass1-1.116)>_massRangeLambda
+	  && fabs(Lambda_mass2-1.116)>_massRangeLambda) continue;
 
 
       // vertex probability (cut on distance of closest approach first?)
@@ -287,23 +326,18 @@ void ConversionTagger::tagger( LCEvent *evt,
   remainder->setSubset();
   for (int irp=0; irp<coll->getNumberOfElements(); irp++) {
     if (!tagged[irp]) {
-      streamlog_out(MESSAGE) << "saving element no. " << irp
-			     << " of collection " << collectionName << endl; 
       ReconstructedParticleImpl* newpart=new ReconstructedParticleImpl(*dynamic_cast<ReconstructedParticleImpl*>(coll->getElementAt(irp)));
       remainder->addElement(newpart);
-    } else {
-      streamlog_out(MESSAGE) << "skipping element no. " << irp
-			     << " of collection " << collectionName << endl; 
-      
     }
   }
-  cout << "ConversionTagger: adding V0-purged collection "
-       << "V0Veto"+collectionName << " to the event" << endl;
+  streamlog_out(DEBUG0) << "ConversionTagger: adding V0-purged collection "
+			<< "V0Veto"+collectionName << " to the event" << endl;
   evt->addCollection(remainder, "V0Veto"+collectionName) ;
 
-  cout << "original number of entries: " << coll->getNumberOfElements()
-       << ", new number of entries: " << remainder->getNumberOfElements()
-       << endl;
+  streamlog_out(DEBUG0) << "original number of entries: "
+			<< coll->getNumberOfElements()
+			<< ", new number of entries: "
+			<< remainder->getNumberOfElements() << endl;
 
   // delete our temporary collection (if any).
   // destructor of LCCollectionVec automatically deletes all elements
