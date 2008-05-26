@@ -72,7 +72,7 @@ void V0Performance::processEvent( LCEvent * evt ) {
 
   const StringVec* colNames = evt->getCollectionNames();
 
-  streamlog_out(MESSAGE) << "detector " << evt->getDetectorName() 
+  streamlog_out(DEBUG0) << "detector " << evt->getDetectorName() 
 			 << ", run " << evt->getRunNumber()
 			 << ", event " << evt->getEventNumber()
 			 << endl;
@@ -89,33 +89,33 @@ void V0Performance::processEvent( LCEvent * evt ) {
       relationcols.push_back(colname);
       LCTOOLS::printParameters(evt->getParameters());
       LCRelationNavigator nav(collection);
-      streamlog_out(MESSAGE) << "relation collection " << nav.getFromType() 
+      streamlog_out(DEBUG0) << "relation collection " << nav.getFromType() 
 	   << "   " << nav.getToType() << " named " << colname << endl;
     } else if (collection->getTypeName()==LCIO::RECONSTRUCTEDPARTICLE) {
       recocols.push_back(colname);
     }
   }
-  streamlog_out(MESSAGE) << "collections: " << mccols.size() << " MCPARTICLE" << endl;
+  streamlog_out(DEBUG0) << "collections: " << mccols.size() << " MCPARTICLE" << endl;
   for (size_t i=0; i<mccols.size(); i++) {
-    streamlog_out(MESSAGE) << "                " << mccols[i] << ":  "
+    streamlog_out(DEBUG0) << "                " << mccols[i] << ":  "
 	 << evt->getCollection(mccols[i])->getNumberOfElements()
 	 << " entries" << endl;
   }
-  streamlog_out(MESSAGE) << "             " << trackcols.size() << " TRACK" << endl;
+  streamlog_out(DEBUG0) << "             " << trackcols.size() << " TRACK" << endl;
   for (size_t i=0; i<trackcols.size(); i++) {
-    streamlog_out(MESSAGE) << "                " << trackcols[i] << ":  "
+    streamlog_out(DEBUG0) << "                " << trackcols[i] << ":  "
 	 << evt->getCollection(trackcols[i])->getNumberOfElements()
 	 << " entries" << endl;
   }
-  streamlog_out(MESSAGE) << "             " << recocols.size() << " RECOPART" << endl;
+  streamlog_out(DEBUG0) << "             " << recocols.size() << " RECOPART" << endl;
   for (size_t i=0; i<recocols.size(); i++) {
-    streamlog_out(MESSAGE) << "                " << recocols[i] << ":  "
+    streamlog_out(DEBUG0) << "                " << recocols[i] << ":  "
 	 << evt->getCollection(recocols[i])->getNumberOfElements()
 	 << " entries" << endl;
   }
-  streamlog_out(MESSAGE) << "             " << relationcols.size() << " LCRELATION" << endl;
+  streamlog_out(DEBUG0) << "             " << relationcols.size() << " LCRELATION" << endl;
   for (size_t i=0; i<relationcols.size(); i++) {
-    streamlog_out(MESSAGE) << "                " << relationcols[i] << ":  "
+    streamlog_out(DEBUG0) << "                " << relationcols[i] << ":  "
 	 << evt->getCollection(relationcols[i])->getNumberOfElements()
 	 << " entries" << endl;
   }
@@ -274,7 +274,7 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
       }
     }
   }
-  streamlog_out(MESSAGE) << "number of conv/V0 in this event: "
+  streamlog_out(DEBUG0) << "number of conv/V0 in this event: "
 			 << V0Candidates.size() << endl;
 }
 
@@ -484,7 +484,7 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
     }
     if (part->getTracks().size()>1) {
       ++num_composites_total[collectionName];
-      streamlog_out(MESSAGE) << "collection " << collectionName
+      streamlog_out(DEBUG0) << "collection " << collectionName
 			     << " contains object of type " << part->getType()
 			     << " with " << part->getTracks().size()
 			     << " tracks" << endl;
