@@ -42,6 +42,7 @@ class ConversionTagger : public Processor {
   double _massRangeLambda;
   double _distCutRPhi;
   double _distCutZ;
+  bool   _cheatMode;
 
   double _BField;
   double _twopi;
