@@ -77,6 +77,7 @@ void V0Performance::processEvent( LCEvent * evt ) {
 			 << ", event " << evt->getEventNumber()
 			 << endl;
 
+  _maxCollNameLength=15;
   vector<string> mccols,trackcols,relationcols,recocols;
   for (size_t i=0; i<colNames->size(); i++) {
     string colname=(*colNames)[i];
@@ -85,6 +86,8 @@ void V0Performance::processEvent( LCEvent * evt ) {
       mccols.push_back(colname);
     } else if (collection->getTypeName()==LCIO::TRACK) {
       trackcols.push_back(colname);
+      if (colname.length()>_maxCollNameLength)
+	_maxCollNameLength=colname.length();
     } else if (collection->getTypeName()==LCIO::LCRELATION) {
       relationcols.push_back(colname);
       LCTOOLS::printParameters(evt->getParameters());
@@ -93,6 +96,8 @@ void V0Performance::processEvent( LCEvent * evt ) {
 	   << "   " << nav.getToType() << " named " << colname << endl;
     } else if (collection->getTypeName()==LCIO::RECONSTRUCTEDPARTICLE) {
       recocols.push_back(colname);
+      if (colname.length()>_maxCollNameLength)
+	_maxCollNameLength=colname.length();
     }
   }
   streamlog_out(DEBUG0) << "collections: " << mccols.size() << " MCPARTICLE" << endl;
@@ -305,14 +310,15 @@ void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
   streamlog_out(MESSAGE) << "daughter momenta:" << endl;
   for (size_t i=0; i<cand->daughters.size(); i++) {
     streamlog_out(MESSAGE)
-      << "   mass=" << cand->daughters[i]->getMass() << ", momentum="
+      << "   momentum="
       << cand->daughters[i]->getMomentum()[0] << ", "
       << cand->daughters[i]->getMomentum()[1] << ", "
       << cand->daughters[i]->getMomentum()[2] << endl;
   }
 
   // MC decay products
-  streamlog_out(MESSAGE) << "daughter particles:    ";
+  streamlog_out(MESSAGE) << "daughter particles:"
+			 << setw(_maxCollNameLength-12) << " ";
   for (size_t i=0; i<cand->daughters.size(); i++) {
     if (cand->daughters[i]->getCharge()!=0
 	&& cand->daughters[i]->getCharge()!=-1000) {
@@ -328,7 +334,8 @@ void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
   // reconstructed tracks
   for (map<string,vector<Track*> >::iterator it=cand->tracks.begin();
        it!=cand->tracks.end(); it++) {
-    streamlog_out(MESSAGE) << "tracks in " << setw(16) << it->first << ":";
+    streamlog_out(MESSAGE) << "tracks in " << setw(_maxCollNameLength)
+			   << it->first << ":";
     for (size_t itrk=0; itrk<it->second.size(); itrk++) {
       if (it->second[itrk]) {
 	streamlog_out(MESSAGE) << setw(7) << "yes";
@@ -345,7 +352,8 @@ void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
   // particle flow objects
   for (map<string,vector<ReconstructedParticle*> >::iterator
 	 it=cand->recopart.begin(); it!=cand->recopart.end(); it++) {
-    streamlog_out(MESSAGE) << "PFOs   in " << setw(16) << it->first << ":";
+    streamlog_out(MESSAGE) << "PFOs   in " << setw(_maxCollNameLength)
+			   << it->first << ":";
     for (size_t itrk=0; itrk<it->second.size(); itrk++) {
       if (it->second[itrk]) {
 	if (it->second[itrk]->getTracks().size()>1) {
@@ -363,8 +371,9 @@ void V0Performance::dump_V0Candidate(V0Candidate_type* cand) {
 	streamlog_out(MESSAGE) << setw(14) << "no ( N/A)";
       }
     }
-    streamlog_out(MESSAGE) << endl << endl;
+    streamlog_out(MESSAGE) << endl;
   }
+  streamlog_out(MESSAGE) << endl;
 
   // histograms for this candidate
   if (cand->V0Type==V0Gamma) {
@@ -491,17 +500,20 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
     }
 
 
+    for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
+      // initialize recopart vectors for this LCCollection if necessary
+      if (!V0Candidates[iv0]->recopart[collectionName].size()) {
+	for (size_t idght=0;
+	     idght<V0Candidates[iv0]->daughters.size(); idght++) {
+	  V0Candidates[iv0]->recopart[collectionName].push_back(NULL);
+	}
+      }
+    }
+
     // for all tracks associated with this particle, check whether they
     // point back to any track used in our V0 candidates
     for (size_t itrk=0; itrk<part->getTracks().size(); itrk++) {
       for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
-	// initialize recopart vectors for this LCCollection if necessary
-	if (!V0Candidates[iv0]->recopart[collectionName].size()) {
-	  for (size_t idght=0;
-	       idght<V0Candidates[iv0]->daughters.size(); idght++) {
-	    V0Candidates[iv0]->recopart[collectionName].push_back(NULL);
-	  }
-	}
 	for (map<string,vector<Track*> >::iterator it
 	       =V0Candidates[iv0]->tracks.begin();
 	     it!=V0Candidates[iv0]->tracks.end(); it++) {

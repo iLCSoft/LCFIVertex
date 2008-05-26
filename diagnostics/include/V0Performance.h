@@ -65,6 +65,7 @@ class V0Performance : public Processor {
   map<MCParticle*,int> numHits;
 
   void dump_V0Candidate(V0Candidate_type* cand);
+  size_t _maxCollNameLength;
 
   // LCRelation handling
   map<string,LCRelationNavigator*> lcRel;
