@@ -486,6 +486,8 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
     }
   }
 
+  vector<vector<int> > matches;
+
   for (int ipart=0; ipart<recoColl->getNumberOfElements(); ipart++) {
     EVENT::ReconstructedParticle *part
       =dynamic_cast<EVENT::ReconstructedParticle*>
@@ -515,15 +517,21 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
 
     // for all tracks associated with this particle, check whether they
     // point back to any track used in our V0 candidates
-    for (size_t itrk=0; itrk<part->getTracks().size(); itrk++) {
-      for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
+    vector<int> matches_this_recopart;
+    for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
+      int matches_this_v0=0;
+      for (size_t itrk=0; itrk<part->getTracks().size(); itrk++) {
 	for (map<string,vector<Track*> >::iterator it
 	       =V0Candidates[iv0]->tracks.begin();
 	     it!=V0Candidates[iv0]->tracks.end(); it++) {
 	  for (size_t idght=0; idght<it->second.size(); idght++) {
 	    if (it->second[idght]==part->getTracks()[itrk]) {
 	      // we do have a matching track here.
+	      ++matches_this_v0;
 	      if (V0Candidates[iv0]->recopart[collectionName][idght]) {
+                // we have more than one match. since we store only the
+		// first match, some information about whether or not
+		// a composite object was compiled properly will be lost!
 		streamlog_out(ERROR) << "more than one matching recoparticle!" << endl;
 	      } else {
 		V0Candidates[iv0]->recopart[collectionName][idght]=part;
@@ -532,32 +540,36 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
 	  }
 	}
       }
+      matches_this_recopart.push_back(matches_this_v0);
     }
+    matches.push_back(matches_this_recopart);
   }
 
   // book-keeping: count how many times we did (not) do well
   for (size_t iv0=0; iv0<V0Candidates.size(); iv0++) {
+
+    // check how many daughters appeared in any recoparticle at all
     size_t numReconstructed=0;
-    ReconstructedParticle* RecoObj=0;
-    bool isSingleComposite=true;
     for (size_t idght=0; idght<V0Candidates[iv0]->recopart[collectionName].size();
 	 idght++) {
-      if (V0Candidates[iv0]->recopart[collectionName][idght]) {
+      if (V0Candidates[iv0]->recopart[collectionName][idght])
 	++numReconstructed;
-	if (RecoObj==0) {
-	  RecoObj=V0Candidates[iv0]->recopart[collectionName][idght];
-	} else if (RecoObj!=V0Candidates[iv0]->recopart[collectionName][idght]){
-	  isSingleComposite=false;
-	}
-      }
     }
+
+    // check whether there were composite particles with >1 daughter particle
+    int max_tracks_in_single_recopart=0;
+    for (int ipart=0; ipart<recoColl->getNumberOfElements(); ipart++) {
+      if (matches[ipart][iv0]>max_tracks_in_single_recopart)
+	max_tracks_in_single_recopart=matches[ipart][iv0];
+    }
+
     if (numReconstructed==0) {
       ++foundNOtracks[V0Candidates[iv0]->V0Type][collectionName];
     } else if (numReconstructed==1) {
       ++foundONEtrack[V0Candidates[iv0]->V0Type][collectionName];
     } else if (numReconstructed>=2) {
       ++foundTWOtracks[V0Candidates[iv0]->V0Type][collectionName];
-      if (isSingleComposite) {
+      if (max_tracks_in_single_recopart>=2) {
 	++foundComposite[V0Candidates[iv0]->V0Type][collectionName];
       }
     }
