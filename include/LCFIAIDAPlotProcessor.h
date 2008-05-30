@@ -147,11 +147,15 @@ protected:
 	double _CTagNNCut;
 
 	//!optional parameters to make an ntuple of the neural net inputs; and print out the tagging ouputs (useful for scripts)
-	bool _PrintNeuralNetOutput;
-	bool _MakeTuple;
-	std::string _NeuralNetOutputFile;
 
-	std::string _ZVRESOutputFile;
+	bool _PrintTrackVertexOutput;
+	bool _MakeTuple;
+	bool _MakePurityEfficiencyPlots;
+	bool _PrintPurityEfficiencyValues;
+	bool _MakeAdditionalPlots;
+	
+	std::string _PurityEfficiencyOutputFile;
+	std::string _TrackVertexOutputFile;
  
 	int _iVertexChargeTagCollection;
 	unsigned int _myVertexChargeTagCollection;
@@ -263,7 +267,14 @@ protected:
 	bool PassesJetCuts( ReconstructedParticle* pJet );
 	void FillInputsPlots( LCEvent* pEvent, unsigned int jetNumber );
 	void FillTagPlots( LCEvent* pEvent, unsigned int jetNumber );
+	void FillVertexChargePlots( LCEvent* pEvent, unsigned int jetNumber );
 	void FillVertexPlots( LCEvent* pEvent, unsigned int jetNumber );
+	void CalculateEfficiencyPurityPlots();
+	void CalculateAdditionalPlots();
+	void CreateFlavourTagInputPlots(LCRunHeader* pRun);
+	void CreateFlavourTagTuple();
+	void CreateTagPlots();
+	void CreateAdditionalPlots();
 
 	static const int B_JET=5;
 	static const int C_JET=4;
@@ -294,6 +305,11 @@ protected:
 	int FindCQVtx( LCEvent* pEvent, unsigned int jetNumber);
 	//!Finds the vertex charge of the jet - using cuts tuned to find vertex charge for B-jets (from BVertexChargeCollection)
 	int FindBQVtx( LCEvent* pEvent, unsigned int jetNumber);
+
+	void CalculateTagEfficiency(const AIDA::IHistogram1D* pSignal,  std::vector<double>& tagEfficiency,  std::vector<double>& tagError);
+	void CalculateTagPurity(const AIDA::IHistogram1D* pSignal, const AIDA::IHistogram1D* pBackground, std::vector<double>& tagPurity, std::vector<double>& tagPurityError);
+
+	void CalculateIntegralAndBackgroundPlots();
 	
 	int GetPDGFlavour(int code);
 
@@ -301,6 +317,7 @@ protected:
 	void PrintNNOutput();
 	void PrintZVRESTable();
 	
+	void InitialiseFlavourTagInputs(LCRunHeader* pRun );
 	void InternalVectorInitialisation();
 	
 	//!Makes a DataPointSet of the tag efficiency e.g number of B-jets passing a given B-tag NN cut, as a function of NN
