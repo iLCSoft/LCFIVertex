@@ -435,6 +435,11 @@ void ConversionTagger::tagger( LCEvent *evt,
   // delete our temporary collection (if any).
   // destructor of LCCollectionVec automatically deletes all elements
   if (delete_coll) delete coll;
+
+  // clean up other temporary stuff
+  if (_cheatMode) {
+    for (size_t i=0; i<relCols.size(); i++) delete relCols[i];
+  }
 }
 
 
