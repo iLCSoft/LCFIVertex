@@ -7,7 +7,6 @@
 #include <cmath>
 
 #include <UTIL/LCTOOLS.h>
-#include <UTIL/LCRelationNavigator.h>
 #include <EVENT/LCCollection.h>
 #include <IMPL/LCCollectionVec.h>
 #include <IMPL/ReconstructedParticleImpl.h>
@@ -70,6 +69,10 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
 			    "whether or not to use MC info for conv/V0 finding",
 			    _cheatMode,false);
 
+  registerOptionalParameter("CheatEvenMore",
+			    "even tag MC cov/V0 when only one track reconstructed?",
+			    _cheatEvenMore,false);
+
 }
 
 
@@ -106,6 +109,71 @@ void ConversionTagger::processEvent( LCEvent * evt ) {
 
 }
 
+
+MCParticle* ConversionTagger::isFromV0(ReconstructedParticle* rp,
+				       vector<LCRelationNavigator*>relCols) {
+
+  vector<MCParticle*> mcp;
+  vector<double> mcp_weight;
+
+  // loop over all associated tracks
+  for (size_t itrk=0; itrk<rp->getTracks().size(); itrk++) {
+    Track* trk=rp->getTracks()[itrk];
+
+    // does this track have any MC correspondence in the LCRelations?
+    for (size_t irel=0; irel<relCols.size(); irel++) {
+      for (size_t i=0; i<relCols[irel]->getRelatedToObjects(trk).size(); i++) {
+	mcp.push_back(dynamic_cast<EVENT::MCParticle*>
+		      (relCols[irel]->getRelatedToObjects(trk)[i]));
+	mcp_weight.push_back(relCols[irel]->getRelatedToWeights(trk)[i]);
+      }
+      for (size_t i=0; i<relCols[irel]->getRelatedFromObjects(trk).size(); i++) {
+	mcp.push_back(dynamic_cast<EVENT::MCParticle*>
+		      (relCols[irel]->getRelatedFromObjects(trk)[i]));
+	mcp_weight.push_back(relCols[irel]->getRelatedToWeights(trk)[i]);
+      }
+    }
+  }
+
+  // find all different conv/V0 that contributed to this particle (if any)
+  map<MCParticle*,double> mcmap;
+  for (size_t i=0; i<mcp.size(); i++) {
+    if (mcp[i]->getParents().size()==0) continue;
+    MCParticle* parent = mcp[i]->getParents()[0];
+    int parpdg = abs(parent->getPDG());
+    while (parpdg!=22 && parpdg!=130 && parpdg!=130 && parpdg!=3122
+	   && parent->getParents().size()>0) {
+      parent=parent->getParents()[0];
+      parpdg=abs(parent->getPDG());
+    }
+    if (parpdg==22 || parpdg==130 || parpdg==3122) mcmap[parent]+=mcp_weight[i];
+  }
+
+  // check which conv/V0 had the largest contribution to this particle
+  double maxweight=0;
+  MCParticle* maxparent=NULL;
+  for (map<MCParticle*,double>::iterator it=mcmap.begin();
+       it!=mcmap.end(); it++) {
+    if (it->second>maxweight) {
+      maxweight=it->second;
+      maxparent=it->first;
+    }
+  }
+  if (mcmap.size()>1) streamlog_out(ERROR) << "more than one conv/V0 parent"
+					   << " found. this means we might not"
+					   << " recognize pairs properly"
+					   << " in cheat mode!" << endl;
+  
+  // in case the weight corresponds to the fraction of hits on the track
+  // coming from a given MCParticle, we require a certain minimum contribution
+  // of 80% in order to declare this a conversion/V0 track.
+  // in practice it seems though as if all weights are either 0 or 1.
+  if (maxweight>0.8) {
+    return maxparent;
+  } else {
+    return NULL;
+  }
+}
 
 
 void ConversionTagger::tagger( LCEvent *evt,
@@ -151,6 +219,10 @@ void ConversionTagger::tagger( LCEvent *evt,
     ReconstructedParticle *rp1=dynamic_cast<ReconstructedParticle*>
       (coll->getElementAt(irp1));
 
+    MCParticle* parentV0=NULL;
+    if (_cheatMode) parentV0=isFromV0(rp1,relCols);
+    if (_cheatEvenMore) tagged[irp1]=(parentV0!=NULL);
+
     for (int irp2=irp1+1; irp2<coll->getNumberOfElements(); irp2++) {
       ReconstructedParticle *rp2=dynamic_cast<ReconstructedParticle*>
 	(coll->getElementAt(irp2));
@@ -160,60 +232,31 @@ void ConversionTagger::tagger( LCEvent *evt,
       if (rp2->getTracks().size()!=1) continue;
 
       // get all information required for finding potential vertex
-      Track* trk1=rp1->getTracks()[0];
-      Track* trk2=rp2->getTracks()[0];
       int cand_type=0;
 
       if (_cheatMode) {
 	// cheat mode: take all true conversions+V0 according to MC tree.
-	// this is quite CPU inefficient because we start from reconstructed particles rather
-	//   than only checking each true conv/V0 whether it has reconstructed tracks. however,
-	//   starting from all combinations of reconstructed particles allows this piece of code
-	//   to fit in better with the realistic reconstruction code.
+	// this is quite CPU inefficient because we start from reconstructed
+	// particles rather than only checking each true conv/V0 whether it
+	// has reconstructed tracks. however, starting from all combinations
+	// of reconstructed particles allows this piece of code
+	// to fit in better with the realistic reconstruction code.
 
-	vector<MCParticle*> mcp;
-	vector<double> mcp_weight;
-	for (size_t irel=0; irel<relCols.size(); irel++) {
-	  for (size_t i=0; i<relCols[irel]->getRelatedToObjects(trk1).size(); i++) {
-	    mcp.push_back(dynamic_cast<EVENT::MCParticle*>(relCols[irel]->getRelatedToObjects(trk1)[i]));
-	    mcp_weight.push_back(relCols[irel]->getRelatedToWeights(trk1)[i]);
+	MCParticle* parent2V0=isFromV0(rp2,relCols);
+	if (parentV0 && parent2V0) {
+	  if (parentV0==parent2V0) {
+	    cand_type=fabs(parentV0->getPDG());
+	    streamlog_out(DEBUG) << "cheat mode found cand_type="
+				 << cand_type << endl;
+	  } else {
+	    streamlog_out(DEBUG) << "two particles from different V0 parents!"
+				 << parentV0->getPDG() << " and "
+				 << parent2V0->getPDG() << endl;
+	    continue;
 	  }
-	  for (size_t i=0; i<relCols[irel]->getRelatedFromObjects(trk1).size(); i++) {
-	    mcp.push_back(dynamic_cast<EVENT::MCParticle*>(relCols[irel]->getRelatedFromObjects(trk1)[i]));
-	    mcp_weight.push_back(relCols[irel]->getRelatedFromWeights(trk1)[i]);
-	  }
-	  for (size_t i=0; i<relCols[irel]->getRelatedToObjects(trk2).size(); i++) {
-	    mcp.push_back(dynamic_cast<EVENT::MCParticle*>(relCols[irel]->getRelatedToObjects(trk2)[i]));
-	    mcp_weight.push_back(relCols[irel]->getRelatedToWeights(trk2)[i]);
-	  }
-	  for (size_t i=0; i<relCols[irel]->getRelatedFromObjects(trk2).size(); i++) {
-	    mcp.push_back(dynamic_cast<EVENT::MCParticle*>(relCols[irel]->getRelatedFromObjects(trk2)[i]));
-	    mcp_weight.push_back(relCols[irel]->getRelatedFromWeights(trk2)[i]);
-	  }
+	} else {
+	  continue;
 	}
-
-	map<MCParticle*,double> mcmap;
-	for (size_t i=0; i<mcp.size(); i++) {
-	  if (mcp[i]->getParents().size()==0) continue;
-	  MCParticle* parent = mcp[i]->getParents()[0];
-	  int parpdg = abs(parent->getPDG());
-	  while (parpdg!=22 && parpdg!=130 && parpdg!=130 && parpdg!=3122
-		 && parent->getParents().size()>0) {
-	    parent=parent->getParents()[0];
-	    parpdg=abs(parent->getPDG());
-	  }
-	  if (parpdg==22 || parpdg==130 || parpdg==3122) mcmap[parent]+=mcp_weight[i];
-	}
-	double maxweight=0;
-	for (map<MCParticle*,double>::iterator it=mcmap.begin(); it!=mcmap.end(); it++) {
-	  if (it->second>maxweight) {
-	    maxweight=it->second;
-	    cand_type=abs(it->first->getPDG());
-	  }
-	}
-	// we want two reconstructed particles from the same photon/V0,
-	// but we allow for a 10% level of misreconstruction 
-	if (maxweight<1.8) continue;
 
       } else {
         // realistic conversion/V0 reconstruction
@@ -223,6 +266,8 @@ void ConversionTagger::tagger( LCEvent *evt,
 
 	// very simple vertexing algorithm:
 
+	Track* trk1=rp1->getTracks()[0];
+	Track* trk2=rp2->getTracks()[0];
 	HelixClass helix1,helix2;
 	helix1.Initialize_Canonical(trk1->getPhi(),trk1->getD0(),
 				    trk1->getZ0(),trk1->getOmega(),

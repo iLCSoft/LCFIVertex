@@ -9,6 +9,8 @@
 
 #include <EVENT/ReconstructedParticle.h>
 #include <EVENT/Track.h>
+#include <EVENT/MCParticle.h>
+#include <UTIL/LCRelationNavigator.h>
 
 
 using namespace lcio;
@@ -34,6 +36,8 @@ class ConversionTagger : public Processor {
   double diParticleMass(float* mom1, float* mom2,
 			double mass1, double mass2);
 
+  MCParticle* isFromV0(ReconstructedParticle* rp, vector<LCRelationNavigator*>relCols);
+
   HistMap* histos;
 
   std::vector<std::string> _InputCollections;
@@ -43,6 +47,7 @@ class ConversionTagger : public Processor {
   double _distCutRPhi;
   double _distCutZ;
   bool   _cheatMode;
+  bool   _cheatEvenMore;
 
   double _BField;
   double _twopi;
