@@ -245,7 +245,7 @@ void ConversionTagger::tagger( LCEvent *evt,
 	MCParticle* parent2V0=isFromV0(rp2,relCols);
 	if (parentV0 && parent2V0) {
 	  if (parentV0==parent2V0) {
-	    cand_type=fabs(parentV0->getPDG());
+	    cand_type=abs(parentV0->getPDG());
 	    streamlog_out(DEBUG) << "cheat mode found cand_type="
 				 << cand_type << endl;
 	  } else {
