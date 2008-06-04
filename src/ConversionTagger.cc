@@ -141,12 +141,12 @@ MCParticle* ConversionTagger::isFromV0(ReconstructedParticle* rp,
     if (mcp[i]->getParents().size()==0) continue;
     MCParticle* parent = mcp[i]->getParents()[0];
     int parpdg = abs(parent->getPDG());
-    while (parpdg!=22 && parpdg!=130 && parpdg!=130 && parpdg!=3122
+    while (parpdg!=22 && parpdg!=310 && parpdg!=3122
 	   && parent->getParents().size()>0) {
       parent=parent->getParents()[0];
       parpdg=abs(parent->getPDG());
     }
-    if (parpdg==22 || parpdg==130 || parpdg==3122) mcmap[parent]+=mcp_weight[i];
+    if (parpdg==22 || parpdg==310 || parpdg==3122) mcmap[parent]+=mcp_weight[i];
   }
 
   // check which conv/V0 had the largest contribution to this particle
@@ -424,7 +424,7 @@ void ConversionTagger::tagger( LCEvent *evt,
 	if (conv_mass<=0.01) {
 	  cand_type=22;
 	} else if (fabs(K0_mass-0.498)<=0.02) {
-	  cand_type=130;
+	  cand_type=310;
 	} else {
 	  cand_type=3122;
 	}

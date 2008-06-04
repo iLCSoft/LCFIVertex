@@ -217,11 +217,11 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
       ++mc_num[V0Gamma];
       mc_tracks[V0Gamma]+=2;
     } else if (mcp->isDecayedInTracker()
-	       && numDaughters>=2 && (abs(pdg)==130 || abs(pdg)==3122)) {
+	       && numDaughters>=2 && (abs(pdg)==310 || abs(pdg)==3122)) {
 
       // long lived neutral particles
       int thisV0Type = V0K0;
-      if (abs(pdg)!=130) thisV0Type=V0Lambda;
+      if (abs(pdg)!=310) thisV0Type=V0Lambda;
 	
       // first check how many charged daughters there are
       int nCharged=0;
