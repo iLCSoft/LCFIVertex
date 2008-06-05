@@ -60,7 +60,7 @@ PlotProcessor::PlotProcessor() : marlin::Processor("Plot")
 			      "Name of the LCFloatVec Collections that contain the flavour tags (one purity efficiency plot per tag) (in same order as jet collection)"  ,
 			      _FlavourTagCollectionNames,
 			      FlavourTagCollectionNamesDefault) ;
-       registerInputCollection( LCIO::LCINTVEC,
+       registerInputCollection( LCIO::LCFLOATVEC,
   			      "TrueJetFlavourCollection" , 
 			      "Name of the output collection of LCIntVec (same order as jets)"  ,
 			      _TrueJetFlavourColName ,
@@ -219,7 +219,7 @@ bool PlotProcessor::_passesJetCuts( ReconstructedParticle* pJet )
 void PlotProcessor::_fillPlots( LCEvent* pEvent, unsigned int jet)
 {
 	LCCollection* pTrueCollection=pEvent->getCollection( _TrueJetFlavourColName );
-	int jetType = dynamic_cast<LCIntVec*>(pTrueCollection->getElementAt(jet))->back();
+	float jetType = *(dynamic_cast<LCFloatVec*>(pTrueCollection->getElementAt(jet))->begin());
 	//LCCollection* pTrueCollection=pEvent->getCollection( "SGVFlavourTagInputs" );
 	//int jetType=static_cast<int>((*dynamic_cast<LCFloatVec*>(pTrueCollection->getElementAt(jet)))[19]);
 	for (unsigned int iTag=0; iTag < _FlavourTagCollectionNames.size(); ++iTag)

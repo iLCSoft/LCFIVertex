@@ -708,7 +708,9 @@
   <!--parameter name="YCut" type="float" value="0"/-->
 </processor>
 
-  <processor name="MyTrueAngularJetFlavourProcessor" type="TrueAngularJetFlavourProcessor">
+
+
+ <processor name="MyTrueAngularJetFlavourProcessor" type="TrueAngularJetFlavourProcessor">
  <!--TrueAngularJetFlavourProcessor - Determines the true flavour of a jet from the MC Paticles associated to the Jets RP-->
   <!--Name of the ReconstructedParticle collection that represents jets-->
   <parameter name="JetRPCollection" type="string" lcioInType="ReconstructedParticle">Jets </parameter>
@@ -717,14 +719,10 @@
   <!--Maximum value allowed between MCParticle and jet momentum expressed in degrees-->
   <!--parameter name="MaximumAngle" type="double">180 </parameter-->
   <!--Name of the output collection of LCIntVec (same order as jets)-->
-  <parameter name="TrueJetFlavourCollection" type="string" lcioOutType="LCIntVec">TrueJetFlavour </parameter>
-  <!--Name of the output collection of LCIntVec (same order as jets)-->
-  <parameter name="TrueJetHadronChargeCollection" type="string" lcioOutType="LCFloatVec">TrueJetHadronCharge </parameter>
-  <!--Name of the output collection of LCIntVec (same order as jets)-->
-  <parameter name="TrueJetPDGCodeCollection" type="string" lcioOutType="LCIntVec">TrueJetPDGCode </parameter>
-  <!--Name of the output collection of LCIntVec (same order as jets)-->
-  <parameter name="TrueJetPartonChargeCollection" type="string" lcioOutType="LCFloatVec">TrueJetPartonCharge </parameter>
+  <parameter name="TrueJetFlavourCollection" type="string" lcioOutType="LCFloatVec">TrueJetFlavour </parameter>
 </processor>
+
+
 
 <processor name="MyPerEventIPFitterProcessor" type="PerEventIPFitterProcessor">
  <!--Per Event IP fitter - trims tracks to reach probabililty threshold-->
@@ -1189,11 +1187,11 @@
   <!--Cut determining the Neural Net cut used to select B-Jets-->
   <!--parameter name="BTagNNCut" type="double">0.7 </parameter-->
   <!--Name of collection containing the vertex charge of the jets, assuming they are B-jets-->
-  <parameter name="BVertexChargeCollection" type="string" lcioInType="LCFloatVec">BCharge </parameter>
+  <!--parameter name="BVertexChargeCollection" type="string">BCharge </parameter-->
   <!--Cut determining the Neural Net cut used to select C-Jets-->
   <!--parameter name="CTagNNCut" type="double">0.7 </parameter-->
   <!--Name of collection containing the vertex charge of the jets, assuming they are C-jets-->
-  <parameter name="CVertexChargeCollection" type="string" lcioInType="LCFloatVec">CCharge </parameter>
+  <!--parameter name="CVertexChargeCollection" type="string">CCharge </parameter-->
   <!--Cut determining the maximum cos(theta) of the jet.  Default: |cos(theta)|<0.9-->
   <!--parameter name="CosThetaJetMax" type="double">0.9 </parameter-->
   <!--Cut determining the minimum cos(theta) of the jet.  Default: no lower cut.-->
@@ -1204,41 +1202,44 @@
   <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
   <!--Name of the collection that holds all MC particles. -->
   <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticle </parameter>
-  <!--Set true to make a tuple of the flavour tag input variables.  Default is true.-->
-  <!--parameter name="MakeTuple" type="bool">true </parameter-->
-  <!--Output filename for the NN values (output).  Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out.-->
-  <parameter name="NeuralNetOutputFile" type="string"> TrackVertexTables.txt </parameter>
+  <!--Set true if you want to make all other plots (i.e. the non purity-efficiency plots) and the other functionality provided by LCFIAIDAPlotProcessor-->
+  <!--parameter name="MakeAdditionalPlots" type="bool">false </parameter-->
+  <!--Set true if you want to make the purity-efficiency plots, and leakage rates plots for the various flavour tags-->
+  <!--parameter name="MakePurityEfficiencyPlots" type="bool">true </parameter-->
+  <!--Set true to make a tuple of the flavour tag input variables.  Default is false (only works with jaida).-->
+  <!--parameter name="MakeTuple" type="bool">false </parameter-->
   <!--Cut determining the maximum momentum of the jet.  Default: 10000 GeV/c-->
   <!--parameter name="PJetMax" type="double">10000 </parameter-->
   <!--Cut determining the minimum momentum of the jet.  Default: no lower cut.-->
   <!--parameter name="PJetMin" type="double">0 </parameter-->
-  <!--Set true if you want a print-out of the NN values (output) for the various flavour tags-->
-  <!--parameter name="PrintNeuralNetOutput" type="bool">false </parameter-->
+  <!--Set true if you want a print-out of the purity-efficiency for the various flavour tags-->
+  <!--parameter name="PrintPurityEfficiencyValues" type="bool">true </parameter-->
+  <!--Set true if you want a print-out of the track-vertex association purity-->
+  <!--parameter name="PrintTrackVertexOutput" type="bool">false </parameter-->
+  <!--Output filename for the Purity-Efficiency values.  Only used if PrintPurityEfficiencyValues parameter is true.  If left blank, output will be directed to standard out.-->
+  <!--parameter name="PurityEfficiencyOutputFile" type="string">PurityEfficiencyOutput.txt </parameter-->
   <!--Names of the LCFloatVec Collections that contain the flavour tag inputs (in same order as jet collection)-->
   <parameter name="TagInputsCollections" type="StringVec">FlavourTagInputs  </parameter>
-  <!--Name of the LCIntVec collection containing the true flavour of the jets (same order as jets)-->
-  <parameter name="TrueJetFlavourCollection" type="string" lcioInType="LCIntVec">TrueJetFlavour </parameter>
-  <!--Name of the LCFloatVec collection containing the true hadron charge of the jets (same order as jets)-->
-  <parameter name="TrueJetHadronChargeCollection" type="string" lcioInType="LCFloatVec">TrueJetHadronCharge </parameter>
-  <!--Name of the LCIntVec collection containing the true PDG code of the jets (same order as jets)-->
-  <parameter name="TrueJetPDGCodeCollection" type="string" lcioInType="LCIntVec">TrueJetPDGCode </parameter>
-  <!--Name of the LCFloatVec collection containing the true parton charge of the jets (same order as jets)-->
-  <parameter name="TrueJetPartonChargeCollection" type="string" lcioInType="LCFloatVec">TrueJetPartonCharge </parameter>
-  <!--Name of collection linking the fitted true tracks and the Monte Carlo Particles-->
-  <parameter name="TrueTracksToMCPCollection" type="string" lcioInType="LCCollection">LDCTracksMCP </parameter>
+  <!--Output filename for the table of the Track-Vertex association.  Only used if PrintTrackVertexOutput parameter is true.  If left blank, output will be directed to standard out.-->
+  <!--parameter name="TrackVertexOutputFile" type="string">TrackVertexOutput.txt </parameter-->
+  <!--Name of the LCFloatVec collection containing the true flavour of the jets (same order as jets)-->
+  <!--parameter name="TrueJetFlavourCollection" type="string">TrueJetFlavour </parameter-->
+  <!--Name of collection linking the tracks and the Monte Carlo Particles-->
+  <!--parameter name="TrueTracksToMCPCollection" type="string">LDCTracksMCP </parameter-->
   <!--Integer parameter determing which FlavourTag Collection to use the determine C-Jets and B-Jets in Vertex Charge Plots-->
   <!--parameter name="UseFlavourTagCollectionForVertexCharge" type="int">0 </parameter-->
   <!--Name of the collection that holds the Vertices-->
-  <parameter name="VertexCollection" type="string" lcioInType="Vertex">ZVRESVertices </parameter>
+  <!--parameter name="VertexCollection" type="string">ZVRESVertices </parameter-->
   <!--Name of the ZVRES DecayChain collection-->
-  <parameter name="ZVRESDecayChainCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChains </parameter>
+  <!--parameter name="ZVRESDecayChainCollection" type="string">ZVRESDecayChains </parameter-->
   <!--Name of the ZVRES Decay Chain Tracks Collection-->
-  <parameter name="ZVRESDecayChainTrackCollection" type="string" lcioInType="ReconstructedParticle">ZVRESDecayChainRPTracks </parameter>
-  <!--Output filename for the NN values (output).  Only used if PrintNeuralNetOutput parameter is true.  If left blank, output will be directed to standard out.-->
-  <!--parameter name="ZVRESOutputFile" type="string"> </parameter-->
+  <!--parameter name="ZVRESDecayChainTrackCollection" type="string">ZVRESDecayChainRPTracks </parameter-->
   <!--Name of the ZVRES Selected Jets collection-->
-  <parameter name="ZVRESSelectedJetsCollection" type="string" lcioInType="ReconstructedParticle">ZVRESSelectedJets </parameter>
+  <!--parameter name="ZVRESSelectedJetsCollection" type="string">ZVRESSelectedJets </parameter-->
 </processor>
+
+
+
 
  <processor name="MyLCIOOutputProcessor" type="LCIOOutputProcessor">
    <!--Writes the current event to the specified LCIO outputfile. Needs to be the last ActiveProcessor.-->

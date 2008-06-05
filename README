@@ -3,6 +3,37 @@ The LCFI Vertex Package
 releases:
 
  --------------
+| v00-02-03-pre2|
+ --------------
+
+  2nd release for full-chain tests for ILD mass reconstruction.
+  Changes to the way the flavour tag collections are written out for DST
+
+  - TrueAngularJetProcessor + NeuralNetTrainer + PlotProcessor + AIDAPlotProcessor:
+    changed so that the MC Truth info is stored in one LCFloatVec, in the order
+    TrueJetFlavour, TruePDGCode, TrueHadronCharge, TruePartonCharge
+    (Erik Devetak, Victoria Martin)
+    
+  - 2 new processors created in order to add FT and MC Truth info to the jets 
+    using ParticleID objects
+    This will reduce the number of collections for the mass reconstruction DSTs:
+
+    DSTCollectionProcessor : adds 2 ParticleID algorithms to each jet:
+	 		     "LCFIFlavourTag": contains the flavour tagging info, 
+                             "MCTruth": contains the Monte Carlo truth info
+
+
+    DSTPlotProcessor : a rewrite of PlotProcessor, which uses the DST collections 
+                       from the ParticleID objects instead of the full collections.
+		       also contains a function that will compare the parameters from both
+		       collection types and print out a message if they are different.
+    (Clare Lynch)
+
+
+
+
+
+ --------------
 | v00-02-03-pre|
  --------------
  

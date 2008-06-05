@@ -48,27 +48,12 @@ TrueAngularJetFlavourProcessor::TrueAngularJetFlavourProcessor() : Processor("Tr
 			      "Name of the collection that holds all MC particles. "  ,
 			      _MCParticleColName ,
 			      std::string("MCParticle") ) ;
-  registerOutputCollection( lcio::LCIO::LCINTVEC,
+  registerOutputCollection( lcio::LCIO::LCFLOATVEC,
   			      "TrueJetFlavourCollection" , 
 			      "Name of the output collection of LCIntVec (same order as jets)"  ,
 			      _TrueJetFlavourColName ,
 			      std::string("TrueJetFlavour") ) ;
- registerOutputCollection( lcio::LCIO::LCINTVEC,
-  			      "TrueJetPDGCodeCollection" , 
-			      "Name of the output collection of LCIntVec (same order as jets)"  ,
-			      _TruePDGCodeColName ,
-			      std::string("TrueJetPDGCode") ) ;
- registerOutputCollection( lcio::LCIO::LCFLOATVEC,
-  			      "TrueJetHadronChargeCollection" , 
-			      "Name of the output collection of LCIntVec (same order as jets)"  ,
-			      _TrueHChargeColName ,
-			      std::string("TrueJetHadronCharge") ) ;
- registerOutputCollection( lcio::LCIO::LCFLOATVEC,
-  			      "TrueJetPartonChargeCollection" , 
-			      "Name of the output collection of LCIntVec (same order as jets)"  ,
-			      _TruePChargeColName ,
-			      std::string("TrueJetPartonCharge") ) ; 
- registerOptionalParameter( "MaximumAngle" ,
+  registerOptionalParameter( "MaximumAngle" ,
    			      "Maximum value allowed between MCParticle and jet momentum expressed in degrees"  ,
 			     _MaximumAngle,
 			      double(180));
@@ -84,6 +69,14 @@ void TrueAngularJetFlavourProcessor::init()
 }
 
 void TrueAngularJetFlavourProcessor::processRunHeader( LCRunHeader* run) { 
+	_TrueJetVariableNames.clear();
+	_TrueJetVariableNames.push_back("TrueJetFlavour");
+	_TrueJetVariableNames.push_back("TruePartonCharge");
+	_TrueJetVariableNames.push_back("TrueHadronCharge");
+	_TrueJetVariableNames.push_back("TruePDGCode");
+
+	run->parameters().setValues(_TrueJetFlavourColName, _TrueJetVariableNames);
+
 	_nRun++ ;
 } 
 
@@ -99,15 +92,9 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
 	std::vector<int> MCCode;
 
 
-	LCCollectionVec* OutCollection = new LCCollectionVec("LCIntVec");
-	LCCollectionVec* OutCollectionPDG = new LCCollectionVec("LCIntVec");
-	LCCollectionVec* OutCollectionPCharge = new LCCollectionVec("LCFloatVec");
-	LCCollectionVec* OutCollectionHCharge = new LCCollectionVec("LCFloatVec");
+	LCCollectionVec* OutCollection = new LCCollectionVec("LCFloatVec");
 
 	evt->addCollection(OutCollection,_TrueJetFlavourColName);	
-	evt->addCollection(OutCollectionPDG,_TruePDGCodeColName);	
-	evt->addCollection(OutCollectionPCharge,_TruePChargeColName);	
-	evt->addCollection(OutCollectionHCharge,_TrueHChargeColName);	
        	
 	int nRCP = JetRPCol->getNumberOfElements()  ;
 
@@ -394,18 +381,13 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
 	
 	for(unsigned int iii=0; iii<jetflavourdata.size(); iii++)
 	  {
-	    LCIntVec *OutVec = new LCIntVec();    
-	    LCIntVec *OutVecPDG = new LCIntVec();    
-	    LCFloatVec *OutVecPCharge = new LCFloatVec();    
-	    LCFloatVec *OutVecHCharge = new LCFloatVec();    
+	    LCFloatVec *OutVec = new LCFloatVec();    
 	    OutVec->push_back(jetflavourdata[iii]);
-	    OutVecPDG->push_back(jetcodedata[iii]);
-	    OutVecPCharge->push_back(partonchargedata[iii]);
-	    OutVecHCharge->push_back(hadronchargedata[iii]);
+	    OutVec->push_back(partonchargedata[iii]);
+	    OutVec->push_back(hadronchargedata[iii]);
+	    OutVec->push_back(jetcodedata[iii]);
+
 	    OutCollection->addElement(OutVec);
-	    OutCollectionPDG->addElement(OutVecPDG);
-	    OutCollectionPCharge->addElement(OutVecPCharge);
-	    OutCollectionHCharge->addElement(OutVecHCharge);
 	    std::cout << "TJ:  Jet # "<< iii<<  "    PDG:   "; 
        	    std::cout <<jetcodedata[iii]<< "   Flavour:   ";
        	    std::cout <<jetflavourdata[iii]<< " Parton Charge:    ";

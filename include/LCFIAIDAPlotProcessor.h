@@ -33,9 +33,6 @@
  *  BVertexChargeCollection  -- calculated in VertexChargeProcessor<br>
  *  CVertexChargeCollection  -- calculated in VertexChargeProcessor<br>
  *  TrueJetFlavourCollection  -- calculated in TrueAngularJetFlavourProcessor<br>
- *  TrueJetHadronChargeCollection  -- calculated in TrueAngularJetFlavourProcessor<br>
- *  TrueJetPDGCodeCollection -- calculated in TrueAngularJetFlavourProcessor<br>
- *  TrueJetPartonChargeCollection -- calculated in TrueAngularJetFlavourProcessor<br>
  *     
  *
  * <H4>Input</H4>
@@ -48,10 +45,7 @@
  * @param VertexCollectionName   Name of VertexCollection representing the Vertex collection of the jets.
  * @param BVertexChargeCollection Name of LCFloatVector of the vertex charge of the jet collection, assuming the jets are b-jets  (calculated in VertexChargeProcessor)
  * @param CVertexChargeCollection  Name of LCFloatVector of the vertex charge of the jet collection, assuming the jets are c-jets  (calculated in VertexChargeProcessor)
- * @param TrueJetFlavourCollection  Name of LCIntVector of the true (MC) flavour of the jets (calculated in TrueAngularJetFlavourProcessor)
- * @param TrueJetHadronChargeCollection  Name of LCFloatVector of the true (MC) charge of the hadron initiating the jets (calculated in TrueAngularJetFlavourProcessor)
- * @param TrueJetPDGCodeCollection   Name of LCIntVector of the true (MC) PDG code of the hadron initiating the jets (calculated in TrueAngularJetFlavourProcessor)
- * @param TrueJetPartonChargeCollection  Name of LCFloatVector of the true (MC) charge of the parton (quark) initiating the jets (calculated in TrueAngularJetFlavourProcessor)
+ * @param TrueJetFlavourCollection  Name of LCFloatVector of the true (MC) flavour of the jets (calculated in TrueAngularJetFlavourProcessor)
  *
  * @param VertexCollectionName  Name of VertexCollection representing the vertices.
  * @param BTagNNCut Double reprsenting the lower cut on the b-tag NN value for some of the plots.
@@ -118,9 +112,6 @@ protected:
 	std::vector<std::string> _FlavourTagCollectionNames;
 	std::vector<std::string> _FlavourTagInputsCollectionNames;
 	std::string _TrueJetFlavourColName;
-	std::string _TrueJetHadronChargeColName;
-	std::string _TrueJetPDGCodeColName;
-	std::string _TrueJetPartonChargeColName;
 	std::string _JetCollectionName;
 	std::string _VertexColName;
 	std::string _CVertexChargeCollection;
@@ -198,6 +189,7 @@ protected:
 	std::vector< std::map<std::string,unsigned int> > _IndexOfForEachTag;
 	std::vector< std::map<std::string,unsigned int> > _InputsIndex;
 	std::vector< std::map<std::string,unsigned int> > _ZoomedInputsIndex;
+	std::map<std::string,unsigned int>  _FlavourIndex;
 
 	//!Histograms of the neural net inputs for true B-jets
 	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _inputsHistogramsBJets;
@@ -289,13 +281,15 @@ protected:
 	double CalculateDistance(const double* pos1, const double* pos2);
 
 	//!Finds the true flavour of a jet (uses TrueJetFlavourCollection)
-	int FindJetType( LCEvent* pEvent, unsigned int jetNumber );
-	//!Finds the true charge of the hadron producing a jet (uses TrueJetHadronChargeCollection)
-	float FindJetHadronCharge(LCEvent* pEvent, unsigned int jetNumber);
-	//!Finds the PDG code of the hadron producing a jet (uses TrueJetPDGCodeCollection)
-	int FindJetPDGCode( LCEvent* pEvent, unsigned int jetNumber );
-	//!Finds the true charge of the parton producing a jet (uses TrueJetPartonChargeCollection)
-	float FindJetPartonCharge(LCEvent* pEvent, unsigned int jetNumber);
+	int FindTrueJetType( LCEvent* pEvent, unsigned int jetNumber );
+	//!Finds the true charge of the hadron producing a jet (uses TrueJetFlavourCollection)
+	float FindTrueJetHadronCharge(LCEvent* pEvent, unsigned int jetNumber);
+	//!Finds the PDG code of the hadron producing a jet (uses TrueJetFlavourCollection)
+	int FindTrueJetPDGCode( LCEvent* pEvent, unsigned int jetNumber );
+	//!Finds the true charge of the parton producing a jet (uses TrueJetFlavourCollection)
+	float FindTrueJetPartonCharge(LCEvent* pEvent, unsigned int jetNumber);
+	//!Finds the true flavour of the jet (uses TrueJetFlavourCollection)
+	int FindTrueJetFlavour(LCEvent* pEvent, unsigned int jetNumber);	
 	//!Finds the true decay length of the longest b- or c- hadron in a jet
 	void FindTrueJetDecayLength( LCEvent* pEvent, unsigned int jetNumber, std::vector<double>& decaylengthvector, std::vector<double>&  bjetdecaylengthvector, std::vector<double>&  cjetdecaylengthvector);
 	void FindTrueJetDecayLength2( LCEvent* pEvent, unsigned int jetNumber, double& bjetdecaylength, double& cjetdecaylength);

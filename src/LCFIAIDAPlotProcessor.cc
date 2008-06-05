@@ -89,49 +89,10 @@ LCFIAIDAPlotProcessor::LCFIAIDAPlotProcessor() : marlin::Processor( "LCFIAIDAPlo
 			     _FlavourTagCollectionNames,
 			     FlavourTagCollectionNamesDefault) ;
   
-  //registerInputCollection( LCIO::LCINTVEC,
-  //		   "TrueJetFlavourCollection" , 
-  //		   "Name of the LCIntVec collection containing the true flavour of the jets (same order as jets)"  ,
-  //		   _TrueJetFlavourColName ,
-  //		   std::string("TrueJetFlavour") ) ;
-
   registerOptionalParameter( "TrueJetFlavourCollection" , 
-			     "Name of the LCIntVec collection containing the true flavour of the jets (same order as jets)"  ,
+			     "Name of the LCFloatVec collection containing the true flavour of the jets (same order as jets)"  ,
 			     _TrueJetFlavourColName ,
 			     std::string("TrueJetFlavour") ) ;
-  
-  //registerInputCollection( LCIO::LCFLOATVEC,
-  //		   "TrueJetHadronChargeCollection",
-  //		   "Name of the LCFloatVec collection containing the true hadron charge of the jets (same order as jets)"  ,
-  //		   _TrueJetHadronChargeColName ,
-  //		   std::string("TrueJetHadronCharge") ) ;  
-  
-  registerOptionalParameter("TrueJetHadronChargeCollection",
-			    "Name of the LCFloatVec collection containing the true hadron charge of the jets (same order as jets)"  ,
-			    _TrueJetHadronChargeColName ,
-			    std::string("TrueJetHadronCharge") ) ; 
-
-  //registerInputCollection( LCIO::LCINTVEC,
-  //			   "TrueJetPDGCodeCollection" , 
-  //			   "Name of the LCIntVec collection containing the true PDG code of the jets (same order as jets)"  ,
-  //			   _TrueJetPDGCodeColName,
-  //			   std::string("TrueJetPDGCode") ) ;
-
-  registerOptionalParameter( "TrueJetPDGCodeCollection" , 
-			     "Name of the LCIntVec collection containing the true PDG code of the jets (same order as jets)"  ,
-			     _TrueJetPDGCodeColName,
-			     std::string("TrueJetPDGCode") ) ;
-
-  //registerInputCollection( LCIO::LCFLOATVEC,
-  //			   "TrueJetPartonChargeCollection",
-  //			   "Name of the LCFloatVec collection containing the true parton charge of the jets (same order as jets)"  ,
-  //			   _TrueJetPartonChargeColName ,
-  //			   std::string("TrueJetPartonCharge") ) ;    
-  
-  registerOptionalParameter("TrueJetPartonChargeCollection",
-			    "Name of the LCFloatVec collection containing the true parton charge of the jets (same order as jets)"  ,
-			    _TrueJetPartonChargeColName ,
-			    std::string("TrueJetPartonCharge") ) ;    
   
   registerInputCollection( lcio::LCIO::MCPARTICLE,
 			   "MCParticleCollection" , 
@@ -139,77 +100,35 @@ LCFIAIDAPlotProcessor::LCFIAIDAPlotProcessor() : marlin::Processor( "LCFIAIDAPlo
 			   _MCParticleColName ,
 			   std::string("MCParticle") ) ;
 
-  //registerInputCollection( lcio::LCIO::VERTEX,
-  //			   "VertexCollection",
-  //			   "Name of the collection that holds the Vertices",
-  //			   _VertexColName,
-  //			   std::string("ZVRESVertices") ) ;
-
   registerOptionalParameter("VertexCollection",
 			    "Name of the collection that holds the Vertices",
 			    _VertexColName,
 			    std::string("ZVRESVertices") ) ;
 
-  //registerInputCollection(LCIO::LCFLOATVEC,
-  //			  "CVertexChargeCollection",
-  //			  "Name of collection containing the vertex charge of the jets, assuming they are C-jets",
-  //			  _CVertexChargeCollection,
-  //			  std::string("CCharge") );
-  
   registerOptionalParameter("CVertexChargeCollection",
 			    "Name of collection containing the vertex charge of the jets, assuming they are C-jets",
 			    _CVertexChargeCollection,
 			    std::string("CCharge") );
   
-  //registerInputCollection( LCIO::LCFLOATVEC,
-  //			   "BVertexChargeCollection",
-  //			   "Name of collection containing the vertex charge of the jets, assuming they are B-jets",
-  //			   _BVertexChargeCollection,
-  //			   std::string("BCharge") ) ;
-  
   registerOptionalParameter( "BVertexChargeCollection",
-			      "Name of collection containing the vertex charge of the jets, assuming they are B-jets",
-			      _BVertexChargeCollection,
-			      std::string("BCharge") ) ;
+			     "Name of collection containing the vertex charge of the jets, assuming they are B-jets",
+			     _BVertexChargeCollection,
+			     std::string("BCharge") ) ;
   
-  //registerInputCollection( LCIO::LCCOLLECTION,
-  //			   "TrueTracksToMCPCollection",
-  //			   "Name of collection linking the tracks and the Monte Carlo Particles",
-  //			   _TrueTracksToMCPCollection,
-  //			   std::string("LDCTracksMCP") ) ;
-
   registerOptionalParameter("TrueTracksToMCPCollection",
 			    "Name of collection linking the tracks and the Monte Carlo Particles",
 			    _TrueTracksToMCPCollection,
 			    std::string("LDCTracksMCP") ) ;
-  
-  ///registerInputCollection( LCIO::RECONSTRUCTEDPARTICLE,
-  //			   "ZVRESDecayChainCollection" , 
-  //			   "Name of the ZVRES DecayChain collection"  ,
-  //			   _ZVRESDecayChainCollection ,
-  //			   std::string("ZVRESDecayChains") );
   
   registerOptionalParameter( "ZVRESDecayChainCollection" , 
 			     "Name of the ZVRES DecayChain collection"  ,
 			     _ZVRESDecayChainCollection ,
 			     std::string("ZVRESDecayChains") );
   
-  //registerInputCollection( LCIO::RECONSTRUCTEDPARTICLE,
-  //		   "ZVRESSelectedJetsCollection" , 
-  //		   "Name of the ZVRES Selected Jets collection"  ,
-  //		   _ZVRESSelectedJetsCollection ,
-  //		   std::string("ZVRESSelectedJets") );
-  
   registerOptionalParameter( "ZVRESSelectedJetsCollection" , 
 			     "Name of the ZVRES Selected Jets collection"  ,
 			     _ZVRESSelectedJetsCollection ,
 			     std::string("ZVRESSelectedJets") );
-  
-  //registerInputCollection( LCIO::RECONSTRUCTEDPARTICLE,
-  //		   "ZVRESDecayChainTrackCollection" , 
-  //		   "Name of the ZVRES Decay Chain Tracks Collection"  ,
-  //		   _ZVRESDecayChainRPTracksCollection ,
-  //		   std::string("ZVRESDecayChainRPTracks") );
   
   registerOptionalParameter("ZVRESDecayChainTrackCollection" , 
 			    "Name of the ZVRES Decay Chain Tracks Collection"  ,
@@ -472,6 +391,15 @@ void LCFIAIDAPlotProcessor::InitialiseFlavourTagInputs(LCRunHeader* pRun )
 	    
       _InputsIndex.push_back(IndexOf);
     }
+
+  std::vector<std::string> trueJetFlavourVarNames;
+  (pRun->parameters()).getStringVals(_TrueJetFlavourColName,trueJetFlavourVarNames);
+  
+  for (size_t i = 0;i < trueJetFlavourVarNames.size();++i)
+    { 
+      _FlavourIndex[trueJetFlavourVarNames[i]] = i;
+    }
+  
 }
 
 
@@ -988,7 +916,7 @@ void LCFIAIDAPlotProcessor::CalculateAdditionalPlots()
 
 void LCFIAIDAPlotProcessor::FillInputsPlots( LCEvent* pEvent, unsigned int jetNumber )
 {  
-  int jetType=FindJetType( pEvent, jetNumber );
+  int jetType=FindTrueJetType( pEvent, jetNumber );
   if( jetType==0 ) return;
   
 
@@ -1105,7 +1033,7 @@ void LCFIAIDAPlotProcessor::FillInputsPlots( LCEvent* pEvent, unsigned int jetNu
 
 void LCFIAIDAPlotProcessor::FillTagPlots( LCEvent* pEvent, unsigned int jetNumber)
 {
-  int jetType=FindJetType( pEvent, jetNumber );
+  int jetType=FindTrueJetType( pEvent, jetNumber );
   if( jetType==0 ) return;
   
   //needs to be tidied up
@@ -1140,7 +1068,7 @@ void LCFIAIDAPlotProcessor::FillTagPlots( LCEvent* pEvent, unsigned int jetNumbe
 	      unsigned int NumVertices = FindNumVertex(pEvent, jetNumber, iTagCollection);
 	      //int CQVtx =  FindCQVtx(pEvent, jetNumber);
 	      //int BQVtx =  FindBQVtx(pEvent, jetNumber);
-	      //int trueJetCharge = int(FindJetHadronCharge(pEvent,jetNumber));
+	      //int trueJetCharge = int(FindTrueJetHadronCharge(pEvent,jetNumber));
 
 	      std::string nvname = _VertexCatNames[ (NumVertices>=N_VERTEX_CATEGORIES) ? (N_VERTEX_CATEGORIES) : (NumVertices)];
 	      
@@ -1426,7 +1354,7 @@ void LCFIAIDAPlotProcessor::CreateTagPlots()
 
 void LCFIAIDAPlotProcessor::FillVertexChargePlots(LCEvent* pEvent, unsigned int jetNumber)
 {
-  int jetType=FindJetType( pEvent, jetNumber );
+  int jetType=FindTrueJetType( pEvent, jetNumber );
   if( jetType==0 ) return;
   
   //needs to be tidied up
@@ -1463,7 +1391,7 @@ void LCFIAIDAPlotProcessor::FillVertexChargePlots(LCEvent* pEvent, unsigned int 
 		unsigned int NumVertices = FindNumVertex(pEvent, jetNumber, iTagCollection);
 		int CQVtx =  FindCQVtx(pEvent, jetNumber);
 		int BQVtx =  FindBQVtx(pEvent, jetNumber);
-		int trueJetCharge = int(FindJetHadronCharge(pEvent,jetNumber));
+		int trueJetCharge = int(FindTrueJetHadronCharge(pEvent,jetNumber));
 		
 		std::string nvname = _VertexCatNames[ (NumVertices>=N_VERTEX_CATEGORIES) ? (N_VERTEX_CATEGORIES) : (NumVertices)];
 		
@@ -1618,137 +1546,114 @@ void LCFIAIDAPlotProcessor::FillVertexChargePlots(LCEvent* pEvent, unsigned int 
 }
 
 
-
-
-
-int LCFIAIDAPlotProcessor::FindJetPDGCode( LCEvent* pEvent, unsigned int jetNumber )
+int LCFIAIDAPlotProcessor::FindTrueJetPDGCode( LCEvent* pEvent, unsigned int jetNumber )
 {
-	TypesafeCollection<lcio::LCIntVec> trueJetPDGCodeCollection( pEvent, _TrueJetPDGCodeColName );
-	if( !trueJetPDGCodeCollection.is_valid() )
-	{
-	  std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetPDGCodeColName << " is not valid " << std::endl;
-	  return 0; //can't do anything without this collection
-	}
-
-	int pdgCode;
-	lcio::LCIntVec* pTruePDGCodeVector=trueJetPDGCodeCollection.getElementAt( jetNumber );
-	if( pTruePDGCodeVector )
-	{
-		if( pTruePDGCodeVector->size()==1 ) pdgCode=pTruePDGCodeVector->back();
-		else
-		{
-		  std::cerr << __FILE__ << "(" << __LINE__ << "): The LCIntVec for jet " << jetNumber << " from the collection "
-			    << _TrueJetFlavourColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
-			    << " is not of size 1." << std::endl;
-		  return 0; //can't fill any plots if we don't know the true flavour
-		}
-	}
-	else
-	{
-		std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCIntVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
-				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
-		return 0; //can't fill any plots if we don't know the true flavour
-	}
-
-	return pdgCode;
-}
-
-float LCFIAIDAPlotProcessor::FindJetPartonCharge( LCEvent* pEvent, unsigned int jetNumber )
-{
-	TypesafeCollection<lcio::LCFloatVec> trueJetPartonChargeCollection( pEvent, _TrueJetPartonChargeColName );
-	if( !trueJetPartonChargeCollection.is_valid() )
-	{
-	  std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetPartonChargeColName << " is not valid " << std::endl;
-		return 0; //can't do anything without this collection
-	}
-
-	float partonCharge;
-	lcio::LCFloatVec* pTruePartonChargeVector=trueJetPartonChargeCollection.getElementAt( jetNumber );
-	if( pTruePartonChargeVector )
-	{
-		if( pTruePartonChargeVector->size()==1 ) partonCharge=pTruePartonChargeVector->back();
-		else
-		{
-			std::cerr << __FILE__ << "(" << __LINE__ << "): The LCFloatVec for jet " << jetNumber << " from the collection "
-					<< _TrueJetPartonChargeColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
-					<< " is not of size 1." << std::endl;
-			return 0; //can't fill any plots if we don't know the true flavour
-		}
-	}
-	else
-	{
-		std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetPartonChargeColName
-				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
-		return 0; //can't fill any plots if we don't know the true flavour
-	}
-
-	return partonCharge;
-}
-
-
-int LCFIAIDAPlotProcessor::FindJetType( LCEvent* pEvent, unsigned int jetNumber )
-{
-	TypesafeCollection<lcio::LCIntVec> trueJetFlavourCollection( pEvent, _TrueJetFlavourColName );
-	if( !trueJetFlavourCollection.is_valid() )
-	  {
-	    std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " <<  _TrueJetFlavourColName << " is not valid " << std::endl;
-		return 0; //can't do anything without this collection
-	}
-
-	int jetType;
-	lcio::LCIntVec* pTrueJetTypeVector=trueJetFlavourCollection.getElementAt( jetNumber );
-	if( pTrueJetTypeVector )
-	{
-		if( pTrueJetTypeVector->size()==1 ) jetType=pTrueJetTypeVector->back();
-		else
-		{
-			std::cerr << __FILE__ << "(" << __LINE__ << "): The LCIntVec for jet " << jetNumber << " from the collection "
-					<< _TrueJetFlavourColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
-					<< " is not of size 1." << std::endl;
-			return 0; //can't fill any plots if we don't know the true flavour
-		}
-	}
-	else
-	{
-		std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCIntVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
-				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
-		return 0; //can't fill any plots if we don't know the true flavour
-	}
-
-	return jetType;
-}
-
-float LCFIAIDAPlotProcessor::FindJetHadronCharge( LCEvent* pEvent, unsigned int jetNumber )
-{
-  TypesafeCollection<lcio::LCFloatVec> trueJetHadronChargeCollection( pEvent, _TrueJetHadronChargeColName );
-  if( !trueJetHadronChargeCollection.is_valid() )
+  float pdgCode=0;
+  
+  TypesafeCollection<lcio::LCFloatVec> trueJetFlavourCollection( pEvent,  _TrueJetFlavourColName);
+  if( !trueJetFlavourCollection.is_valid() )
     {
-      std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " << _TrueJetHadronChargeColName << " is not valid " << std::endl;
-      return -99; //can't do anything without this collection
+      std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " << _TrueJetFlavourColName  << " is not valid " << std::endl;
+      return 0; //can't do anything without this collection
     }
-
-	float hadronCharge;
-	lcio::LCFloatVec* pTrueJetChargeVector=trueJetHadronChargeCollection.getElementAt( jetNumber );
-	if( pTrueJetChargeVector )
-	{
-		if( pTrueJetChargeVector->size()==1 ) hadronCharge=pTrueJetChargeVector->back();
-		else
-		{
-			std::cerr << __FILE__ << "(" << __LINE__ << "): The LCFloatVec for jet " << jetNumber << " from the collection "
-					<< _TrueJetHadronChargeColName << " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber()
-					<< " is not of size 1." << std::endl;
-			return -99; 
-		}
-	}
-	else
-	{
-		std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetHadronChargeColName
-				<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
-		return 0; //can't fill any plots if we don't know the true flavour
-	}
-
-	return hadronCharge;
+  
+  lcio::LCFloatVec* pJetFlavour = trueJetFlavourCollection.getElementAt( jetNumber );
+  
+  if( !pJetFlavour )
+    {
+      std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
+		<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
+    }
+  else
+    {
+      pdgCode = (*pJetFlavour)[_FlavourIndex["TrueJetPDGFlavour"]];
+    }
+  
+  return int(pdgCode+0.01);//just to be safe
 }
+
+
+
+
+
+float LCFIAIDAPlotProcessor::FindTrueJetPartonCharge( LCEvent* pEvent, unsigned int jetNumber )
+{
+  TypesafeCollection<lcio::LCFloatVec> trueJetFlavourCollection( pEvent,  _TrueJetFlavourColName);
+  if( !trueJetFlavourCollection.is_valid() )
+    {
+      std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " << _TrueJetFlavourColName  << " is not valid " << std::endl;
+      return 0; //can't do anything without this collection
+    }
+  
+  lcio::LCFloatVec* pJetFlavour = trueJetFlavourCollection.getElementAt( jetNumber );
+  if( !pJetFlavour )
+    {
+      std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
+		<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
+    }
+  else
+    {
+      return  (*pJetFlavour)[_FlavourIndex["TruePartonCharge"]];
+    }
+  return 0.;
+}
+
+
+int LCFIAIDAPlotProcessor::FindTrueJetFlavour( LCEvent* pEvent, unsigned int jetNumber )
+{
+  float jetFlavour=0.;
+
+  TypesafeCollection<lcio::LCFloatVec> trueJetFlavourCollection( pEvent,  _TrueJetFlavourColName);
+  if( !trueJetFlavourCollection.is_valid() )
+    {
+      std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " << _TrueJetFlavourColName  << " is not valid " << std::endl;
+      return 0; //can't do anything without this collection
+    }
+  
+  lcio::LCFloatVec* pJetFlavour = trueJetFlavourCollection.getElementAt( jetNumber );
+  if( !pJetFlavour )
+    {
+      std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
+		<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
+    }
+  else
+    {
+      jetFlavour=(*pJetFlavour)[_FlavourIndex["TrueJetFlavour"]];
+    }
+  return int(jetFlavour+0.001);
+}
+
+float LCFIAIDAPlotProcessor::FindTrueJetHadronCharge( LCEvent* pEvent, unsigned int jetNumber )
+{
+  TypesafeCollection<lcio::LCFloatVec> trueJetFlavourCollection( pEvent,  _TrueJetFlavourColName);
+  if( !trueJetFlavourCollection.is_valid() )
+    {
+      std::cerr << " In " << __FILE__ << "(" << __LINE__ << "):  Collection " << _TrueJetFlavourColName  << " is not valid " << std::endl;
+      return 0; //can't do anything without this collection
+    }
+  
+  lcio::LCFloatVec* pJetFlavour = trueJetFlavourCollection.getElementAt( jetNumber );
+  if( !pJetFlavour )
+    {
+      std::cerr << __FILE__ << "(" << __LINE__ << "): Unable to get the LCFloatVec for jet " << jetNumber << " from the collection " << _TrueJetFlavourColName
+		<< " for event " << pEvent->getEventNumber() << " in run " << pEvent->getRunNumber() << "." << std::endl;
+    }
+  else
+    {
+      return  (*pJetFlavour)[_FlavourIndex["TrueJetHadronCharge"]];
+    }
+  return 0.;
+}
+
+
+
+
+int LCFIAIDAPlotProcessor::FindTrueJetType( LCEvent* pEvent, unsigned int jetNumber )
+{
+  return FindTrueJetFlavour(pEvent, jetNumber);
+}
+
+
 
 int LCFIAIDAPlotProcessor::FindNumVertex( LCEvent* pEvent, unsigned int jetNumber, unsigned int iInputsCollection)
 {
@@ -2171,7 +2076,7 @@ void LCFIAIDAPlotProcessor::CreateVertexChargeLeakagePlot()
 
 void LCFIAIDAPlotProcessor::FillVertexPlots(LCEvent* pEvent, unsigned int jetNumber)
 {
-  int jetType=FindJetType( pEvent, jetNumber );
+  int jetType=FindTrueJetType( pEvent, jetNumber );
    
   if( jetType==0 ) return;
   
@@ -2217,7 +2122,7 @@ void LCFIAIDAPlotProcessor::FillVertexPlots(LCEvent* pEvent, unsigned int jetNum
    for (int ijet = 0 ; ijet < zvresdcCollection.getNumberOfElements(); ijet++) {
 
         
-    int jetType = FindJetType( pEvent,  ijet );
+    int jetType = FindTrueJetType( pEvent,  ijet );
 
     lcio::ReconstructedParticle*  pJet=zvresdcCollection.getElementAt(ijet);
 
@@ -2561,7 +2466,7 @@ void LCFIAIDAPlotProcessor::FillZVRESTable(LCEvent* pEvent)
     std::vector<lcio::ReconstructedParticle*> jetParticles = pJet->getParticles();
     
     //get the true jet flavour
-    int jetType = FindJetType( pEvent,  iJet );
+    int jetType = FindTrueJetType( pEvent,  iJet );
 
     if (jetType == B_JET || jetType == C_JET) {  
       //loop over the particles within the jet
@@ -3816,14 +3721,14 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength( LCEvent* pEvent, unsigned in
   //looks in the MC to find the longest decay length for the b and c jets 
   //returns -99 for light jets
 
-  int jettype = FindJetType( pEvent,  jetNumber );
+  int jettype = FindTrueJetType( pEvent,  jetNumber );
 
   if (abs(jettype)!= C_JET && abs(jettype)!=B_JET) 
     {
       return;
     } else {
   
-    int pdgcode =  FindJetPDGCode( pEvent,  jetNumber );
+    int pdgcode =  FindTrueJetPDGCode( pEvent,  jetNumber );
     
     TypesafeCollection<lcio::MCParticle> mcParticleCollection( pEvent, _MCParticleColName );  
     
@@ -3986,14 +3891,14 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength2( LCEvent* pEvent, unsigned i
   
   //looks in the MC to find the longest decay length for the b and c jets 
  
-  int jettype = FindJetType( pEvent,  jetNumber );
+  int jettype = FindTrueJetType( pEvent,  jetNumber );
 
   if (abs(jettype)!=B_JET  && abs(jettype)!=C_JET )
     {
       return;
     } else {
   
-    int pdgcode =  FindJetPDGCode( pEvent,  jetNumber );
+    int pdgcode =  FindTrueJetPDGCode( pEvent,  jetNumber );
     
     TypesafeCollection<lcio::MCParticle> mcParticleCollection( pEvent, _MCParticleColName );  
     

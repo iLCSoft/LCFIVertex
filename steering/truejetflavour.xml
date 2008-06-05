@@ -12,7 +12,7 @@
  </execute>
 
  <global>
-  <parameter name="LCIOInputFiles"> cheatout.slcio  </parameter>
+  <parameter name="LCIOInputFiles">  fullrecoout.slcio   </parameter>
   <!-- limit the number of processed records (run+evt): -->  
   <!-- parameter name="MaxRecordNumber" value="500" /-->  
   <!-- parameter name="SkipNEvents" value="0" /-->  
@@ -29,13 +29,7 @@
   <!--Maximum value allowed between MCParticle and jet momentum expressed in degrees-->
   <!--parameter name="MaximumAngle" type="double">180 </parameter-->
   <!--Name of the output collection of LCIntVec (same order as jets)-->
-  <parameter name="TrueJetFlavourCollection" type="string" lcioOutType="LCIntVec">TrueJetFlavour </parameter>
-  <!--Name of the output collection of LCIntVec (same order as jets)-->
-  <parameter name="TrueJetHadronChargeCollection" type="string" lcioOutType="LCFloatVec">TrueJetHadronCharge </parameter>
-  <!--Name of the output collection of LCIntVec (same order as jets)-->
-  <parameter name="TrueJetPDGCodeCollection" type="string" lcioOutType="LCIntVec">TrueJetPDGCode </parameter>
-  <!--Name of the output collection of LCIntVec (same order as jets)-->
-  <parameter name="TrueJetPartonChargeCollection" type="string" lcioOutType="LCFloatVec">TrueJetPartonCharge </parameter>
+  <parameter name="TrueJetFlavourCollection" type="string" lcioOutType="LCFloatVec">TrueJetFlavour </parameter>
 </processor>
 
 

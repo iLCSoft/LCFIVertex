@@ -63,13 +63,13 @@ class TrueAngularJetFlavourProcessor : public Processor {
   virtual void check( LCEvent * evt ) ; 
   virtual void end() ;
   float chargefromPDG(int code);
+  std::vector<std::string> _TrueJetVariableNames;
+
+
   protected:
   std::string _JetRPColName;
   std::string _MCParticleColName;
   std::string _TrueJetFlavourColName;
-  std::string _TruePDGCodeColName;
-  std::string _TrueHChargeColName;
-  std::string _TruePChargeColName;
   double _MaximumAngle;
   int _nRun ;
   int _nEvt ;

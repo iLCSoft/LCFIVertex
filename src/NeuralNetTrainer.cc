@@ -42,7 +42,7 @@ NeuralNetTrainerProcessor::NeuralNetTrainerProcessor() : marlin::Processor("Neur
 			      "Name of the LCFloatVec Collection that contains the flavour tag inputs (in same order as jet collection)"  ,
 			      _FlavourTagInputsCollectionName,
 			      "FlavourTagInputs" ) ;
-        registerInputCollection( lcio::LCIO::LCINTVEC,
+        registerInputCollection( lcio::LCIO::LCFLOATVEC,
   			      "TrueJetFlavourCollection" , 
 			      "Name of the LCIntVec Collection that contains the true jet flavours"  ,
 			      _TrueJetFlavourCollectionName,
@@ -254,7 +254,7 @@ void NeuralNetTrainerProcessor::processEvent( lcio::LCEvent* pEvent )
 			//Get the MC Jet type
 			lcio::LCCollection* pTrueJet=pEvent->getCollection( _TrueJetFlavourCollectionName );
 			//make sure the collection is of the right type
-			if( pTrueJet->getTypeName()!=lcio::LCIO::LCINTVEC )
+			if( pTrueJet->getTypeName()!=lcio::LCIO::LCFLOATVEC )
 			{
 				std::stringstream message;
 				message << std::endl
@@ -264,7 +264,7 @@ void NeuralNetTrainerProcessor::processEvent( lcio::LCEvent* pEvent )
 					<< "########################################################################################" << std::endl;
 				throw lcio::EventException( message.str() );
 			}
-			int jetType = *((dynamic_cast<lcio::LCIntVec*>( pTrueJet->getElementAt(a))->begin()));
+			float jetType = *((dynamic_cast<lcio::LCFloatVec*>( pTrueJet->getElementAt(a))->begin()));
 			
 			//
 			// See if we can get the required info from the file
