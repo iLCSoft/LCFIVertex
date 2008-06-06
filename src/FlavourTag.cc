@@ -128,7 +128,7 @@ void FlavourTagProcessor::init()
 
 			//N.B. If fileFormat is wrong could get a segmentation fault!
 			_NeuralNet[ (*iPair).first ]=new nnet::NeuralNet( (*iPair).second, fileFormat );
-			vertex_lcfi::MemoryManager<nnet::NeuralNet>::Run()->registerObject( _NeuralNet[ (*iPair).first ] );
+			//			vertex_lcfi::MemoryManager<nnet::NeuralNet>::Run()->registerObject( _NeuralNet[ (*iPair).first ] );
 		}
 		else
 		{
