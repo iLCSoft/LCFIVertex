@@ -4,13 +4,14 @@
 #include "NeuronLayer.h"
 #include "InputNormaliser.h"
 
-//#include <iostream>
+#include <iostream>
 #include <algorithm>
 #include <functional>
 #include <string>
 
 //using namespace nnet for the LCFI vertex package
 using namespace nnet;
+
 
 namespace NeuralNetUtils {
 template <typename T>
@@ -104,8 +105,19 @@ std::vector<double> InputImportance::operator()(const NeuralNet &theNet,const Ne
 		//std::cout << "weights size " << weightsSquared.size() << std::endl;
 		//std::cout << "data means size " << inputNormalisationDataMeans.size() << std::endl;
 
-		std::transform(weightsSquared.begin(),weightsSquared.end()-1,inputNormalisationDataMeans.begin(),
-			importances.begin(),std::multiplies<double>());
+		if (inputNormalisationDataMeans.size() >= weightsSquared.size()-1)
+		{
+			std::transform(weightsSquared.begin(),weightsSquared.end()-1,inputNormalisationDataMeans.begin(),
+				importances.begin(),std::multiplies<double>());
+		}
+		else
+		{
+			std::cerr << "InputImportance:: Mismatch between data and neurons." <<
+				std::endl << "Data has too few variables. Some values may be meaningless." << std::endl;
+			int theDataSize = static_cast<int>(inputNormalisationDataMeans.size());
+			std::transform(weightsSquared.begin(),weightsSquared.begin()+theDataSize,inputNormalisationDataMeans.begin(),
+				importances.begin(),std::multiplies<double>());
+		}
 
 		//std::cout << "returning: Size of importances is " << importances.size() << std::endl;
 
