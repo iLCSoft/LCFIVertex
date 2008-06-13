@@ -363,9 +363,9 @@ void ConversionTagger::tagger( LCEvent *evt,
 	  vertex2[2]=vtx2rc[2];
 	}
 
-	streamlog_out( DEBUG0 ) << "vertex candidate: radius=" << vertex_radius
-				<< ", z=" << vertex_z << "; distance rphi="
-				<< dist_rphi << ", distance z=" << dist_z << endl;
+	//streamlog_out( DEBUG0 ) << "vertex candidate: radius=" << vertex_radius
+	//			<< ", z=" << vertex_z << "; distance rphi="
+	//			<< dist_rphi << ", distance z=" << dist_z << endl;
 
 	// cut on distance
 	histos->fill("dist_rphi",dist_rphi,1,"helix distance in rphi",100,0,10);
@@ -542,12 +542,12 @@ double ConversionTagger::diParticleMass(float* mom1,
   double e2=sqrt(mass2*mass2+mom2[0]*mom2[0]+mom2[1]*mom2[1]+mom2[2]*mom2[2]);
   double sqmass=(e1+e2)*(e1+e2);
   for (int i=0; i<3; i++) sqmass-=(mom1[i]+mom2[i])*(mom1[i]+mom2[i]);
-  streamlog_out( DEBUG0 ) << "diParticleMass: part1=" << mom1[0] << ", "
-			  << mom1[1] << ", " << mom1[2] << "; energy "
-			  << e1 << endl;
-  streamlog_out( DEBUG0 ) << "                part2=" << mom2[0] << ", "
-			  << mom2[1] << ", " << mom2[2] << "; energy "
-			  << e2 << endl;
-  streamlog_out( DEBUG0 ) << "                mass=" << sqrt(sqmass) << endl;
+  //streamlog_out( DEBUG0 ) << "diParticleMass: part1=" << mom1[0] << ", "
+  //			  << mom1[1] << ", " << mom1[2] << "; energy "
+  //			  << e1 << endl;
+  //streamlog_out( DEBUG0 ) << "                part2=" << mom2[0] << ", "
+  //			  << mom2[1] << ", " << mom2[2] << "; energy "
+  //			  << e2 << endl;
+  //streamlog_out( DEBUG0 ) << "                mass=" << sqrt(sqmass) << endl;
   return sqrt(sqmass);
 }
