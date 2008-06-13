@@ -66,7 +66,8 @@ class V0Performance : public Processor {
 
   void dump_V0Candidate(V0Candidate_type* cand);
   size_t _maxCollNameLength;
-
+  std::vector<std::string> _CollectionsToPrint;
+  
   // LCRelation handling
   map<string,LCRelationNavigator*> lcRel;
 

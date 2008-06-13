@@ -40,6 +40,11 @@ V0Performance::V0Performance() : Processor("V0Performance") {
   registerOptionalParameter("minHits",
 			    "minimum hit numbers for conv/V0 decay particles",
 			    _minHits,-999);
+  vector<string> allColls;
+  allColls.clear();
+  registerOptionalParameter("collectionsToPrint",
+			    "names of LCCollections to print statistics for",
+			    _CollectionsToPrint,allColls);
 
   V0Name[V0Gamma]="photon conversion";
   V0Name[V0K0]="Kshort";
@@ -81,10 +86,19 @@ void V0Performance::processEvent( LCEvent * evt ) {
   vector<string> mccols,trackcols,relationcols,recocols;
   for (size_t i=0; i<colNames->size(); i++) {
     string colname=(*colNames)[i];
+    // check whether this collection is among the ones to investigate
+    bool useThis=true;
+    if (_CollectionsToPrint.size()>0) {
+      useThis=false;
+      for (vector<string>::iterator it=_CollectionsToPrint.begin();
+	   it!=_CollectionsToPrint.end(); it++) {
+	useThis|=((*it)==colname);
+      }
+    }
     LCCollection *collection=evt->getCollection(colname);
     if (collection->getTypeName()==LCIO::MCPARTICLE) {
       mccols.push_back(colname);
-    } else if (collection->getTypeName()==LCIO::TRACK) {
+    } else if (collection->getTypeName()==LCIO::TRACK && useThis) {
       trackcols.push_back(colname);
       if (colname.length()>_maxCollNameLength)
 	_maxCollNameLength=colname.length();
@@ -94,7 +108,7 @@ void V0Performance::processEvent( LCEvent * evt ) {
       LCRelationNavigator nav(collection);
       streamlog_out(DEBUG0) << "relation collection " << nav.getFromType() 
 	   << "   " << nav.getToType() << " named " << colname << endl;
-    } else if (collection->getTypeName()==LCIO::RECONSTRUCTEDPARTICLE) {
+    } else if (collection->getTypeName()==LCIO::RECONSTRUCTEDPARTICLE && useThis) {
       recocols.push_back(colname);
       if (colname.length()>_maxCollNameLength)
 	_maxCollNameLength=colname.length();
@@ -139,35 +153,18 @@ void V0Performance::processEvent( LCEvent * evt ) {
 
 
   // find MCParticle collection to find true conversions+V0s
-  for (size_t i=0; i<colNames->size(); i++) {
-    LCCollection *collection=evt->getCollection((*colNames)[i]);
-    if (collection->getTypeName()==LCIO::MCPARTICLE) {
-      treeAnalysis(evt,(*colNames)[i]);
-    }
+  for (size_t i=0; i<mccols.size(); i++) {
+    treeAnalysis(evt,mccols[i]);
   }
 
   // then, get tracking output to see what was reconstructed
-  for (size_t i=0; i<colNames->size(); i++) {
-    LCCollection *collection=evt->getCollection((*colNames)[i]);
-    if (collection->getTypeName()==LCIO::TRACK) {
-      trackAnalysis(evt,(*colNames)[i]);
-    }
-  }
-
-  // relation between tracks and MC particles
-  for (size_t i=0; i<colNames->size(); i++) {
-    LCCollection *collection=evt->getCollection((*colNames)[i]);
-    if (collection->getTypeName()==LCIO::LCRELATION) {
-      
-    }
+  for (size_t i=0; i<trackcols.size(); i++) {
+    trackAnalysis(evt,trackcols[i]);
   }
 
   // finally, get particle flow output to see what was identified as V0
-  for (size_t i=0; i<colNames->size(); i++) {
-    LCCollection *collection=evt->getCollection((*colNames)[i]);
-    if (collection->getTypeName()==LCIO::RECONSTRUCTEDPARTICLE) {
-      recoAnalysis(evt,(*colNames)[i]);
-    }
+  for (size_t i=0; i<recocols.size(); i++) {
+    recoAnalysis(evt,recocols[i]);
   }
 
 
@@ -508,10 +505,10 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
     }
     if (part->getTracks().size()>1) {
       ++num_composites_total[collectionName];
-      streamlog_out(DEBUG0) << "collection " << collectionName
-			     << " contains object of type " << part->getType()
-			     << " with " << part->getTracks().size()
-			     << " tracks" << endl;
+      //streamlog_out(DEBUG0) << "collection " << collectionName
+      //		     << " contains object of type " << part->getType()
+      //		     << " with " << part->getTracks().size()
+      //		     << " tracks" << endl;
     }
 
 
