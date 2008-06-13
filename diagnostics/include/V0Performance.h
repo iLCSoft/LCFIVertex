@@ -80,6 +80,7 @@ class V0Performance : public Processor {
 
   map<string,int> num_tracks_total;
   map<string,int> num_composites_total;
+  map<string,int> num_composites_by_type[V0LastType];
 
   map<string,int> foundNOtracks[V0LastType];
   map<string,int> foundONEtrack[V0LastType];

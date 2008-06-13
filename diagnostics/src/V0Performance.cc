@@ -505,6 +505,13 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
     }
     if (part->getTracks().size()>1) {
       ++num_composites_total[collectionName];
+      if (part->getType()==22) {
+	++num_composites_by_type[V0Gamma][collectionName];
+      } else if (part->getType()==130 || part->getType()==310) {
+	++num_composites_by_type[V0K0][collectionName];
+      } else if (part->getType()==3122) {
+	++num_composites_by_type[V0Lambda][collectionName];
+      }
       //streamlog_out(DEBUG0) << "collection " << collectionName
       //		     << " contains object of type " << part->getType()
       //		     << " with " << part->getTracks().size()
@@ -627,9 +634,14 @@ void V0Performance::end(){
 			     << " of " << mc_num[i] << " ("
 			     << int(0.5+1000.*foundComposite[i][it->first]
 				 /mc_num[i])/10. << "%)" << endl;
-      streamlog_out(MESSAGE) << " total number of composite objects"
-			     << " with >=2 tracks in " << it->first << ": "
-			     << num_composites_total[it->first] << endl;
+      streamlog_out(MESSAGE) << " total number of " << V0Name[i]
+			     << " candidates with >=2 tracks in "
+			     << it->first << ": "
+			     << num_composites_by_type[i][it->first] << endl;
     }
+    streamlog_out(MESSAGE) << " total number of composite objects"
+			   << " with >=2 tracks in "
+			   << it->first << ": "
+			   << num_composites_total[it->first] << endl;
   }
 }
