@@ -444,7 +444,7 @@ void ConversionTagger::tagger( LCEvent *evt,
   // another pass: look for composite particles that might correspond
   // to a previously identified conversion or V0 candidate
   for (int irp=0; irp<coll->getNumberOfElements(); irp++) {
-    ReconstructedParticle *rp=dynamic_cast<ReconstructedParticle*>
+    ReconstructedParticleImpl *rp=dynamic_cast<ReconstructedParticleImpl*>
       (coll->getElementAt(irp));
 
     // we cannot check charge here for the time being because I found
@@ -455,6 +455,8 @@ void ConversionTagger::tagger( LCEvent *evt,
     if (pdg!=22 && pdg!=130 && pdg!=310 && pdg!=3122) continue;
 
     tagged[irp]=true;
+    ReconstructedParticleImpl* recopart = new ReconstructedParticleImpl(*rp);
+    recocoll->addElement(recopart);
   }
 
   evt->addCollection( recocoll , collectionName+"Conv") ;
