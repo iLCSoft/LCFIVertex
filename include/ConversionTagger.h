@@ -48,6 +48,7 @@ class ConversionTagger : public Processor {
   double _distCutZ;
   bool   _cheatMode;
   bool   _cheatEvenMore;
+  double _minDistFromIP;
 
   double _BField;
   double _twopi;

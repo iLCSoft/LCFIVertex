@@ -64,6 +64,9 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
 			    "max distance of closest approach between two "
 			    " helices, z projection (mm)",
 			    _distCutZ,1.0);
+  registerOptionalParameter("MinDistFromIP",
+			    "min distance of V0 candidates from IP (mm)",
+			    _minDistFromIP,1.0);
 
   registerOptionalParameter("CheatMode",
 			    "whether or not to use MC info for conv/V0 finding",
@@ -373,6 +376,10 @@ void ConversionTagger::tagger( LCEvent *evt,
 	if (dist_rphi>_distCutRPhi) continue;
 	if (dist_z>_distCutZ) continue;
 
+	// remove candidates that are very close to the IP
+	if (sqrt(vertex_radius*vertex_radius+vertex_z*vertex_z)<_minDistFromIP)
+	  continue;
+
 	// get particle momenta at vertex
 	float mom1[3],mom2[3];
 	helix1.getExtrapolatedMomentum(vertex1,mom1);
@@ -395,9 +402,9 @@ void ConversionTagger::tagger( LCEvent *evt,
 	double K0_mass = diParticleMass(mom1,mom2,0.13957,0.13957);
 	double Lambda_mass1 = diParticleMass(mom1,mom2,0.13957,0.938);
 	double Lambda_mass2 = diParticleMass(mom2,mom1,0.13957,0.938);
-	histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,1);
+	histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,0.3);
 	histos->fill("K0_mass",K0_mass,1,"K0_mass",100,0,1);
-	histos->fill("Lambda_mass",Lambda_mass1,1,"Lambda_mass",100,1,2);
+	histos->fill("Lambda_mass",Lambda_mass1,1,"Lambda_mass",100,1,1.3);
 	histos->fill("Lambda_mass",Lambda_mass2);
 
 	// check whether our candidate is either close to photon mass
@@ -410,8 +417,6 @@ void ConversionTagger::tagger( LCEvent *evt,
 	// vertex probability (cut on distance of closest approach first?)
 	
 	// can we improve mass resolution by track refit with vertex constraint?
-
-	// see Erik's vertex_lcfi/algo/ twotrackpid class!
 
 	// we should make sure that no track is used in more than one
 	// candidate. reason: at least one of the partners will be a false
