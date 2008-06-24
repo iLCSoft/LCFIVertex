@@ -68,6 +68,15 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
 			    "min distance of V0 candidates from IP (mm)",
 			    _minDistFromIP,1.0);
 
+  vector<int> tag_all;
+  tag_all.push_back(22);
+  tag_all.push_back(310);
+  tag_all.push_back(3122);
+  registerOptionalParameter("PdgToTag",
+			    "list of particles types to look for (described"
+			    " in terms of positive PDG value)",
+			    _PdgToTag,tag_all);
+
   registerOptionalParameter("CheatMode",
 			    "whether or not to use MC info for conv/V0 finding",
 			    _cheatMode,false);
@@ -84,6 +93,8 @@ void ConversionTagger::init() {
   printParameters() ;
 
   _BField = Global::GEAR->getBField().at(gear::Vector3D(0.,0.,0.)).z();
+
+  for (size_t i=0; i<_PdgToTag.size(); i++) _TagPDG[_PdgToTag[i]]=true;
 
   histos = new HistMap(this);
 }
@@ -435,6 +446,8 @@ void ConversionTagger::tagger( LCEvent *evt,
 	}
       }
 
+      if (!_TagPDG[cand_type]) continue;
+
       // whatever is left here will be stored as conversion candidate
       ReconstructedParticleImpl* recopart = new ReconstructedParticleImpl();
       recopart->setType(cand_type);
@@ -458,6 +471,7 @@ void ConversionTagger::tagger( LCEvent *evt,
     if (rp->getTracks().size()<2) continue;
     int pdg=abs(rp->getType());
     if (pdg!=22 && pdg!=130 && pdg!=310 && pdg!=3122) continue;
+    if (!_TagPDG[pdg]) continue;
 
     tagged[irp]=true;
     ReconstructedParticleImpl* recopart = new ReconstructedParticleImpl(*rp);

@@ -48,6 +48,8 @@ class ConversionTagger : public Processor {
   double _distCutZ;
   bool   _cheatMode;
   bool   _cheatEvenMore;
+  std::vector<int> _PdgToTag;
+  std::map<int,bool> _TagPDG;
   double _minDistFromIP;
 
   double _BField;
