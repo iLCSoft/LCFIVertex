@@ -79,15 +79,6 @@ DSTCollectionProcessor::DSTCollectionProcessor() : Processor("DSTCollectionProce
                               "Debugging option",
                               _debug,
                               int(0)); 
-
-
-  registerOutputCollection( LCIO::RECONSTRUCTEDPARTICLE,
-			   "OutputJetCollectionName" , 
-			   "Name of the collection of ReconstructedParticles that is the jet, with flavour Tagging info added"  ,
-			   _outputJetCollectionName ,
-			   std::string("FTSelectedJetsWithTagInfo") );
-
-
   
 
   }
@@ -154,12 +145,9 @@ void DSTCollectionProcessor::processEvent(  LCEvent* pEvent) {
        try{
 	 LCCollection* TagCollection=pEvent->getCollection( _FlavourTagCollectionName );
   
- 
-	 //the output jet collection
-	 LCCollectionVec* OutJetCollection = new LCCollectionVec(LCIO::RECONSTRUCTEDPARTICLE);
-	
+
 	 //make a PIDHandler to add the info with
-	 PIDHandler jetPID ( OutJetCollection ) ;
+	 PIDHandler jetPID ( JetCollection ) ;
 
 	 //the string vec containing the parameter names for FT info
 	 StringVec pNames ;
@@ -208,19 +196,15 @@ void DSTCollectionProcessor::processEvent(  LCEvent* pEvent) {
 	 for( int jet=0; jet<JetCollection->getNumberOfElements(); jet++ )
 	   {
 	     
-	     //get the jet
-	     ReconstructedParticle*  InputJet  = dynamic_cast<ReconstructedParticle*>( JetCollection->getElementAt(jet) );
-	     //make a new jet that is a copy of the old jet - might be a bit dodgy, but seems to work
-	     ReconstructedParticleImpl* OutputJet = new ReconstructedParticleImpl(*dynamic_cast<ReconstructedParticleImpl*>(InputJet));
-	     if (_debug>0)
-	       cout<<"jet with energy = "<<OutputJet->getEnergy()<<endl;
+
+	     ReconstructedParticle*  Jet  = dynamic_cast<ReconstructedParticle*>( JetCollection->getElementAt(jet) );
 	 
 	     //get the FT info, add it to the parameter float vec
 	     LCFloatVec* flavourTags = dynamic_cast<LCFloatVec*>(TagCollection->getElementAt( jet ));
 	     fv[0]= (*flavourTags)[_IndexOfForEachTag["BTag"]];
 	     fv[1]= (*flavourTags)[_IndexOfForEachTag["CTag"]];
 	     fv[2]=(*flavourTags)[_IndexOfForEachTag["BCTag"]];
-	     
+	       
 	     //get the NN input info, add it to the parameter float vec
 	     LCFloatVec* tagInputs = dynamic_cast<LCFloatVec*>(flavourTagInputsCollection->getElementAt( jet ));
 	     int  NumVertices = int((*tagInputs)[_InputsIndex["NumVertices"]]);
@@ -238,38 +222,31 @@ void DSTCollectionProcessor::processEvent(  LCEvent* pEvent) {
 		 fv[11]=(*tagInputs)[_InputsIndex["SecondaryVertexProbability"]];
 	       }
 	     
-	     //add the FT particle id to the jet collection
-	     jetPID.setParticleID( OutputJet , 42 , // user type
-				   99999 , // PDG
-				   0.0, // likelihood
-				   ftagID ,
-				   fv ) ;
+
+	       //add the FT particle id to the jet collection
+	       jetPID.setParticleID( Jet , 42 , // user type
+				     99999 , // PDG
+				     0.0, // likelihood
+				     ftagID ,
+				     fv ) ;
+	       
+	       //get the mc truth info, add it to the mc parameter float vec
+	       LCFloatVec* pJetFlavour = dynamic_cast<LCFloatVec*>(trueJetFlavourCollection->getElementAt( jet ));
+	       if(pJetFlavour==0) std::cerr << "The wrong type of true jet flavour collection was found, dynamic cast failed" << std::endl;
+	       mcv[0] = (*pJetFlavour)[_FlavourIndex["TruePDGCode"]];
+	       mcv[1] =(*pJetFlavour)[_FlavourIndex["TruePartonCharge"]];
+	       mcv[2]= (*pJetFlavour)[_FlavourIndex["TrueHadronCharge"]];
+	       mcv[3]= (*pJetFlavour)[_FlavourIndex["TrueJetFlavour"]];
+	       
+	       //add the MC particle id to the jet collection
+	       jetPID.setParticleID( Jet , 43 , // user type
+				     99998 , // PDG
+				     0.0, // likelihood
+				     mcID ,
+				     mcv ) ;
+	     }
 
 
-	     //get the mc truth info, add it to the mc parameter float vec
-	     LCFloatVec* pJetFlavour = dynamic_cast<LCFloatVec*>(trueJetFlavourCollection->getElementAt( jet ));
-	     
-	     mcv[0] = (*pJetFlavour)[_FlavourIndex["TruePDGCode"]];
-	     mcv[1] =(*pJetFlavour)[_FlavourIndex["TruePartonCharge"]];
-	     mcv[2]= (*pJetFlavour)[_FlavourIndex["TrueHadronCharge"]];
-	     mcv[3]= (*pJetFlavour)[_FlavourIndex["TrueJetFlavour"]];
-
-	     //add the MC particle id to the jet collection
-	     jetPID.setParticleID( OutputJet , 43 , // user type
-				   99998 , // PDG
-				   0.0, // likelihood
-				   mcID ,
-				   mcv ) ;
-
-
-	     //add the jet containing the new info to the output collection
-	      OutJetCollection->addElement(OutputJet);
-	   
-	   }
-
-	 //add the output collection to the event
-	 pEvent->addCollection(OutJetCollection,_outputJetCollectionName);
-    
        }
        catch(DataNotAvailableException &e){
 	 if (_debug == 1) 
@@ -290,6 +267,7 @@ void DSTCollectionProcessor::processEvent(  LCEvent* pEvent) {
     if (_debug == 1) 
       std::cout << "Collection " <<_FlavourTagCollectionName << " is unavailable in event " << _nEvt << std::endl;
   }
+
 
 
 

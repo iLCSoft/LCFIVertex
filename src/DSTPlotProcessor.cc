@@ -55,7 +55,7 @@ DSTPlotProcessor::DSTPlotProcessor() : marlin::Processor("DSTPlotProcessor")
 				"JetCollectionName" , 
 				"Name of the collection of ReconstructedParticles that is the jet"  ,
 				_JetCollectionName ,
-				string("FTSelectedJetsWithTagInfo") ) ;
+				string("FTSelectedJets") ) ;
 
 	//The output filename
 	registerProcessorParameter( "OutputFilename" , 

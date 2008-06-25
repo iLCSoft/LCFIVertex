@@ -1,11 +1,18 @@
 <marlin>
  <execute>
 <processor name="MyDSTCollectionProcessor"/>
+
+<processor name="MyAIDAProcessor"/>
+
+<processor name="MyDSTAIDAPlotProcessor"/>
+
  <processor name="MyDSTPlotProcessor"/>
+
  </execute>
 
  <global>
   <parameter name="LCIOInputFiles">flavourtagout.slcio</parameter>
+
   <!-- limit the number of processed records (run+evt): -->  
   <!--parameter name="MaxRecordNumber" value="1000" /-->  
   <!-- parameter name="SkipNEvents" value="0" /-->  
@@ -14,7 +21,14 @@
  </global>
 
 
-<processor name="MyDSTCollectionProcessor" type="DSTCollectionProcessor">
+
+ <processor name="MyDSTAIDAPlotProcessor" type="DSTAIDAPlotProcessor">
+ <!--Plots various outputs from the flavour tag-->
+  <!--Name of the collection of ReconstructedParticles that is the jet-->
+  <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
+</processor>
+
+ <processor name="MyDSTCollectionProcessor" type="DSTCollectionProcessor">
  <!--DSTCollectionProcessor - Takes the flavour tag info, mc truth info, and some NN  input info, and adds it as Particle ID info to the jets, for the DSTs-->
   <!--Debugging option-->
   <parameter name="Debug" type="int">0 </parameter>
@@ -24,8 +38,6 @@
   <parameter name="FlavourTagInputsCollection" type="string" lcioInType="LCFloatVec">FlavourTagInputs </parameter>
   <!--Name of the collection of ReconstructedParticles that is the jet-->
   <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
-  <!--Name of the collection of ReconstructedParticles that is the jet, with flavour Tagging info added-->
-  <parameter name="OutputJetCollectionName" type="string" lcioOutType="ReconstructedParticle">FTSelectedJetsWithTagInfo </parameter>
   <!--Name of the LCIntVec collection containing the true flavour of the jets (same order as jets)-->
   <parameter name="TrueJetFlavourCollection" type="string" lcioInType="LCFloatVec">TrueJetFlavour </parameter>
 </processor>
@@ -39,7 +51,7 @@
   <!--Name of the LCFloatVec Collection that contains the flavour tag inputs, only need this if you want to check DST parameters-->
   <!--parameter name="FlavourTagInputsCollection" type="string">FlavourTagInputs </parameter-->
   <!--Name of the collection of ReconstructedParticles that is the jet-->
-  <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJetsWithTagInfo </parameter>
+  <parameter name="JetCollectionName" type="string" lcioInType="ReconstructedParticle">FTSelectedJets </parameter>
   <!--Filename for the output-->
   <parameter name="OutputFilename" type="string">DSTPlotProcessorOutput </parameter>
   <!--Name of the LCIntVec collection containing the true flavour of the jets, only need this if you want to check DST parameters-->
@@ -47,6 +59,16 @@
 </processor>
 
 
+
+ <processor name="MyAIDAProcessor" type="AIDAProcessor">
+ <!--Processor that handles AIDA files. Creates on directory per processor.  Processors only need to create and fill the histograms, clouds and tuples. Needs to be the first ActiveProcessor-->
+  <!-- compression of output file 0: false >0: true (default) -->
+  <parameter name="Compress" type="int">0 </parameter>
+  <!-- filename without extension-->
+  <parameter name="FileName" type="string">LCFIPlot </parameter>
+  <!-- type of output file xml (default) or root ( only OpenScientist)-->
+  <parameter name="FileType" type="string">xml</parameter>
+</processor>
 
 
 

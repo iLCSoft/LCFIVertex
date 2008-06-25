@@ -31,7 +31,6 @@ class DSTCollectionProcessor : public Processor {
   std::string _TrueJetFlavourColName;
   
   std::string _JetCollectionName;
-  std::string _outputJetCollectionName;
 
   int _lastRunHeaderProcessed;
 
