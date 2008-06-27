@@ -262,6 +262,22 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
 				 << " neutral daughters in MC."
 				 << " mass reconstruction will fail." << endl;
 	}
+	if (thisV0Type==V0Lambda) {
+	  for (int i=0; i<numDaughters; i++) {
+	    double mom2=
+	      daughters[i]->getMomentum()[0]*daughters[i]->getMomentum()[0]
+	      +daughters[i]->getMomentum()[1]*daughters[i]->getMomentum()[1]
+	      +daughters[i]->getMomentum()[2]*daughters[i]->getMomentum()[2];
+	    if (abs(daughters[i]->getPDG())==211) {
+	      histos->fill("lambda_daughter_mom_pi",sqrt(mom2),
+			   1,"momentum of pions from Lambda decay",100,0,20);
+	    } else if (abs(daughters[i]->getPDG())==2212) {
+	      histos->fill("lambda_daughter_mom_proton",sqrt(mom2),
+			   1,"momentum of protons from Lambda decay",100,0,20);
+	    }
+	  }
+	}
+
 	V0Candidate_type *newconv = new V0Candidate_type();
 	newconv->V0Type=thisV0Type;
 	newconv->radius=radius;
