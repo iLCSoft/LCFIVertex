@@ -411,18 +411,23 @@ void ConversionTagger::tagger( LCEvent *evt,
 	// invariant mass of the combination: either around 0 or K0 mass?
 	double conv_mass = diParticleMass(mom1,mom2,0.000511,0.000511);
 	double K0_mass = diParticleMass(mom1,mom2,0.13957,0.13957);
-	double Lambda_mass1 = diParticleMass(mom1,mom2,0.13957,0.938);
-	double Lambda_mass2 = diParticleMass(mom2,mom1,0.13957,0.938);
+	double Lambda_mass;
+	if (mom1[0]*mom1[0]+mom1[1]*mom1[1]+mom1[2]*mom1[2]<
+	    mom2[0]*mom2[0]+mom2[1]*mom2[1]+mom2[2]*mom2[2]) {
+	  // lambda pion has smaller momentum than lambda proton.
+	  // thus in this case we assume mom1 to be the pion
+	  Lambda_mass = diParticleMass(mom1,mom2,0.13957,0.938);
+	} else {
+	  Lambda_mass = diParticleMass(mom2,mom1,0.13957,0.938);
+	}
 	histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,0.3);
 	histos->fill("K0_mass",K0_mass,1,"K0_mass",100,0,1);
-	histos->fill("Lambda_mass",Lambda_mass1,1,"Lambda_mass",100,1,1.3);
-	histos->fill("Lambda_mass",Lambda_mass2);
+	histos->fill("Lambda_mass",Lambda_mass,1,"Lambda_mass",100,1,1.3);
 
 	// check whether our candidate is either close to photon mass
 	// or K0 mass or Lambda0 mass
 	if (conv_mass>_massRangePhoton && fabs(K0_mass-0.498)>_massRangeKaon
-	    && fabs(Lambda_mass1-1.116)>_massRangeLambda
-	    && fabs(Lambda_mass2-1.116)>_massRangeLambda) continue;
+	    && fabs(Lambda_mass-1.116)>_massRangeLambda) continue;
 
 
 	// vertex probability (cut on distance of closest approach first?)
