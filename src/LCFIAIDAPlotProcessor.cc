@@ -729,6 +729,7 @@ void LCFIAIDAPlotProcessor::CalculateIntegralAndBackgroundPlots() {
 	_pBTagBackgroundValues[iTagCollection][_VertexCatNames[iVertexCat]] = pHistogramFactory->add("Numbers of non-B jets by B-tag NN value.  ("+ _VertexCatNames[iVertexCat]+")",*_pLightJetBTag[iTagCollection][_VertexCatNames[iVertexCat]],*_pCJetBTag[iTagCollection][_VertexCatNames[iVertexCat]]);
 	_pCTagBackgroundValues[iTagCollection][_VertexCatNames[iVertexCat]] = pHistogramFactory->add("Numbers of non-C jets by C-tag NN value.  ("+ _VertexCatNames[iVertexCat]+")",*_pLightJetCTag[iTagCollection][_VertexCatNames[iVertexCat]],*_pBJetCTag[iTagCollection][_VertexCatNames[iVertexCat]]); 
 	_pBCTagBackgroundValues[iTagCollection][_VertexCatNames[iVertexCat]] = pHistogramFactory->add("Numbers of non-C jets by BC-tag NN value.  ("+ _VertexCatNames[iVertexCat]+")",*_pLightJetBCTag[iTagCollection][_VertexCatNames[iVertexCat]],*_pBJetBCTag[iTagCollection][_VertexCatNames[iVertexCat]]);
+
       }
        
     }
@@ -3455,7 +3456,7 @@ void LCFIAIDAPlotProcessor::PrintNNOutput(){
        
        CalculateTagPurity( _pBJetBTag[iTagCollection][nvname], _pBTagBackgroundValues[iTagCollection][nvname], bJetBTagPurity, bJetBTagPurityError);
        CalculateTagPurity( _pCJetCTag[iTagCollection][nvname], _pCTagBackgroundValues[iTagCollection][nvname], cJetCTagPurity, cJetCTagPurityError);
-       CalculateTagPurity( _pCJetBCTag[iTagCollection][nvname], _pBCTagBackgroundValues[iTagCollection][nvname], cJetBCTagPurity, cJetBCTagPurityError);
+       CalculateTagPurity( _pCJetBCTag[iTagCollection][nvname], _pBJetBCTag[iTagCollection][nvname], cJetBCTagPurity, cJetBCTagPurityError);
        
        outputFile << "\n Purity-Efficiencies Values for          ";
        if (iVertexCat==0)  {
