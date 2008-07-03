@@ -564,7 +564,8 @@ bool RPCutProcessor::_MCPIDFail( lcio::ReconstructedParticle* RPTrack, UTIL::LCR
 	//Not sure what to do if it has more than one related MC particle.  For now just print a warning and ignore.
 	if( RelatedMCParticles.size()!=1 )
 	{
-		std::cerr << RelatedMCParticles.size() << " MCParticles related to this track! No cuts performed on MC PDG code." << std::endl;
+	  //vjm 03/07/08 comment this out to stop continued warnings
+	  //std::cerr << RelatedMCParticles.size() << " MCParticles related to this track! No cuts performed on MC PDG code." << std::endl;
 		return false;
 	}
 	else
