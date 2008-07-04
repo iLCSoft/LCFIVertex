@@ -50,9 +50,7 @@ DSTCollectionProcessor::DSTCollectionProcessor() : Processor("DSTCollectionProce
 			   "JetCollectionName" , 
 			   "Name of the collection of ReconstructedParticles that is the jet"  ,
 			   _JetCollectionName ,
-			   std::string("FTSelectedJets") );
-
-
+			   std::string("Jets") );
 
 
   registerInputCollection( LCIO::LCFLOATVEC,
@@ -143,7 +141,7 @@ void DSTCollectionProcessor::processEvent(  LCEvent* pEvent) {
        LCCollection* flavourTagInputsCollection = pEvent->getCollection( _FlavourTagInputsCollectionName);
        
        try{
-	 LCCollection* TagCollection=pEvent->getCollection( _FlavourTagCollectionName );
+	      LCCollection* TagCollection=pEvent->getCollection( _FlavourTagCollectionName );
   
 
 	 //make a PIDHandler to add the info with
@@ -181,12 +179,12 @@ void DSTCollectionProcessor::processEvent(  LCEvent* pEvent) {
 	 //fill the float vec that will contain the paramters with dummy values = 9999
 	 FloatVec fv(pNames.size());
 	 //fill with dummy values
-	 for(int i = 0; i < pNames.size(); i++)
+	 for(int i = 0; i < (int)pNames.size(); i++)
 	   fv[i] = 9999;
 
 	 FloatVec mcv(mcNames.size());
 	 //fill with dummy values
-	 for(int i = 0; i < mcNames.size(); i++)
+	 for(int i = 0; i < (int)mcNames.size(); i++)
 	   mcv[i] = 9999;
       
 	 if (_debug>0)
@@ -250,22 +248,22 @@ void DSTCollectionProcessor::processEvent(  LCEvent* pEvent) {
        }
        catch(DataNotAvailableException &e){
 	 if (_debug == 1) 
-	   std::cout << "Collection " <<_JetCollectionName << " is unavailable in event " << _nEvt << std::endl;
+	   std::cout << "Collection " <<_FlavourTagCollectionName << " is unavailable in event " << _nEvt << std::endl;
        }
      }
      catch(DataNotAvailableException &e){
        if (_debug == 1) 
-	 std::cout << "Collection " <<_TrueJetFlavourColName << " is unavailable in event " << _nEvt << std::endl;
+	 std::cout << "Collection " <<_FlavourTagInputsCollectionName << " is unavailable in event " << _nEvt << std::endl;
      }
    }
    catch(DataNotAvailableException &e){
     if (_debug == 1) 
-      std::cout << "Collection " << _FlavourTagInputsCollectionName << " is unavailable in event " << _nEvt << std::endl;
+      std::cout << "Collection " << _TrueJetFlavourColName << " is unavailable in event " << _nEvt << std::endl;
    }
   }
   catch(DataNotAvailableException &e){
     if (_debug == 1) 
-      std::cout << "Collection " <<_FlavourTagCollectionName << " is unavailable in event " << _nEvt << std::endl;
+      std::cout << "Collection " <<_JetCollectionName << " is unavailable in event " << _nEvt << std::endl;
   }
 
 
