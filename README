@@ -1,6 +1,89 @@
 The LCFI Vertex Package
 
 releases:
+ --------------
+| v00-02-05-dev |
+ --------------
+  2008-07-04 18:31  walsh
+
+	* src/DSTCollectionProcessor.cc: - Put try-catch blocks in the
+	  correct order; - Define pNames.size() and mcNames.size() as
+	  integers in the initialisation loops of fv and mcv; -
+	  FTSelectedJets -> Jets as the default for _JetCollectionName
+
+2008-07-03 17:07  martin
+
+	* src/RPCutProcessor.cc: Comment out warning line: " MCParticles
+	  related to this track! No cuts performed on MC PDG code. which
+	  appears too much to act as any warning!
+
+2008-07-03 15:32  martin
+
+	* src/LCFIAIDAPlotProcessor.cc: Bug fix in purity printout for BC
+	  tag.	Thanks to Sonja for spotting this!
+
+2008-06-30 13:37  harderk
+
+	* src/ConversionTagger.cc: exploit momentum asymmetry between
+	  Lambda decay proton and pion
+
+2008-06-27 18:00  harderk
+
+	* diagnostics/src/V0Performance.cc: another Lambda plot
+
+2008-06-27 11:54  harderk
+
+	* diagnostics/src/V0Performance.cc: add histogram with momentum
+	  distributions of Lambda decay products
+
+ --------------
+| v00-02-04-dev |
+ --------------
+
+
+2008-06-25 18:20  lynch
+
+	* include/DSTAIDAPlotProcessor.h, include/DSTCollectionProcessor.h,
+	  src/DSTAIDAPlotProcessor.cc, src/DSTCollectionProcessor.cc,
+	  src/DSTPlotProcessor.cc, steering/ftfordst.xml: changed DST
+	  Processors so that PID info is added to the existing collection
+	  added DSTAIDAPlotProcessor
+
+2008-06-24 17:06  harderk
+
+	* include/ConversionTagger.h, src/ConversionTagger.cc: add
+	  capability to enable or disable tagging of conv,K0,Lambda0
+	  separately
+
+2008-06-19 16:04  harderk
+
+	* include/ConversionTagger.h, src/ConversionTagger.cc: reject
+	  candidates coming from vicinity of the IP
+
+2008-06-17 16:05  harderk
+
+	* src/ConversionTagger.cc: bug fix: existing conv/V0 candidates
+	  (e.g. found by PandoraPFA prior to running ConversionTagger) were
+	  not added to the LCCollection containing all conv/V0 candidates.
+
+2008-06-13 13:59  harderk
+
+	* diagnostics/: include/V0Performance.h, src/V0Performance.cc:
+	  count and print total number of conv/V0 candidates separately for
+	  conv, K0, Lambda. this improves diagnostics to tune
+	  ConversionTagger cuts separately for the different candidate
+	  classes
+
+2008-06-13 11:15  harderk
+
+	* diagnostics/: include/V0Performance.h, src/V0Performance.cc: add
+	  capability to look for conversions only in selected
+	  LCCollections. remove some debug output
+
+2008-06-13 11:13  harderk
+
+	* src/ConversionTagger.cc: reduce verbosity a bit
+
 
  --------------
 | v00-02-03-dev |
