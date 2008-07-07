@@ -515,6 +515,8 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
 			   << " contains NULL object at position "
 			   << ipart << " of " << recoColl->getNumberOfElements()
 			   << ". skipping." << endl;
+      vector<int> dummy;
+      matches.push_back(dummy);
       continue;
     }
 
