@@ -18,6 +18,12 @@
 
 #include <gear/BField.h>
 
+#define M_ELECTRON  0.00051
+#define M_PIPLUS    0.13957
+#define M_KZERO     0.49767
+#define M_PROTON    0.93827
+#define M_LAMBDA    1.11568
+
 using namespace lcio;
 using namespace marlin;
 using namespace std;
@@ -82,7 +88,7 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
 			    _cheatMode,false);
 
   registerOptionalParameter("CheatEvenMore",
-			    "even tag MC cov/V0 when only one track reconstructed?",
+			    "even tag MC conv/V0 when only one track reconstructed?",
 			    _cheatEvenMore,false);
 
 }
@@ -409,16 +415,16 @@ void ConversionTagger::tagger( LCEvent *evt,
 
 
 	// invariant mass of the combination: either around 0 or K0 mass?
-	double conv_mass = diParticleMass(mom1,mom2,0.000511,0.000511);
-	double K0_mass = diParticleMass(mom1,mom2,0.13957,0.13957);
+	double conv_mass = diParticleMass(mom1,mom2,M_ELECTRON,M_ELECTRON);
+	double K0_mass = diParticleMass(mom1,mom2,M_PIPLUS,M_PIPLUS);
 	double Lambda_mass;
 	if (mom1[0]*mom1[0]+mom1[1]*mom1[1]+mom1[2]*mom1[2]<
 	    mom2[0]*mom2[0]+mom2[1]*mom2[1]+mom2[2]*mom2[2]) {
 	  // lambda pion has smaller momentum than lambda proton.
 	  // thus in this case we assume mom1 to be the pion
-	  Lambda_mass = diParticleMass(mom1,mom2,0.13957,0.938);
+	  Lambda_mass = diParticleMass(mom1,mom2,M_PIPLUS,M_PROTON);
 	} else {
-	  Lambda_mass = diParticleMass(mom2,mom1,0.13957,0.938);
+	  Lambda_mass = diParticleMass(mom2,mom1,M_PIPLUS,M_PROTON);
 	}
 	histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,0.3);
 	histos->fill("K0_mass",K0_mass,1,"K0_mass",100,0,1);
@@ -426,8 +432,8 @@ void ConversionTagger::tagger( LCEvent *evt,
 
 	// check whether our candidate is either close to photon mass
 	// or K0 mass or Lambda0 mass
-	if (conv_mass>_massRangePhoton && fabs(K0_mass-0.498)>_massRangeKaon
-	    && fabs(Lambda_mass-1.116)>_massRangeLambda) continue;
+	if (conv_mass>_massRangePhoton && fabs(K0_mass-M_KZERO)>_massRangeKaon
+	    && fabs(Lambda_mass-M_LAMBDA)>_massRangeLambda) continue;
 
 
 	// vertex probability (cut on distance of closest approach first?)
@@ -442,9 +448,9 @@ void ConversionTagger::tagger( LCEvent *evt,
 		     "radius of closest approach in z",100,0,2000);
 
 	// determine type of candidate
-	if (conv_mass<=0.01) {
+	if (conv_mass<=_massRangePhoton) {
 	  cand_type=22;
-	} else if (fabs(K0_mass-0.498)<=0.02) {
+	} else if (fabs(K0_mass-M_KZERO)<=_massRangeKaon) {
 	  cand_type=310;
 	} else {
 	  cand_type=3122;
