@@ -4,6 +4,9 @@
 #include "../util/inc/matrix.h"
 #include "../util/inc/vector3.h"
 
+#include <marlin/Global.h>
+#include <gear/BField.h>
+
 // local
 
 #include "../inc/TState.h"
@@ -32,8 +35,8 @@ TState::TState( TrackState* TrackState )
   
   fQ = ( TrackState->isNeutral() ? 0 : (int)TrackState->charge() );  
   fCLight = 0.000299792458;
-  fB = 4.0;// Bz [T] component only so far, take it from gear
-  
+  fB = marlin::Global::GEAR->getBField().at(gear::Vector3D(0.,0.,0.)).z();
+
   double sinp = sin(helix.phi()); double cosp = cos(helix.phi());
   double d0 = helix.d0(); double z0 = helix.z0();
   double invR = helix.invR(); double tanl = helix.tanLambda();
@@ -350,9 +353,9 @@ bool TState::GetDStoTStateBz( const TState *p,
   DS1 = ss1[i1];
   
   double x = g[i][0], y = g[i][1], z = g[i][2];
-  double ppx = g[i][3], ppy = g[i][4];
-  double x1 =g1[i1][0], y1 = g1[i1][1], z1 = g1[i1][2];  
-  double ppx1 = g1[i1][3], ppy1 = g1[i1][4];
+  double ppx = g[i][3], ppy = g[i][4];  
+  double x1 = g1[i1][0], y1 = g1[i1][1], z1 = g1[i1][2]; 
+  double ppx1 = g1[i1][3], ppy1 = g1[i1][4];  
   double dx = x1-x;
   double dy = y1-y;
   double dz = z1-z;
