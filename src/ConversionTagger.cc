@@ -62,14 +62,10 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
 			    "Lambda candidates: max deviation of candidate mass"
 			    " from PDG Lambda mass",
 			    _massRangeLambda,0.02);
-  registerOptionalParameter("DistCutRPhi",
+  registerOptionalParameter("DistCut",
 			    "max distance of closest approach between two "
-			    " helices, rphi projection (mm)",
-			    _distCutRPhi,1.0);
-  registerOptionalParameter("DistCutZ",
-			    "max distance of closest approach between two "
-			    " helices, z projection (mm)",
-			    _distCutZ,1.0);
+			    " helices (mm)",
+			    _distCut,1.0);
   registerOptionalParameter("MinDistFromIP",
 			    "min distance of V0 candidates from IP (mm)",
 			    _minDistFromIP,1.0);
@@ -284,8 +280,7 @@ void ConversionTagger::tagger( LCEvent *evt,
 	// require opposite charges
 	if (rp1->getCharge()*rp2->getCharge()>=0) continue;
 
-	// very simple vertexing algorithm:
-
+	// get helix representation of these ReconstructedParticles
 	Track* trk1=rp1->getTracks()[0];
 	Track* trk2=rp2->getTracks()[0];
 	HelixClass helix1,helix2;
@@ -295,142 +290,41 @@ void ConversionTagger::tagger( LCEvent *evt,
 	helix2.Initialize_Canonical(trk2->getPhi(),trk2->getD0(),
 				    trk2->getZ0(),trk2->getOmega(),
 				    trk2->getTanLambda(),_BField);
+	const double* mom1=rp1->getMomentum();
+	const double* mom2=rp2->getMomentum();
 
-	// find intersection of helices in rphi projection
-	// calculations a la Paul Bourke, University of Western Australia
-	//
-	// distance between centres
-	double r1=helix1.getRadius();
-	double r2=helix2.getRadius();
-	double x1=helix1.getXC();
-	double y1=helix1.getYC();
-	double x2=helix2.getXC();
-	double y2=helix2.getYC();
-	double d=sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
-	histos->fill("helixdist",d/(r1+r2),1,
-		     "fractional distance between helix centres",100,0,2);
-	// centre point
-	double a=(r1*r1-r2*r2+d*d)/2/d;
-	double xa=x1+a/d*(x2-x1);
-	double ya=y1+a/d*(y2-y1);
-	// do these helices intersect at all?
-	double vertex_radius, vertex_z;
-	double dist_rphi, dist_z;
-	float vertex1[3],vertex2[3];
-	float ref1[3]={helix1.getReferencePoint()[0],
-		       helix1.getReferencePoint()[1],
-		       helix1.getReferencePoint()[2]};
-	float ref2[3]={helix2.getReferencePoint()[0],
-		       helix2.getReferencePoint()[1],
-		       helix2.getReferencePoint()[2]};
-	if (d<r1+r2) {
-	  // we have two possible vertices here.
-	  double h=sqrt(r1*r1-a*a);
-	  double xc1=xa+h*(y2-y1)/d;
-	  double yc1=ya-h*(x2-x1)/d;
-	  double rc1=sqrt(xc1*xc1+yc1*yc1);
-	  double xc2=xa-h*(y2-y1)/d;
-	  double yc2=ya+h*(x2-x1)/d;
-	  double rc2=sqrt(xc2*xc2+yc2*yc2);
-	  // check z coordinates to see at which candidate vertex radius
-	  // the agreement is better
-	  float vtx1rc1[6],vtx2rc1[6],vtx1rc2[6],vtx2rc2[6];
-	  helix1.getPointOnCircle(rc1,ref1,vtx1rc1);
-	  helix2.getPointOnCircle(rc1,ref2,vtx2rc1);
-	  helix1.getPointOnCircle(rc2,ref1,vtx1rc2);
-	  helix2.getPointOnCircle(rc2,ref2,vtx2rc2);
-	  if (fabs(vtx1rc1[2]-vtx2rc1[2])<fabs(vtx1rc2[2]-vtx2rc2[2])) {
-	    vertex_radius=rc1;
-	    dist_rphi=0;
-	    vertex_z=(vtx1rc1[2]+vtx2rc1[2])/2;
-	    dist_z=fabs(vtx1rc1[2]-vtx2rc1[2]);
-	    vertex1[0]=vtx1rc1[0];
-	    vertex1[1]=vtx1rc1[1];
-	    vertex1[2]=vtx1rc1[2];
-	    vertex2[0]=vtx2rc1[0];
-	    vertex2[1]=vtx2rc1[1];
-	    vertex2[2]=vtx2rc1[2];
-	  } else {
-	    vertex_radius=rc2;
-	    dist_rphi=0;
-	    vertex_z=(vtx1rc2[2]+vtx2rc2[2])/2;
-	    dist_z=fabs(vtx1rc2[2]-vtx2rc2[2]);
-	    vertex1[0]=vtx1rc2[0];
-	    vertex1[1]=vtx1rc2[1];
-	    vertex1[2]=vtx1rc2[2];
-	    vertex2[0]=vtx2rc2[0];
-	    vertex2[1]=vtx2rc2[1];
-	    vertex2[2]=vtx2rc2[2];
-	  }
-	} else {
-	  // take the centre point
-	  vertex_radius = sqrt(xa*xa+ya*ya);
-	  float vtx1rc[6],vtx2rc[6];
-	  double r1x=x1+r1/d*(x2-x1);
-	  double r1y=y1+r1/d*(y2-y1);
-	  helix1.getPointOnCircle(sqrt(r1x*r1x+r1y*r1y),ref1,vtx1rc);
-	  double r2x=x2-r2/d*(x2-x1);
-	  double r2y=y2-r2/d*(y2-y1);
-	  helix2.getPointOnCircle(sqrt(r2x*r2x+r2y*r2y),ref2,vtx2rc);
-	  vertex_z = (vtx1rc[2]+vtx2rc[2])/2;
-	  dist_z = fabs(vtx1rc[2]-vtx2rc[2]);
-	  dist_rphi = d-r1-r2;
-	  vertex1[0]=vtx1rc[0];
-	  vertex1[1]=vtx1rc[1];
-	  vertex1[2]=vtx1rc[2];
-	  vertex2[0]=vtx2rc[0];
-	  vertex2[1]=vtx2rc[1];
-	  vertex2[2]=vtx2rc[2];
-	}
-
-	//streamlog_out( DEBUG0 ) << "vertex candidate: radius=" << vertex_radius
-	//			<< ", z=" << vertex_z << "; distance rphi="
-	//			<< dist_rphi << ", distance z=" << dist_z << endl;
-
-	// experimental: make use of new HelixClass features
-	float npos[3],nmom[3];
-	double dist_3d=helix1.getDistanceToHelix(&helix2,npos,nmom);
-	histos->fill("new_helix_dist",dist_3d,1,"new getdistancetohelix",100,0,20);
-	if (dist_3d>1) continue;
-
-	// cut on distance
-	histos->fill("dist_rphi",dist_rphi,1,"helix distance in rphi",100,0,10);
-	histos->fill("dist_z",dist_z,1,"helix distance in z",100,0,10);
-	//if (dist_rphi>_distCutRPhi) continue;
-	//if (dist_z>_distCutZ) continue;
-
-	// remove candidates that are very close to the IP
-	if (sqrt(vertex_radius*vertex_radius+vertex_z*vertex_z)<_minDistFromIP)
-	  continue;
-
-	// get particle momenta at vertex
-	float mom1[3],mom2[3];
-	helix1.getExtrapolatedMomentum(vertex1,mom1);
-	helix2.getExtrapolatedMomentum(vertex2,mom2);
+	// find distance of closest approach of helices, plus vertex properties
+	float vpos[3],vmom[3];
+	double dist=helix1.getDistanceToHelix(&helix2,vpos,vmom);
+	histos->fill("helix_dist",dist,1,"distance between helices",100,0,20);
+	if (dist>_distCut) continue;
 
 	// for some reason the extrapolation sometimes ends up with NaN momentum
-	if ( ( !(mom1[0]<0) && !(mom1[0]>=0) ) ||
-	     ( !(mom1[1]<0) && !(mom1[1]>=0) ) ||
-	     ( !(mom2[0]<0) && !(mom2[0]>=0) ) ||
-	     ( !(mom2[1]<0) && !(mom2[1]>=0) ) ) {
+	if ( ( !(vmom[0]<0) && !(vmom[0]>=0) ) ||
+	     ( !(vmom[1]<0) && !(vmom[1]>=0) ) ||
+	     ( !(vmom[2]<0) && !(vmom[2]>=0) ) ) {
 	  streamlog_out(ERROR) << "extrapolated momenta are NaN. "
-			       << " dist_rphi=" << dist_rphi
-			       << ", dist_z=" << dist_z << endl;
+			       << " dist=" << dist << endl;
 	  continue;
 	}
 
+	// remove candidates that are very close to the IP
+	double vertex_radius=sqrt(vpos[0]*vpos[0]
+				  +vpos[1]*vpos[1]
+				  +vpos[2]*vpos[2]);
+	if (vertex_radius<_minDistFromIP) continue;
 
 	// invariant mass of the combination: either around 0 or K0 mass?
-	double conv_mass = diParticleMass(mom1,mom2,M_ELECTRON,M_ELECTRON);
-	double K0_mass = diParticleMass(mom1,mom2,M_PIPLUS,M_PIPLUS);
+	double conv_mass = diParticleMass(mom1,mom2,M_ELECTRON,M_ELECTRON,vmom);
+	double K0_mass = diParticleMass(mom1,mom2,M_PIPLUS,M_PIPLUS,vmom);
 	double Lambda_mass;
 	if (mom1[0]*mom1[0]+mom1[1]*mom1[1]+mom1[2]*mom1[2]<
 	    mom2[0]*mom2[0]+mom2[1]*mom2[1]+mom2[2]*mom2[2]) {
 	  // lambda pion has smaller momentum than lambda proton.
 	  // thus in this case we assume mom1 to be the pion
-	  Lambda_mass = diParticleMass(mom1,mom2,M_PIPLUS,M_PROTON);
+	  Lambda_mass = diParticleMass(mom1,mom2,M_PIPLUS,M_PROTON,vmom);
 	} else {
-	  Lambda_mass = diParticleMass(mom2,mom1,M_PIPLUS,M_PROTON);
+	  Lambda_mass = diParticleMass(mom2,mom1,M_PIPLUS,M_PROTON,vmom);
 	}
 	histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,0.3);
 	histos->fill("K0_mass",K0_mass,1,"K0_mass",100,0,1);
@@ -451,7 +345,7 @@ void ConversionTagger::tagger( LCEvent *evt,
 	// conversion tag then!
 
 	histos->fill("radius",vertex_radius,1,
-		     "radius of closest approach in z",100,0,2000);
+		     "3d radius of conv/V0 vertex candidates",100,0,2000);
 
 	// determine type of candidate
 	if (conv_mass<=_massRangePhoton) {
@@ -572,14 +466,15 @@ ReconstructedParticle* ConversionTagger::CreateRecoPart(Track* trk){
 }
 
 
-double ConversionTagger::diParticleMass(float* mom1,
-					float* mom2,
-					double mass1, double mass2) {
+double ConversionTagger::diParticleMass(const double* mom1,
+					const double* mom2,
+					const double mass1, const double mass2,
+					const float* vertmom) {
 
   double e1=sqrt(mass1*mass1+mom1[0]*mom1[0]+mom1[1]*mom1[1]+mom1[2]*mom1[2]);
   double e2=sqrt(mass2*mass2+mom2[0]*mom2[0]+mom2[1]*mom2[1]+mom2[2]*mom2[2]);
   double sqmass=(e1+e2)*(e1+e2);
-  for (int i=0; i<3; i++) sqmass-=(mom1[i]+mom2[i])*(mom1[i]+mom2[i]);
+  for (int i=0; i<3; i++) sqmass-=vertmom[i]*vertmom[i];
   //streamlog_out( DEBUG0 ) << "diParticleMass: part1=" << mom1[0] << ", "
   //			  << mom1[1] << ", " << mom1[2] << "; energy "
   //			  << e1 << endl;

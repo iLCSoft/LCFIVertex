@@ -33,8 +33,9 @@ class ConversionTagger : public Processor {
 
   void tagger( LCEvent *evt, const string collectionName);
   ReconstructedParticle* CreateRecoPart(Track* trk);
-  double diParticleMass(float* mom1, float* mom2,
-			double mass1, double mass2);
+  double diParticleMass(const double* mom1, const double* mom2,
+			const double mass1, const double mass2,
+			const float* vertmom);
 
   MCParticle* isFromV0(ReconstructedParticle* rp, vector<LCRelationNavigator*>relCols);
 
@@ -44,8 +45,7 @@ class ConversionTagger : public Processor {
   double _massRangePhoton;
   double _massRangeKaon;
   double _massRangeLambda;
-  double _distCutRPhi;
-  double _distCutZ;
+  double _distCut;
   bool   _cheatMode;
   bool   _cheatEvenMore;
   std::vector<int> _PdgToTag;
