@@ -53,15 +53,15 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
   registerOptionalParameter("MassRangePhoton",
 			    "upper mass limit for photon conversion candidates"
 			    " (GeV)",
-			    _massRangePhoton,0.01);
+			    _massRangePhoton,0.005);
   registerOptionalParameter("MassRangeKaon",
 			    "Kshort candidates: max deviation of candidate mass"
 			    " from PDG Kshort mass (GeV)",
-			    _massRangeKaon,0.02);
+			    _massRangeKaon,0.005);
   registerOptionalParameter("MassRangeLambda",
 			    "Lambda candidates: max deviation of candidate mass"
 			    " from PDG Lambda mass",
-			    _massRangeLambda,0.02);
+			    _massRangeLambda,0.002);
   registerOptionalParameter("DistCut",
 			    "max distance of closest approach between two "
 			    " helices (mm)",
@@ -299,15 +299,6 @@ void ConversionTagger::tagger( LCEvent *evt,
 	histos->fill("helix_dist",dist,1,"distance between helices",100,0,20);
 	if (dist>_distCut) continue;
 
-	// for some reason the extrapolation sometimes ends up with NaN momentum
-	if ( ( !(vmom[0]<0) && !(vmom[0]>=0) ) ||
-	     ( !(vmom[1]<0) && !(vmom[1]>=0) ) ||
-	     ( !(vmom[2]<0) && !(vmom[2]>=0) ) ) {
-	  streamlog_out(ERROR) << "extrapolated momenta are NaN. "
-			       << " dist=" << dist << endl;
-	  continue;
-	}
-
 	// remove candidates that are very close to the IP
 	double vertex_radius=sqrt(vpos[0]*vpos[0]
 				  +vpos[1]*vpos[1]
@@ -326,9 +317,9 @@ void ConversionTagger::tagger( LCEvent *evt,
 	} else {
 	  Lambda_mass = diParticleMass(mom2,mom1,M_PIPLUS,M_PROTON,vmom);
 	}
-	histos->fill("conv_mass",conv_mass,1,"conv_mass",100,0,0.3);
-	histos->fill("K0_mass",K0_mass,1,"K0_mass",100,0,1);
-	histos->fill("Lambda_mass",Lambda_mass,1,"Lambda_mass",100,1,1.3);
+	histos->fill("conv_mass",conv_mass,1,"conv_mass",40,0,0.05);
+	histos->fill("K0_mass",K0_mass,1,"K0_mass",40,M_KZERO-0.05,M_KZERO+0.05);
+	histos->fill("Lambda_mass",Lambda_mass,1,"Lambda_mass",40,M_LAMBDA-0.05,M_LAMBDA+0.05);
 
 	// check whether our candidate is either close to photon mass
 	// or K0 mass or Lambda0 mass
