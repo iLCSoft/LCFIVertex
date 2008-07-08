@@ -1,6 +1,28 @@
 The LCFI Vertex Package
 
 releases:
+
+ --------------
+| v00-02-06-dev |
+ --------------
+
+2008-07-07 15:57  harderk
+
+    * src/ConversionTagger.cc: clean up hardcoded numbers such as
+      particle masses
+
+2008-07-07 15:56  harderk
+
+    * diagnostics/src/V0Performance.cc: fix bug that would cause
+      segmentation fault when dealing with corrupted input collections
+
+2008-07-07 15:04  lastovic
+
+    * vertex_lcfi/src/TState.cpp: Magnetic field taken from Gear.
+
+2008-07-05 10:52  gaede
+
+
  --------------
 | v00-02-05-dev |
  --------------
