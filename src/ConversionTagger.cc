@@ -387,11 +387,17 @@ void ConversionTagger::tagger( LCEvent *evt,
 	//			<< ", z=" << vertex_z << "; distance rphi="
 	//			<< dist_rphi << ", distance z=" << dist_z << endl;
 
+	// experimental: make use of new HelixClass features
+	float npos[3],nmom[3];
+	double dist_3d=helix1.getDistanceToHelix(&helix2,npos,nmom);
+	histos->fill("new_helix_dist",dist_3d,1,"new getdistancetohelix",100,0,20);
+	if (dist_3d>1) continue;
+
 	// cut on distance
 	histos->fill("dist_rphi",dist_rphi,1,"helix distance in rphi",100,0,10);
 	histos->fill("dist_z",dist_z,1,"helix distance in z",100,0,10);
-	if (dist_rphi>_distCutRPhi) continue;
-	if (dist_z>_distCutZ) continue;
+	//if (dist_rphi>_distCutRPhi) continue;
+	//if (dist_z>_distCutZ) continue;
 
 	// remove candidates that are very close to the IP
 	if (sqrt(vertex_radius*vertex_radius+vertex_z*vertex_z)<_minDistFromIP)
