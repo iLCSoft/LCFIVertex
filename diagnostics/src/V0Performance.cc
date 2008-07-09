@@ -74,6 +74,7 @@ void V0Performance::processRunHeader( LCRunHeader* run) {
 void V0Performance::processEvent( LCEvent * evt ) { 
 
   V0Candidates.clear();
+  numHits.clear();
 
   const StringVec* colNames = evt->getCollectionNames();
 
@@ -210,6 +211,9 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
       newconv->daughters = daughters;
       newconv->tracks.clear();
       newconv->recopart.clear();
+      newconv->numTrackerHits=0;
+      for (size_t i=0; i<daughters.size(); i++)
+	newconv->numTrackerHits+=numHits[daughters[i]];
       V0Candidates.push_back(newconv);
       ++mc_num[V0Gamma];
       mc_tracks[V0Gamma]+=2;
@@ -289,6 +293,9 @@ void V0Performance::treeAnalysis( const LCEvent *evt, const string collectionNam
 	newconv->daughters = daughters;
 	newconv->tracks.clear();
 	newconv->recopart.clear();
+	newconv->numTrackerHits=0;
+	for (size_t i=0; i<daughters.size(); i++)
+	  newconv->numTrackerHits+=numHits[daughters[i]];
 	V0Candidates.push_back(newconv);
 	++mc_num[thisV0Type];
 	mc_tracks[thisV0Type]+=nCharged;

@@ -59,6 +59,7 @@ class V0Performance : public Processor {
     int V0Type;
     double radius;
     double z;
+    int numTrackerHits;
   } V0Candidate_type;
   std::vector<V0Candidate_type*> V0Candidates;
 
