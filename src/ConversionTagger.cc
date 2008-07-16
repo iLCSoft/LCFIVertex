@@ -384,7 +384,6 @@ void ConversionTagger::tagger( LCEvent *evt,
 
   // create new ReconstructedParticle collection without tagged particles
   LCCollectionVec* remainder = new LCCollectionVec(LCIO::RECONSTRUCTEDPARTICLE);
-  remainder->setSubset();
   for (int irp=0; irp<coll->getNumberOfElements(); irp++) {
     if (!tagged[irp]) {
       ReconstructedParticleImpl* newpart=new ReconstructedParticleImpl(*dynamic_cast<ReconstructedParticleImpl*>(coll->getElementAt(irp)));
