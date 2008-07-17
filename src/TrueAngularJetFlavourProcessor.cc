@@ -252,29 +252,14 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
 		      }
 		    else
 		      {
-
-			//check if already in the vector
-
-			std::vector<MCParticle*>::const_iterator Doubles = find( JetMCs.begin() ,JetMCs.end() , MCused);
-			if(Doubles == JetMCs.end()|| JetMCs.size() ==0 )
-			  {
-			    //	    std::cout<< MCused->getPDG() <<std::endl;
-			    JetMCs.push_back(MCused);
-			  }  
+			JetMCs.push_back(MCused);
 			originalhadron = 1;
 		      }
 		  }
 		else
 		  {
-		    //check if already in the vector
-			//unique does not work
-		    std::vector<MCParticle*>::const_iterator Doubles = find(JetMCs.begin(),JetMCs.end(), MCused);
-		    if(Doubles == JetMCs.end()|| JetMCs.size() ==0)
-		      {
-			//			std::cout<<"NUMBER    "<<MCused->getPDG()<<std::endl;
-			JetMCs.push_back(MCused);
-		      }
-			originalhadron = 1;
+		    JetMCs.push_back(MCused);
+		    originalhadron = 1;
 		  }
 	      }
 	  }
