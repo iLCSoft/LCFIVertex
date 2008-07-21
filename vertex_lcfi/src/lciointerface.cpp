@@ -27,11 +27,6 @@ namespace vertex_lcfi{
 vertex_lcfi::Track* trackFromLCIORP(Event* MyEvent, lcio::ReconstructedParticle* RP)
 {
 	//Get the track from the RP
-	vector<lcio::Track*> RPsTracks = RP->getTracks();
-	if(RPsTracks.empty())
-	{
-		std::cerr << "Warning lciointerface.cpp:31 RP with no Track - excluding" << std::endl;
-	}
 	lcio::Track* RPTrack = *(RP->getTracks().begin());
 	
 	HelixRep H;
@@ -161,9 +156,14 @@ vertex_lcfi::Jet* jetFromLCIORP(Event* MyEvent,lcio::ReconstructedParticle* RP)
 	vector<ReconstructedParticle*> LCIOJetRPs = RP->getParticles();
 	for (vector<ReconstructedParticle*>::const_iterator iRP = LCIOJetRPs.begin();iRP!=LCIOJetRPs.end();++iRP)
 	{
-		vertex_lcfi::Track* MyTrack = trackFromLCIORP(MyEvent,*iRP);
-		MyEvent->addTrack(MyTrack);
-		MyJet->addTrack(MyTrack);
+      vector<lcio::Track*> RPsTracks = (*iRP)->getTracks();
+      if( ! RPsTracks.empty() ) {
+		   vertex_lcfi::Track* MyTrack = trackFromLCIORP(MyEvent,*iRP);
+		   MyEvent->addTrack(MyTrack);
+		   MyJet->addTrack(MyTrack);
+      } else {
+         std::cerr << "Warning lciointerface.cpp:31 RP with no Track - excluding" << std::endl;
+      }
 	}
 	return MyJet;
 }
