@@ -162,7 +162,7 @@ vertex_lcfi::Jet* jetFromLCIORP(Event* MyEvent,lcio::ReconstructedParticle* RP)
 		   MyEvent->addTrack(MyTrack);
 		   MyJet->addTrack(MyTrack);
       } else {
-         std::cerr << "Warning lciointerface.cpp:31 RP with no Track - excluding" << std::endl;
+         std::cout << "Warning lciointerface.cpp:31 RP with no Track - excluding" << std::endl;
       }
 	}
 	return MyJet;
