@@ -149,6 +149,12 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
 		charge = chargefromPDG(MCused->getPDG());
 	      }
 						
+	    //codes with six digits or more are for special purposes only
+	    if( code  > 100000   )
+	      {
+		code  = 0;
+	      }
+	    
 	    //this little addition will take care of wierder mesons 
 	    if( code  > 10000   )
 	      {
