@@ -175,7 +175,7 @@ void NeuralNetTrainerProcessor::processRunHeader( LCRunHeader* pRun )
 	RequiredNames.insert( "D0Significance1");
 	RequiredNames.insert( "D0Significance2");
 	RequiredNames.insert( "Z0Significance1" );
-	RequiredNames.insert( "D0Significance2" );
+	RequiredNames.insert( "Z0Significance2" );
 	RequiredNames.insert( "JointProbRPhi");
 	RequiredNames.insert( "JointProbZ");
 	RequiredNames.insert( "Momentum1");
@@ -294,7 +294,7 @@ void NeuralNetTrainerProcessor::processEvent( lcio::LCEvent* pEvent )
 				inputs.push_back( std::tanh(Inputs[_IndexOf["D0Significance1"]]/Norm_D0Significance) );
 				inputs.push_back( std::tanh(Inputs[_IndexOf["D0Significance2"]]/Norm_D0Significance) );
 				inputs.push_back( std::tanh(Inputs[_IndexOf["Z0Significance1"]]/Norm_Z0Significance) );
-				inputs.push_back( std::tanh(Inputs[_IndexOf["D0Significance2"]]/Norm_Z0Significance) );
+				inputs.push_back( std::tanh(Inputs[_IndexOf["Z0Significance2"]]/Norm_Z0Significance) );
 				inputs.push_back( Inputs[_IndexOf["JointProbRPhi"]] );
 				inputs.push_back( Inputs[_IndexOf["JointProbZ"]] );
 				inputs.push_back( std::tanh(Inputs[_IndexOf["Momentum1"]]/Norm_Momentum) );
