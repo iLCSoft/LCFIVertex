@@ -198,7 +198,7 @@ RPCutProcessor::RPCutProcessor() : Processor("RPCutProcessor") {
 			      PDGCodeCuts );
   registerInputCollection( lcio::LCIO::LCRELATION, 
 			      "h3_MonteCarloLCRelationCollection" , 
-			      "Name of the LCRelation collection which links InputRCPCollection to the Monte Carlo data. Required only if MCPIDEnable is true"  ,
+			      "Name of the LCRelation collection which links InputRCPCollection to the Monte Carlo data. This can be either the relation collection between the Track objects and the MC, or the ReconstructedParticle objects and the MC. Required only if MCPIDEnable is true"  ,
 			      _MonteCarloRelationColName ,
 			      std::string("Relations") ) ;
   registerOptionalParameter( "i1_BadParametersEnable" , 
@@ -259,7 +259,7 @@ void RPCutProcessor::init() {
 
 void RPCutProcessor::processRunHeader( LCRunHeader* run) { 
 	_nRun++ ;
-} 
+}
 
 void RPCutProcessor::processEvent( LCEvent * evt ) { 
 
@@ -288,7 +288,16 @@ void RPCutProcessor::processEvent( LCEvent * evt ) {
 		if(RelCol!=0) // the above "try" was successful
 		{
 			pMCRelationNavigator=new UTIL::LCRelationNavigator(RelCol);
-			vertex_lcfi::MemoryManager<UTIL::LCRelationNavigator>::Event()->registerObject(pMCRelationNavigator);
+
+			// Check to make sure the relation is between the correct types. It has to be "to" MCParticle but can be
+			// "from" either Track or ReconstructedParticle.
+			if( pMCRelationNavigator->getToType()!=lcio::LCIO::MCPARTICLE || (pMCRelationNavigator->getFromType()!=lcio::LCIO::TRACK && pMCRelationNavigator->getFromType()!=lcio::LCIO::RECONSTRUCTEDPARTICLE) )
+			{
+				message<marlin::ERROR4>( "The relation collection provided for the PID cuts is not the correct type (it should be from either Track or ReconstructedParticle, and to MCParticle)." );
+				delete pMCRelationNavigator;
+				pMCRelationNavigator=0;
+			}
+			else vertex_lcfi::MemoryManager<UTIL::LCRelationNavigator>::Event()->registerObject(pMCRelationNavigator);
 		}
 		else // the above "try" was unsuccessful
 		{
@@ -559,7 +568,11 @@ bool RPCutProcessor::_MCPIDFail( lcio::ReconstructedParticle* RPTrack, UTIL::LCR
 	}
 
 	lcio::Track* Track = RPTrack->getTracks()[0];
-	std::vector<lcio::LCObject*> RelatedMCParticles = pMCRelationNavigator->getRelatedToObjects(Track);
+	std::vector<lcio::LCObject*> RelatedMCParticles;
+
+	// Decide whether to use the Track object or the ReconstructedParticle object to get the MCParticle
+	if( pMCRelationNavigator->getFromType()==lcio::LCIO::TRACK ) RelatedMCParticles = pMCRelationNavigator->getRelatedToObjects(Track);
+	else RelatedMCParticles = pMCRelationNavigator->getRelatedToObjects(RPTrack);
 
 	//Not sure what to do if it has more than one related MC particle.  For now just print a warning and ignore.
 	if( RelatedMCParticles.size()!=1 )
@@ -607,8 +620,20 @@ bool RPCutProcessor::_BadParametersFail(lcio::ReconstructedParticle* RPTrack)
 
 bool  RPCutProcessor::_MCVertexFail(lcio::ReconstructedParticle* RPTrack, UTIL::LCRelationNavigator* pMCRelationNavigator )
 {
-	LCObjectVec objectVec = pMCRelationNavigator->getRelatedToObjects(RPTrack->getTracks()[0]);
-	
+	if( pMCRelationNavigator==0 )
+	{
+		// Unable to get the MC relation data earlier, so just return false because MC PID cuts are
+		// being ignored.  A warning to cerr will have already been printed so no need to do so here.
+		return false;
+	}
+
+
+	LCObjectVec objectVec;
+
+	// Decide whether to use the Track object or the ReconstructedParticle object to get the MCParticle
+	if( pMCRelationNavigator->getFromType()==lcio::LCIO::TRACK ) objectVec = pMCRelationNavigator->getRelatedToObjects(RPTrack->getTracks()[0]);
+	else objectVec = pMCRelationNavigator->getRelatedToObjects(RPTrack);
+
 	if (objectVec.size() > 0)
 	{
 		MCParticle* mcp = dynamic_cast<MCParticle*> (objectVec[0]);
