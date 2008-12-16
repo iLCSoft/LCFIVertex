@@ -368,7 +368,7 @@ void RPCutProcessor::processEvent( LCEvent * evt ) {
 			ReconstructedParticleVec RPTracks = OutputRP->getParticles();
 			for (ReconstructedParticleVec::iterator iRPTrack = RPTracks.begin();iRPTrack != RPTracks.end();++iRPTrack)
 			{
-				if ((*iRPTrack)->getTracks().size() == 0 
+				if ((*iRPTrack)->getTracks().size() == 0 || ((*iRPTrack)->getCharge() == 0 && ! _MonteCarloPIDEnable)
 				    ||((_D0Enable && _D0Fail(*iRPTrack)) ||
 				       (_D0ErrEnable && _D0ErrFail(*iRPTrack)) ||
 				       (_Z0Enable && _Z0Fail(*iRPTrack)) ||
@@ -396,7 +396,7 @@ void RPCutProcessor::processEvent( LCEvent * evt ) {
 		else //NOT SubParticleLists
 		{
 			//We are deciding weather to cut InputRP itself
-			if ((InputRP)->getTracks().size() == 0
+			if ((InputRP)->getTracks().size() == 0  || ((InputRP)->getCharge() == 0 && ! _MonteCarloPIDEnable) 
 			    ||((_D0Enable && _D0Fail(InputRP)) ||
 			       (_D0ErrEnable && _D0ErrFail(InputRP)) ||
 			       (_Z0Enable && _Z0Fail(InputRP)) ||
