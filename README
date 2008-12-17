@@ -2,6 +2,84 @@ The LCFI Vertex Package
 
 releases:
 
+ ------------
+| v00-03-pre |
+ ------------
+
+2008-12-16 10:56  walsh
+
+	* src/RPCutProcessor.cc: Remove ReconstuctedParticle V0s from
+	  selected Jets.
+
+2008-10-17 00:01  grimes
+
+	* src/RPCutProcessor.cc: Modified the Monte Carlo particle ID cut
+	  so that it can use a ReconstructedParticle to MCParticle relation
+	  collection as well as the current Track to MCParticle.  Also
+	  added a check on the type of objects the relation collection
+	  refers to and from.
+
+2008-10-14 14:21  engels
+
+	* CMakeLists.txt, LCFIVertexConfig.cmake.in: added 32 bit
+	  compatibility option
+
+2008-08-12 14:44  walsh
+
+	* src/NeuralNetTrainer.cc: bug fix: using D0Significance2 instead
+	  of Z0Significance in parts of the code.
+
+2008-07-25 12:21  harderk
+
+	* src/TrueAngularJetFlavourProcessor.cc: prevent true jet flavour
+	  confusion due to anomalous PDG codes with more than five digits
+
+2008-07-22 11:38  walsh
+
+	* vertex_lcfi/src/lciointerface.cpp: line 165: cerr -> cout
+
+2008-07-21 23:11  walsh
+
+	* vertex_lcfi/src/lciointerface.cpp: Bug fix: only RPs with a track
+	  are used to make a Jet in jetFromLCIORP.
+
+2008-07-17 16:56  jeffery
+
+	* doc/zvtop.pdf, vertex_lcfi/zvtop/include/doc.h: Put zvtop docs in
+	  pdf
+
+2008-07-17 02:18  devetak
+
+	* src/TrueAngularJetFlavourProcessor.cc: Bug... repetition is bad
+	  but errors are worse...
+
+2008-07-16 11:36  harderk
+
+	* src/ConversionTagger.cc: remove LCCollection::setSubset() call
+	  that seems to cause problems with re-reading the V0Veto
+	  collection in separate Marlin jobs
+
+2008-07-09 16:24  harderk
+
+	* diagnostics/: include/V0Performance.h, src/V0Performance.cc:
+	  improve treatment of SimTrackerHit count
+
+2008-07-08 18:09  harderk
+
+	* src/ConversionTagger.cc: adjust default values and histogram
+	  ranges according to cut tuning results so far
+
+2008-07-08 16:51  harderk
+
+	* include/ConversionTagger.h, src/ConversionTagger.cc: replace
+	  entire vertex reconstruction by new MarlinUtil HelixClass code
+
+2008-07-08 13:29  harderk
+
+	* src/ConversionTagger.cc: improved (3d) calculation of helix
+	  distances
+
+
  --------------
 | v00-02-06-dev |
  --------------
