@@ -1,3 +1,13 @@
+// If AIDA is being used then this will have been defined
+#ifndef MARLIN_USE_AIDA
+
+#warning "-------------------------------------------------------------------------------"
+#warning "- DSTAIDAPlotProcessor requires MARLIN_USE_AIDA to be defined. Did you enable -"
+#warning "- AIDA when compiling Marlin? DSTAIDAPlotProcessor will not be compiled.      -"
+#warning "-------------------------------------------------------------------------------"
+
+// Can't do anything else.
+#else
 
 #include "DSTAIDAPlotProcessor.h"
 #include <iostream>
@@ -1040,4 +1050,6 @@ AIDA::IDataPointSet* DSTAIDAPlotProcessor::CreateXYPlot(const AIDA::IDataPointSe
 
 #endif
 
+
+#endif // end of "#ifndef MARLIN_USE_AIDA"
 
