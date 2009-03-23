@@ -14,13 +14,20 @@
 
 #include "LCFIAIDAPlotProcessor.h" 
  
+#ifdef __APPLE__
+#define uint uint32_t
+#endif
+
 // standard library includes 
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <vector>
 #include <set>
-#include <math.h>
+//#include <math.h>
+#include <cmath>
+#include <cstdlib>
+#include <algorithm>
 
 // LCIO includes... 
 #include "EVENT/LCCollection.h"

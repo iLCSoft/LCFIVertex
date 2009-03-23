@@ -12,6 +12,11 @@
 
 #include <marlin/VerbosityLevels.h>
 
+// fix for mac osx (K. Fujii)
+#ifdef __APPLE__
+#define abs(a) (a >= 0 ? a : -a)
+#endif
+
 using namespace lcio;
 using namespace marlin;
 using namespace std;

@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <cstdlib>
+#include <algorithm>
 
 #include <EVENT/LCParameters.h>
 #include <EVENT/LCCollection.h>
@@ -20,6 +22,10 @@
 #include <vector>
 #include <string>
 #include <map>
+
+#ifdef __APPLE__
+#define uint uint32_t
+#endif
 
 using namespace marlin ;
 using namespace lcio;

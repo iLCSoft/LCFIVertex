@@ -31,6 +31,9 @@
 #include <gear/CalorimeterParameters.h>
 #include <gear/BField.h>
 
+#ifdef __APPLE__
+#define abs(a) (a >= 0 ? a : -a)
+#endif
 
 using namespace lcio;
 using namespace marlin;

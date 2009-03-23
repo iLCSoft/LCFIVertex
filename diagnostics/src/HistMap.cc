@@ -1,6 +1,8 @@
 #include "HistMap.h"
 #include "streamlog/streamlog.h"
 
+#include <cstdlib>
+
 #ifdef MARLIN_USE_AIDA
 #include "marlin/AIDAProcessor.h"
 #endif
