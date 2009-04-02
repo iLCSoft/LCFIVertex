@@ -345,8 +345,8 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 			// Something has gone wrong, but some data needs to be in the file otherwise it could
 			// screw up the other parameters by putting them in a different order than expected.
 			std::cerr << "FlavourTagProcessor - Warning: b tag output has size " << bTagOutput.size()
-					<< ". Putting invalid output value of -1 in the LCIO file."<< std::endl;
-			OutVec->push_back(-1);
+					<< ". Putting invalid output value of -10 in the LCIO file."<< std::endl;
+			OutVec->push_back(-10);
 		}
 		
 		if( cTagOutput.size()==1 )
@@ -356,8 +356,8 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 		else
 		{
 			std::cerr << "FlavourTagProcessor - Warning: c tag output has size " << cTagOutput.size()
-					<< ". Putting invalid output value of -1 in the LCIO file."<< std::endl;
-			OutVec->push_back(-1);
+					<< ". Putting invalid output value of -10 in the LCIO file."<< std::endl;
+			OutVec->push_back(-10);
 		}
 	
 		if( cTagbBackgroundOutput.size()==1 )
@@ -367,8 +367,8 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 		else
 		{
 			std::cerr << "FlavourTagProcessor - Warning: c tag (b background only) output has size " << cTagbBackgroundOutput.size()
-					<< ". Putting invalid output value of -1 in the LCIO file."<< std::endl;
-			OutVec->push_back(-1);
+					<< ". Putting invalid output value of -10 in the LCIO file."<< std::endl;
+			OutVec->push_back(-10);
 		}
 		
 		OutCollection->addElement(OutVec);
