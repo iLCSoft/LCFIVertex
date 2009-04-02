@@ -274,20 +274,20 @@ void DSTPlotProcessor::_fillPlots( LCEvent* pEvent, unsigned int jet)
   
   if( jetType==B_JET )
     {
-      if( bTag<=1 && bTag>=0 ) _BTagEfficiencyPurity.add_signal( bTag );
-      if( cTag<=1 && cTag>=0 ) _CTagEfficiencyPurity.add_background( cTag );
-      if( cTagBBack<=1 && cTagBBack>=0 ) _BCTagEfficiencyPurity.add_background( cTagBBack );
+      if( bTag > -10 ) _BTagEfficiencyPurity.add_signal( bTag );
+      if( cTag > -10 ) _CTagEfficiencyPurity.add_background( cTag );
+      if( cTagBBack > -10 ) _BCTagEfficiencyPurity.add_background( cTagBBack );
     }
   else if( jetType==C_JET )
     {
-      if( bTag<=1 && bTag>=0 ) _BTagEfficiencyPurity.add_background( bTag );
-      if( cTag<=1 && cTag>=0 ) _CTagEfficiencyPurity.add_signal( cTag );
-      if( cTagBBack<=1 && cTagBBack>=0 ) _BCTagEfficiencyPurity.add_signal( cTagBBack );
+      if( bTag > -10 ) _BTagEfficiencyPurity.add_background( bTag );
+      if( cTag > -10 ) _CTagEfficiencyPurity.add_signal( cTag );
+      if( cTagBBack > -10 ) _BCTagEfficiencyPurity.add_signal( cTagBBack );
     }
   else
     {
-      if( bTag<=1 && bTag>=0 ) _BTagEfficiencyPurity.add_background( bTag );
-      if( cTag<=1 && cTag>=0 ) _CTagEfficiencyPurity.add_background( cTag );
+      if( bTag > -10 ) _BTagEfficiencyPurity.add_background( bTag );
+      if( cTag > -10 ) _CTagEfficiencyPurity.add_background( cTag );
       //don't add background for the bcnet result because we're only considering the b background
     }
 	
