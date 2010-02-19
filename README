@@ -2,9 +2,15 @@ The LCFI Vertex Package
 
 releases:
 
- ------------
-| v00-03-pre |
- ------------
+ -----------
+| v00-03-01 |
+ -----------
+   - same as v00-03 - made compatible for MacOS
+     
+
+ --------
+| v00-03 |
+ --------
 
 2008-12-16 10:56  walsh
 
