@@ -26,7 +26,7 @@ PROJECT( LCFIVertex )
 # project version
 SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
 SET( ${PROJECT_NAME}_MINOR_VERSION 3 )
-SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
+SET( ${PROJECT_NAME}_PATCH_LEVEL 1 )
 
 
 ### SETTINGS #################################################################
@@ -269,6 +269,11 @@ ENDIF()
 
 # LIBRARY
 ADD_LIBRARY( lib_${PROJECT_NAME} ${library_sources} )
+IF(APPLE)
+  TARGET_LINK_LIBRARIES( lib_${PROJECT_NAME} streamlog )
+ENDIF(APPLE)
+
+
 # create symbolic lib target for calling target lib_XXX
 ADD_CUSTOM_TARGET( lib DEPENDS lib_${PROJECT_NAME} )
 # change lib_target properties
