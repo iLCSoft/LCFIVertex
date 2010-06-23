@@ -90,37 +90,51 @@ INSTALL( DIRECTORY
         "${PROJECT_SOURCE_DIR}/boost"
         DESTINATION .
         PATTERN "*~" EXCLUDE
-        PATTERN "*CVS*" EXCLUDE )
+        PATTERN "*CVS*" EXCLUDE
+        PATTERN "*/.svn*" EXCLUDE
+        )
 INSTALL( DIRECTORY
         "${PROJECT_SOURCE_DIR}/diagnostics/include"
         DESTINATION "diagnostics"
         PATTERN "*~" EXCLUDE
-        PATTERN "*CVS*" EXCLUDE )
+        PATTERN "*CVS*" EXCLUDE
+        PATTERN "*/.svn*" EXCLUDE
+        )
 INSTALL( DIRECTORY
         "${PROJECT_SOURCE_DIR}/vertex_lcfi/inc"
         DESTINATION "vertex_lcfi"
         PATTERN "*~" EXCLUDE
-        PATTERN "*CVS*" EXCLUDE )
+        PATTERN "*CVS*" EXCLUDE
+        PATTERN "*/.svn*" EXCLUDE
+        )
 INSTALL( DIRECTORY
         "${PROJECT_SOURCE_DIR}/vertex_lcfi/algo/inc"
         DESTINATION "vertex_lcfi/algo"
         PATTERN "*~" EXCLUDE
-        PATTERN "*CVS*" EXCLUDE )
+        PATTERN "*CVS*" EXCLUDE
+        PATTERN "*/.svn*" EXCLUDE
+        )
 INSTALL( DIRECTORY
         "${PROJECT_SOURCE_DIR}/vertex_lcfi/nnet/inc"
         DESTINATION "vertex_lcfi/nnet"
         PATTERN "*~" EXCLUDE
-        PATTERN "*CVS*" EXCLUDE )
+        PATTERN "*CVS*" EXCLUDE
+        PATTERN "*/.svn*" EXCLUDE
+        )
 INSTALL( DIRECTORY
         "${PROJECT_SOURCE_DIR}/vertex_lcfi/util/inc"
         DESTINATION "vertex_lcfi/util"
         PATTERN "*~" EXCLUDE
-        PATTERN "*CVS*" EXCLUDE )
+        PATTERN "*CVS*" EXCLUDE
+        PATTERN "*/.svn*" EXCLUDE
+        )
 INSTALL( DIRECTORY
         "${PROJECT_SOURCE_DIR}/vertex_lcfi/zvtop/include"
         DESTINATION "vertex_lcfi/zvtop"
         PATTERN "*~" EXCLUDE
-        PATTERN "*CVS*" EXCLUDE )
+        PATTERN "*CVS*" EXCLUDE
+        PATTERN "*/.svn*" EXCLUDE
+        )
 
 
 ### SOURCES ##################################################################
@@ -221,7 +235,9 @@ IF( INSTALL_DOC )
     # install documentation
     INSTALL( DIRECTORY "${PROJECT_SOURCE_DIR}/doc"
             DESTINATION .
-            PATTERN "*CVS*" EXCLUDE )
+            PATTERN "*CVS*" EXCLUDE
+            PATTERN "*/.svn*" EXCLUDE
+            )
 ENDIF()
 
 
