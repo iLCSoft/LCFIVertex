@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <cstdlib>
 
 #include <UTIL/LCTOOLS.h>
 #include <EVENT/LCCollection.h>

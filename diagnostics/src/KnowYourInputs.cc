@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <set>
 #include <cmath>
+#include <cstdlib>
 
 // Marlin includes
 #include <marlin/Global.h>
