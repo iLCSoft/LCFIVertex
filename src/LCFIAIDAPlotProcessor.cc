@@ -234,7 +234,7 @@ void LCFIAIDAPlotProcessor::init()
   } else if (_FlavourTagCollectionNames.size()==0) {
     _myVertexChargeTagCollection = 0;
   } else {
-    _myVertexChargeTagCollection = uint(_iVertexChargeTagCollection);
+    _myVertexChargeTagCollection = unsigned(_iVertexChargeTagCollection);
   }
 
   _ZoomedVarNames.push_back("D0Significance1"); 
