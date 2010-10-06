@@ -205,6 +205,8 @@ IF( DOXYGEN_FOUND AND LATEX_COMPILER AND
     # run latex + pdflatex
     ADD_CUSTOM_COMMAND(
         OUTPUT  "${PROJECT_SOURCE_DIR}/doc/latex/refman.pdf"
+        COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/doc/VtxPackageDirStruct.jpg" "${PROJECT_SOURCE_DIR}/doc/latex"
+				COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/doc/VertexPackageExeFlow.jpg" "${PROJECT_SOURCE_DIR}/doc/latex"
         COMMAND "${CMAKE_BUILD_TOOL}"
         # copy pdf to doc directory
         COMMAND "${CMAKE_COMMAND}" -E copy "refman.pdf" "${PROJECT_SOURCE_DIR}/doc"
