@@ -2,6 +2,15 @@ The LCFI Vertex Package
 
 releases:
 
+ --------
+| v00-05 |
+ --------
+
+  * simplified cmake scripts (now uses the new ILCUTIL package )
+
+  * bug fix for building documentation in SL5.5
+
+
  ------------
 | v00-04-pre |
  ------------
