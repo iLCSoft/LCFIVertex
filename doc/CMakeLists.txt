@@ -8,18 +8,26 @@ FIND_PACKAGE( Doxygen )
 FIND_PACKAGE( LATEX )
 
 SET( DOC_SRC_DIR "${PROJECT_SOURCE_DIR}/doc" )
+SET( DOC_BIN_DIR "${PROJECT_BINARY_DIR}/docbuild" )
 
 # global doc target for calling doc_html and doc_latex
 ADD_CUSTOM_TARGET( doc )
 
 #doxygen
 IF( DOXYGEN_FOUND )
+
+    #SET( DOX_INPUT ../include ../src ) #TODO
     
     ADD_CUSTOM_COMMAND(
         OUTPUT  "${DOC_SRC_DIR}/html/index.html"
-        COMMAND "${DOXYGEN_EXECUTABLE}"
+        COMMAND DOX_PROJECT_NAME=${PROJECT_NAME}
+                DOX_PROJECT_NUMBER="${${PROJECT_NAME}_VERSION}"
+                #DOX_OUTPUT_DIRECTORY="${DOC_BIN_DIR}" # TODO
+                #DOX_INPUT="${DOX_INPUT}" #TODO
+                "${DOXYGEN_EXECUTABLE}"
         WORKING_DIRECTORY "${DOC_SRC_DIR}"
         COMMENT "Building API Documentation..."
+        DEPENDS Doxyfile CMakeLists.txt
     )
     
     # add doc_html target
