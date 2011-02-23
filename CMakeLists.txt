@@ -60,6 +60,18 @@ ENDIF()
 
 ### LIBRARY #################################################################
 
+
+# -------------------- boost ------------------------------------------------------
+# custom command to unpack boost (if needed)
+ADD_CUSTOM_COMMAND(
+    OUTPUT "${PROJECT_SOURCE_DIR}/boost/boost/config.hpp"
+    COMMAND tar xzvf boost.tgz
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+)
+ADD_CUSTOM_TARGET( unpack_boost DEPENDS "${PROJECT_SOURCE_DIR}/boost/boost/config.hpp" )
+# ---------------------------------------------------------------------------------
+
+
 # definitions to pass to the compiler
 ADD_DEFINITIONS( "-Wall -ansi -pedantic" )
 ADD_DEFINITIONS( "-Wno-long-long" )
@@ -75,8 +87,10 @@ AUX_SOURCE_DIRECTORY( ./diagnostics/src diagnostics_srcs )
 FILE( GLOB_RECURSE vertex_lcfi_srcs "vertex_lcfi/*.cpp" )
 SET( library_sources ${processor_srcs} ${diagnostics_srcs} ${vertex_lcfi_srcs} )
 
+
 # add library
 ADD_SHARED_LIBRARY( ${PROJECT_NAME} ${library_sources} )
+ADD_DEPENDENCIES( ${PROJECT_NAME} unpack_boost ) # unpack boost (if needed)
 INSTALL_SHARED_LIBRARY( ${PROJECT_NAME} DESTINATION lib )
 
 # display some variables and write them to cache
