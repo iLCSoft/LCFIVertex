@@ -219,7 +219,7 @@ namespace vertex_lcfi
 					   ResultMap[Gamma].push_back(*iTrack2);
 					 }
 				     }
-				   else if( MinKsMass < pipiCalculatedM <MaxKsMass )
+				   else if( MinKsMass < pipiCalculatedM && pipiCalculatedM < MaxKsMass )
 				     { 
 				       std::vector<Track*>::const_iterator iTrack3 = find(ResultMap[KShort].begin(),ResultMap[KShort].end(), (*iTrack));
 				       if(iTrack3 == ResultMap[KShort].end() )
