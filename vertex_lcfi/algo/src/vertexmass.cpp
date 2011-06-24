@@ -168,7 +168,7 @@ namespace vertex_lcfi
   }
   
   
-  double VertexMass::Ptcalc(  Vertex* IPVertex  , Vertex*  TheVertex, Vector3* momentum , float sigmax  ) const
+  double VertexMass::Ptcalc(  Vertex* IPVertex  , Vertex*  TheVertex, Vector3* momentum , float sigmax  )
    {
     
     //I should really look into symmetric matrices (eventually)!!!

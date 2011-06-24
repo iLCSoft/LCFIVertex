@@ -96,6 +96,9 @@ namespace vertex_lcfi
 		\return double: Momentum corrected mass
 		*/
 		double calculateFor(DecayChain* MyDecayChain) const;
+
+		//! Calculate vertex-constrained Pt correction
+		static double Ptcalc( Vertex* , Vertex* , Vector3*  , float  );
 		
 	private:
 
@@ -108,7 +111,6 @@ namespace vertex_lcfi
 		double _MaxKinematicCorrectionSigma;
 		double _MaxMomentumCorrection;
 		double ptvertexcons(Vector3*, Vertex*, Vertex*, double ) const;
-		double Ptcalc( Vertex* , Vertex* , Vector3*  , float  ) const;
 	  };
 
 	}
