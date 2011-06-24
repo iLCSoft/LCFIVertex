@@ -60,10 +60,10 @@ namespace vertex_lcfi { namespace ZVTOP
 				_CurrentPos = _CurrentPos+(Step*direction);
 				_CurrentValue = _Function->valueAt(_CurrentPos);
 				++iterations;
-				if (_CurrentValue < oldvalue || iterations>1000000)
+				if (_CurrentValue < oldvalue || iterations>1000)
 					break;
 			}
-			if (iterations>1000000)
+			if (iterations>1000)
 			{
 				std::cerr << "Max Finding - Too Many Iterations" <<std::endl;
 				_CurrentPos = startpos;
