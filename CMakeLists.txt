@@ -12,7 +12,7 @@ PROJECT( LCFIVertex )
 # project version
 SET( ${PROJECT_NAME}_VERSION_MAJOR 0 )
 SET( ${PROJECT_NAME}_VERSION_MINOR 5 )
-SET( ${PROJECT_NAME}_VERSION_PATCH 0 )
+SET( ${PROJECT_NAME}_VERSION_PATCH 1 )
 
 
 
@@ -96,3 +96,5 @@ INSTALL_SHARED_LIBRARY( ${PROJECT_NAME} DESTINATION lib )
 # display some variables and write them to cache
 DISPLAY_STD_VARIABLES()
 
+# generate and install following configuration files
+GENERATE_PACKAGE_CONFIGURATION_FILES( ${PROJECT_NAME}Config.cmake ${PROJECT_NAME}ConfigVersion.cmake ${PROJECT_NAME}LibDeps.cmake )
