@@ -1,0 +1,68 @@
+##############################################################################
+# cmake configuration file for LCFIVertex
+#
+# requires:
+#   MacroCheckPackageLibs.cmake for checking package libraries
+#
+# returns following variables:
+#
+#   LCFIVertex_FOUND      : set to TRUE if LCFIVertex found
+#       if FIND_PACKAGE called with REQUIRED and COMPONENTS arguments
+#       LCFIVertex_FOUND is only set to TRUE if ALL components are also found
+#       if REQUIRED is NOT set components may or may not be available
+#
+#   LCFIVertex_ROOT       : path to this LCFIVertex installation
+#   LCFIVertex_VERSION    : package version
+#   LCFIVertex_LIBRARIES  : list of LCFIVertex libraries (NOT including COMPONENTS)
+#   LCFIVertex_INCLUDE_DIRS  : list of paths to be used with INCLUDE_DIRECTORIES
+#   LCFIVertex_LIBRARY_DIRS  : list of paths to be used with LINK_DIRECTORIES
+#   LCFIVertex_COMPONENT_LIBRARIES      : list of LCFIVertex component libraries
+#   LCFIVertex_${COMPONENT}_FOUND       : set to TRUE or FALSE for each library
+#   LCFIVertex_${COMPONENT}_LIBRARY     : path to individual libraries
+#   LCFIVertex_${COMPONENT}_LIB_DEPENDS : individual library dependencies
+#
+# @author Jan Engels, Desy
+##############################################################################
+
+
+SET( LCFIVertex_ROOT "@CMAKE_INSTALL_PREFIX@" )
+SET( LCFIVertex_VERSION "@LCFIVertex_VERSION@" )
+
+
+
+# do not store find results in cache
+SET( LCFIVertex_INCLUDE_DIRS LCFIVertex_INCLUDE_DIRS-NOTFOUND )
+MARK_AS_ADVANCED( LCFIVertex_INCLUDE_DIRS )
+
+FIND_PATH( LCFIVertex_INCLUDE_DIRS
+    NAMES FlavourTag.h
+    PATHS "${LCFIVertex_ROOT}/include"
+    NO_DEFAULT_PATH
+)
+
+
+
+# ---------- libraries --------------------------------------------------------
+INCLUDE( "@ILCSOFT_CMAKE_MODULES_ROOT@/MacroCheckPackageLibs.cmake" )
+
+# only standard libraries should be passed as arguments to CHECK_PACKAGE_LIBS
+# additional components are set by cmake in variable PKG_FIND_COMPONENTS
+# first argument should be the package name
+CHECK_PACKAGE_LIBS( LCFIVertex LCFIVertex )
+
+
+
+# ---------- libraries dependencies -------------------------------------------
+# this sets LCFIVertex_${COMPONENT}_LIB_DEPENDS variables
+INCLUDE( "${LCFIVertex_ROOT}/lib/cmake/LCFIVertexLibDeps.cmake" )
+
+
+
+# ---------- final checking ---------------------------------------------------
+INCLUDE( FindPackageHandleStandardArgs )
+# set LCFIVertex_FOUND to TRUE if all listed variables are TRUE and not empty
+# LCFIVertex_COMPONENT_VARIABLES will be set if FIND_PACKAGE is called with REQUIRED argument
+FIND_PACKAGE_HANDLE_STANDARD_ARGS( LCFIVertex DEFAULT_MSG LCFIVertex_ROOT LCFIVertex_INCLUDE_DIRS LCFIVertex_LIBRARIES )
+
+SET( LCFIVertex_FOUND ${LCFIVERTEX_FOUND} )
+
