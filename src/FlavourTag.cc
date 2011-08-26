@@ -93,6 +93,11 @@ void FlavourTagProcessor::init()
 {
 	//ofile.open("FTInputs.txt", ofstream::out);
 		
+	for( int iii=0;iii<3;iii++)
+	{
+	    _dataSet.push_back(new nnet::NeuralNetDataSet());
+	}
+	
 	
 	printParameters();
 	std::cout << _description << std::endl
@@ -154,11 +159,6 @@ void FlavourTagProcessor::processRunHeader( LCRunHeader* pRun )
 	(pRun->parameters()).getStringVals(_FlavourTagInputsCollectionName,VarNames);
 	
 
-	for( int iii=0;iii<3;iii++)
-	{
-	    _dataSet.push_back(new nnet::NeuralNetDataSet());
-	}
-	
 	set<string> AvailableNames;
 	//Fill the map realting names and indexes
 	for (size_t i = 0;i < VarNames.size();++i)
