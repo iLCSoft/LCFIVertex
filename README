@@ -3,10 +3,20 @@ The LCFI Vertex Package
 releases:
 
  --------
-|  HEAD  |
+| v00-06 |
  --------
 
+    * made Ptcalc() a public static function so it can be used in analysis code
 
+    * fixed logical comparison bug in twotrackpid.cpp
+
+    * relaxed maximum number of iterations in vertexfuncmaxfinderclassicstepper.cpp
+
+    * added cmake configuration files in order to compile/link against LCFIVertex
+
+    * moved initialization of _dataSet variable in FlavourTag.cc to init() in order
+        to fix problem of ProcessRunHeader() being skipped when SkipNEvents parameter
+        is set in a steering file
 
  --------
 | v00-05 |
