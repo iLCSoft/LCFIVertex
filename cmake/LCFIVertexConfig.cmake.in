@@ -35,11 +35,15 @@ SET( LCFIVertex_INCLUDE_DIRS LCFIVertex_INCLUDE_DIRS-NOTFOUND )
 MARK_AS_ADVANCED( LCFIVertex_INCLUDE_DIRS )
 
 FIND_PATH( LCFIVertex_INCLUDE_DIRS
-    NAMES FlavourTag.h
+    NAMES vertex_lcfi/inc/vertex.h
+    #PATHS "${LCFIVertex_ROOT}/include/vertex_lcfi" # cannot do this due to boost
     PATHS "${LCFIVertex_ROOT}/include"
     NO_DEFAULT_PATH
 )
 
+IF( LCFIVertex_INCLUDE_DIRS )
+    LIST( APPEND LCFIVertex_INCLUDE_DIRS ${LCFIVertex_INCLUDE_DIRS}/vertex_lcfi )
+ENDIF( LCFIVertex_INCLUDE_DIRS )
 
 
 # ---------- libraries --------------------------------------------------------

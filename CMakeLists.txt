@@ -64,11 +64,11 @@ ENDIF()
 # -------------------- boost ------------------------------------------------------
 # custom command to unpack boost (if needed)
 ADD_CUSTOM_COMMAND(
-    OUTPUT "${PROJECT_SOURCE_DIR}/boost/boost/config.hpp"
+    OUTPUT "${PROJECT_SOURCE_DIR}/include/boost/config.hpp"
     COMMAND tar xzvf boost.tgz
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 )
-ADD_CUSTOM_TARGET( unpack_boost DEPENDS "${PROJECT_SOURCE_DIR}/boost/boost/config.hpp" )
+ADD_CUSTOM_TARGET( unpack_boost DEPENDS "${PROJECT_SOURCE_DIR}/include/boost/config.hpp" )
 # ---------------------------------------------------------------------------------
 
 
@@ -78,8 +78,7 @@ ADD_DEFINITIONS( "-Wno-long-long" )
 
 # include directories
 INCLUDE_DIRECTORIES( ./include ./vertex_lcfi ./vertex_lcfi/nnet/inc ./diagnostics/include )
-INCLUDE_DIRECTORIES( ./boost )
-
+INSTALL_DIRECTORY( ./vertex_lcfi ./include/boost DESTINATION include FILES_MATCHING PATTERN "*.h*" )
 
 # get list of all source files
 AUX_SOURCE_DIRECTORY( ./src processor_srcs )
