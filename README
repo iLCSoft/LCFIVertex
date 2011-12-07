@@ -2,6 +2,13 @@ The LCFI Vertex Package
 
 releases:
 
+ -----------
+| v00-06-01 |
+ -----------
+
+    * fixed cmake scripts for out-of-source installations
+
+
  --------
 | v00-06 |
  --------
