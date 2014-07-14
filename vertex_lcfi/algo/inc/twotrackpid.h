@@ -15,7 +15,7 @@ namespace vertex_lcfi
 {
 	//Forward Declarations
 	class Jet;
-	class vertex_lcfi::Track;
+	class Track;
 	
 	//Enum for return type
 	enum PidCutType {Gamma, KShort};
