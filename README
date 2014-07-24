@@ -3,6 +3,14 @@ The LCFI Vertex Package
 releases:
 
  -----------
+| v00-06-02 |
+ -----------
+
+    * fixed duplicate namespace in forward declaration (F.Gaede)
+
+
+
+ -----------
 | v00-06-01 |
  -----------
 
