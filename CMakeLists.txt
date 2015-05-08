@@ -62,13 +62,18 @@ ENDIF()
 
 
 # -------------------- boost ------------------------------------------------------
-# custom command to unpack boost (if needed)
-ADD_CUSTOM_COMMAND(
+if( BOOST_ROOT )
+  find_package( Boost REQUIRED ) 
+  include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
+else()  
+  # custom command to unpack boost (if needed)
+  ADD_CUSTOM_COMMAND(
     OUTPUT "${PROJECT_SOURCE_DIR}/include/boost/config.hpp"
     COMMAND tar xzvf boost.tgz
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-)
-ADD_CUSTOM_TARGET( unpack_boost DEPENDS "${PROJECT_SOURCE_DIR}/include/boost/config.hpp" )
+    )
+  ADD_CUSTOM_TARGET( unpack_boost DEPENDS "${PROJECT_SOURCE_DIR}/include/boost/config.hpp" )
+endif()
 # ---------------------------------------------------------------------------------
 
 
@@ -78,7 +83,10 @@ ADD_DEFINITIONS( "-Wno-long-long" )
 
 # include directories
 INCLUDE_DIRECTORIES( ./include ./vertex_lcfi ./vertex_lcfi/nnet/inc ./diagnostics/include )
-INSTALL_DIRECTORY( ./vertex_lcfi ./include/boost DESTINATION include FILES_MATCHING PATTERN "*.h*" )
+
+if(NOT BOOST_ROOT )
+  INSTALL_DIRECTORY( ./vertex_lcfi ./include/boost DESTINATION include FILES_MATCHING PATTERN "*.h*" )
+endif()
 
 # get list of all source files
 AUX_SOURCE_DIRECTORY( ./src processor_srcs )
@@ -89,7 +97,10 @@ SET( library_sources ${processor_srcs} ${diagnostics_srcs} ${vertex_lcfi_srcs} )
 
 # add library
 ADD_SHARED_LIBRARY( ${PROJECT_NAME} ${library_sources} )
-ADD_DEPENDENCIES( ${PROJECT_NAME} unpack_boost ) # unpack boost (if needed)
+if(NOT BOOST_ROOT )
+  ADD_DEPENDENCIES( ${PROJECT_NAME} unpack_boost ) # unpack boost (if needed)
+endif()
+
 INSTALL_SHARED_LIBRARY( ${PROJECT_NAME} DESTINATION lib )
 
 # display some variables and write them to cache
