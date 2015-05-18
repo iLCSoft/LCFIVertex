@@ -84,8 +84,10 @@ ADD_DEFINITIONS( "-Wno-long-long" )
 # include directories
 INCLUDE_DIRECTORIES( ./include ./vertex_lcfi ./vertex_lcfi/nnet/inc ./diagnostics/include )
 
+INSTALL_DIRECTORY( ./vertex_lcfi DESTINATION include FILES_MATCHING PATTERN "*.h*" )
+
 if(NOT BOOST_ROOT )
-  INSTALL_DIRECTORY( ./vertex_lcfi ./include/boost DESTINATION include FILES_MATCHING PATTERN "*.h*" )
+  INSTALL_DIRECTORY( ./include/boost DESTINATION include FILES_MATCHING PATTERN "*.h*" )
 endif()
 
 # get list of all source files
