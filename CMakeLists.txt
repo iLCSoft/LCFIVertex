@@ -65,6 +65,7 @@ ENDIF()
 if( BOOST_ROOT )
   find_package( Boost REQUIRED ) 
   include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
+  SET( LCFI_USE_EXTERNAL_BOOST 1)
 else()  
   # custom command to unpack boost (if needed)
   ADD_CUSTOM_COMMAND(
