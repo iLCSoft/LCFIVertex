@@ -3,8 +3,13 @@ The LCFI Vertex Package
 releases:
 
  -----------
-| v00-06-03 |
+| v00-07-01 |
  -----------
+  - same code as  v00-07 but correct version number ( was  v00-06-02 in v00-07)
+  
+ --------
+| v00-07 |
+ --------
   F.Gaede
    - export external boost include directory in LCFIVertexConfig.cmake
    - fixed installation of vertex_lcfi directory when build with external boost
