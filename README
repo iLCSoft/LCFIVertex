@@ -3,6 +3,14 @@ The LCFI Vertex Package
 releases:
 
  -----------
+| v00-06-03 |
+ -----------
+  F.Gaede
+   - export external boost include directory in LCFIVertexConfig.cmake
+   - fixed installation of vertex_lcfi directory when build with external boost
+   - allow for using external boost 
+
+ -----------
 | v00-06-02 |
  -----------
 
