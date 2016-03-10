@@ -63,7 +63,7 @@ int NNFInterfaceManager<T>::add(T *item)
 	std::pair<int,T *> tmpitem(newid,item);
 	_managedItems.push_back(tmpitem);
 #else
-	_managedItems.push_back(std::make_pair<int,T *>(newid,item));
+	_managedItems.push_back(std::make_pair(newid,item));
 #endif
 
 	return newid;

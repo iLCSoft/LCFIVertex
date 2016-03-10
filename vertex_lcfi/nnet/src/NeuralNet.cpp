@@ -697,7 +697,7 @@ std::vector<std::pair<double,double> > NeuralNet::networkOutputRange() const
 	{
 		double nmin,nmax;
 		outputLayer->neuron(i)->outputRange(nmin,nmax);
-		outputdata.push_back(std::make_pair<double,double>(nmin,nmax));
+		outputdata.push_back(std::make_pair(nmin,nmax));
 	}
 	return outputdata;
 }

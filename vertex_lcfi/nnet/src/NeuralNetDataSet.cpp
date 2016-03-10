@@ -65,7 +65,7 @@ void NeuralNetDataSet::initialiseFromFile(const std::string &fileName)
 					iss >> dataItem >> std::ws;
 					targetData.push_back(dataItem);
 				}
-				_theData.push_back(std::make_pair<std::vector<double>,std::vector<double> >(inputData,targetData));
+				_theData.push_back(std::make_pair(inputData,targetData));
 			}
 		}
 	}
@@ -95,7 +95,7 @@ void NeuralNetDataSet::addDataItem(const std::vector<double> &inputData,const st
 		std::cerr << "Size mismatch for target output data. Item not added." << std::endl;
 		return;
 	}
-	_theData.push_back(std::make_pair<std::vector<double>,std::vector<double> >(inputData,targetOutput));
+	_theData.push_back(std::make_pair(inputData,targetOutput));
 	_changed = true;
 }
 
