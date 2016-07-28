@@ -231,7 +231,7 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 		if( 0==jetEnergy )
 		{
 			jetEnergy=45.5;
-			if( isFirstEvent() ) std::cerr << "*** FlavourTag - Warning: Jet energy undefined, assuming 45.5GeV ***" << std::cout;
+			if( isFirstEvent() ) std::cerr << "*** FlavourTag - Warning: Jet energy undefined, assuming 45.5GeV ***" << std::endl ;
 		}
 	
 		// Variables for the normalisation of the inputs
