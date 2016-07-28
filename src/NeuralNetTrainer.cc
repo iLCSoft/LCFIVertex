@@ -231,7 +231,7 @@ void NeuralNetTrainerProcessor::processEvent( lcio::LCEvent* pEvent )
 			if( 0==jetEnergy )
 			{
 				jetEnergy=45.5;
-				if( isFirstEvent() ) std::cout << "*** NeuralNetTrainer - Warning: Jet energy undefined, assuming 45.5GeV ***" << std::cout;
+				if( isFirstEvent() ) std::cout << "*** NeuralNetTrainer - Warning: Jet energy undefined, assuming 45.5GeV ***" << std::endl;
 			}
 
 /*
