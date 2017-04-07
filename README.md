@@ -1,5 +1,6 @@
 # LCFIVertex
 [![Build Status](https://travis-ci.org/iLCSoft/LCFIVertex.svg?branch=master)](https://travis-ci.org/iLCSoft/LCFIVertex)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/12358/badge.svg)](https://scan.coverity.com/projects/ilcsoft-lcfivertex)
 
 Package for vertex finding as well as vertex charge determination in b- and c-jets. 
 
