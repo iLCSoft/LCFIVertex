@@ -21,14 +21,16 @@ namespace ZVTOP
 		FunctionMinimiser( T* funcClass, double initialDelta, unsigned int decimalPlaces );
 		~FunctionMinimiser(){};//I doubt this will be derived from but stick it in anyway
 		std::vector<double> Minimise( const std::vector<double> & seedPoint );
+		FunctionMinimiser<T>(const FunctionMinimiser<T>&) = delete;
+		FunctionMinimiser<T>& operator=(const FunctionMinimiser<T>&) = delete;
 	protected:
 		//Method that finds a vector that 'points down hill' by examining the rate of
 		//change of the function at the point "point".
 		std::vector<double> _findChangeRateVector( std::vector<double> point, double delta );
 	
 		T* _pFunc;
-		double _initialDelta;//The offset that the change in the function is examined at (plus and minus).
-		double _precision; //how many decimal places are required
+		double _initialDelta=0.0;//The offset that the change in the function is examined at (plus and minus).
+		double _precision=0.0; //how many decimal places are required
 	};
 
 	template <class T>

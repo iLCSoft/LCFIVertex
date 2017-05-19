@@ -8,10 +8,9 @@ namespace vertex_lcfi { namespace ZVTOP
 	}
 	
 	InteractionPoint::InteractionPoint(const Vector3 & Position,const SymMatrix3x3 & ErrorMatrix)
-		:_Position(Position),_ErrorMatrix(ErrorMatrix)
-	{
-		_InvErrorMatrix = InvertMatrix(ErrorMatrix);
-	}
+          :_Position(Position),_ErrorMatrix(ErrorMatrix),
+           _InvErrorMatrix( InvertMatrix(ErrorMatrix) )
+	{}
 	
 	double InteractionPoint::distanceTo(const Vector3 & Point) const
 	{

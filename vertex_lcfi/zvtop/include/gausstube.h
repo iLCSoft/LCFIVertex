@@ -39,7 +39,9 @@ at construction which it uses to perform the calculation.
 		\param Track Track that forms the guassian tube
 		*/
 		GaussTube(Track* Track);
-		
+		GaussTube(const GaussTube&) = delete;
+		GaussTube& operator=(const GaussTube&) = delete;
+	
 		//! Delete tube and trackstate used
 		~GaussTube();
 				
@@ -51,7 +53,7 @@ at construction which it uses to perform the calculation.
 		*/
 		double valueAt(const Vector3 & Point) const;
 	private:
-		TrackState* _TrackState;
+		TrackState* _TrackState=nullptr;
 	};
 }
 }

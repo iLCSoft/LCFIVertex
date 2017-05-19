@@ -5,11 +5,10 @@
 
 namespace vertex_lcfi { namespace ZVTOP
 {
-	GaussTube::GaussTube(Track* Track)
-	{
-		//We make a trackstate to be used by the tube, with the appropriate swimmer
-		_TrackState = new TrackState(Track);
-	}
+  GaussTube::GaussTube(Track* Track):
+    //We make a trackstate to be used by the tube, with the appropriate swimmer
+    _TrackState( new TrackState(Track) )
+  {}
 	
 	double GaussTube::valueAt(const Vector3 & Point) const
 	{
@@ -36,11 +35,8 @@ namespace vertex_lcfi { namespace ZVTOP
 
 	GaussTube::~GaussTube()
 	{
-		if (_TrackState)
-		{
-			delete _TrackState;
-			_TrackState=0;
-		}
+          delete _TrackState;
+          _TrackState=nullptr;
 	}
 
 }}

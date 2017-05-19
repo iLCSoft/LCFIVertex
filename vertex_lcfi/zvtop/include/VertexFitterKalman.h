@@ -56,19 +56,19 @@ namespace vertex_lcfi
 
     private:
 
-      std::vector<TState> fStates;
-      std::vector<double> fChi2chain;
+      std::vector<TState> fStates{};
+      std::vector<double> fChi2chain{};
       
-      Vector3     m_manualSeed;
-      bool        m_useManualSeed;
+      Vector3     m_manualSeed{};
+      bool        m_useManualSeed=false;
 
       double      fP[6];
       double      fC[21];
       double      fVtxGuess[3];
  
-      int         fNDF;
-      int         fQ; // to be kept? vertex charge?
-      double      fChi2;      
+      int         fNDF=0;
+      int         fQ=0; // to be kept? vertex charge?
+      double      fChi2=0.0;
           
     };    
   }  

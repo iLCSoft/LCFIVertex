@@ -30,6 +30,8 @@ Perform the ghost track algorithm on a set of tracks
 		
 		//Constructors NB remember algoritm parameters are set per vertexfinder
 		VertexFinderGhost(const std::vector<Track*> &Tracks, InteractionPoint* IP);
+		VertexFinderGhost(const vertex_lcfi::ZVTOP::VertexFinderGhost&) = delete;
+		VertexFinderGhost& operator=(const vertex_lcfi::ZVTOP::VertexFinderGhost&) = delete;
 		//Need to invaliate vertex result if these changed
 		void addTrack(Track* const Track);
 		void setIP(InteractionPoint* const IP);
@@ -52,14 +54,14 @@ Perform the ghost track algorithm on a set of tracks
 
 	private:
 		
-		Vector3 _SeedDirection;
-		double _MinimumProbability;
-		double _InitialGhostWidth;
-		double _MaxChi2Allowed;
+		Vector3 _SeedDirection{};
+		double _MinimumProbability=0.0;
+		double _InitialGhostWidth=0.0;
+		double _MaxChi2Allowed=0.0;
 		
-		std::vector<Track*> _TrackList;
-		InteractionPoint* _IP;
-		Track* _LastGhost;
+		std::vector<Track*> _TrackList{};
+		InteractionPoint* _IP=nullptr;
+		Track* _LastGhost=nullptr;
 		
 		
 	};

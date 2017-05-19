@@ -61,9 +61,9 @@ and may be used in a VertexFitter
 		*/
 		double 			chi2(const Vector3 & Point) const;
 	private:
-		Vector3			_Position;
-		SymMatrix3x3		_ErrorMatrix;
-		Matrix3x3		_InvErrorMatrix;
+		Vector3      _Position{};
+		SymMatrix3x3 _ErrorMatrix{};
+		Matrix3x3    _InvErrorMatrix{};
 
 	};
 }

@@ -34,6 +34,9 @@ Note new mwmory management
 		
 		//Constructors NB remember algoritm parameters are set per vertexfinder
 		VertexFinderClassic(const std::vector<Track*> &Tracks,InteractionPoint* IP, const Vector3 &JetAxis, double Kip = 1.0, double Kalpha = 5.0, double TwoProngCut = 10.0, double TrackTrimCut = 10.0, double ResolverCutOff = 0.6);
+
+		VertexFinderClassic(const vertex_lcfi::ZVTOP::VertexFinderClassic&) = delete;
+		VertexFinderClassic& operator=(const vertex_lcfi::ZVTOP::VertexFinderClassic&) = delete;
 		//Need to invaliate vertex result if these changed
 		void addTrack(Track* const Track);
 		void setIP(InteractionPoint* const IP);
@@ -49,16 +52,16 @@ Note new mwmory management
 		std::vector<CandidateVertex*> _removeOneTrackNoIPVertices(std::list<CandidateVertex*>* CVList);
 		void _ifNoIPAddIP(std::list<CandidateVertex*>* CVList);
 
-		std::vector<Track*> _TrackList;
-		InteractionPoint* _IP;
-		VertexFunction* _VF;
-        
-		double _Kip;
-		double _Kalpha;
-		Vector3 _JetAxis;
-		double _TwoProngCut;
-		double _TrackTrimCut;
-		double _ResolverCutOff;
+		std::vector<Track*> _TrackList{};
+		InteractionPoint* _IP=nullptr;
+		VertexFunction* _VF=nullptr;
+		
+		double _Kip=0.0;
+		double _Kalpha=0.0;
+		Vector3 _JetAxis{};
+		double _TwoProngCut=0.0;
+		double _TrackTrimCut=0.0;
+		double _ResolverCutOff=0.0;
 		
 	};
 }

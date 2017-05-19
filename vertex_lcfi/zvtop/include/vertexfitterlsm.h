@@ -23,6 +23,8 @@ namespace ZVTOP
 	public:
 		VertexFitterLSM();
 		~VertexFitterLSM(){}
+		VertexFitterLSM(const VertexFitterLSM&) = delete;
+		VertexFitterLSM& operator=(const VertexFitterLSM&) = delete;
 		//CandidateVertex fitVertex(const std::vector<TrackState*> & Tracks, InteractionPoint* IP, bool CalculateError);
 		void fitVertex(const std::vector<TrackState*> & Tracks, InteractionPoint* IP, Vector3 & Result); 
 		void fitVertex(const std::vector<TrackState*> & Tracks, InteractionPoint* IP, Vector3 & Result, double & ChiSquaredOfFit);
@@ -36,11 +38,11 @@ namespace ZVTOP
 		void setSeed(Vector3 Seed);
 		void setInitialStep(double Step);
 	private:
-		std::vector<TrackState*> _trackStateList;//a copy of the trackStates being fitted
-		InteractionPoint* _ip;
-		Vector3 _ManualSeed;
-		bool _UseManualSeed;
-		double _InitialStep;
+		std::vector<TrackState*> _trackStateList{};//a copy of the trackStates being fitted
+		InteractionPoint* _ip=nullptr;
+		Vector3 _ManualSeed{};
+		bool _UseManualSeed=false;
+		double _InitialStep=0.0;
 		double _chi2Contribution( const Vector3 & point, TrackState* pTrackState );//contribution from each individual track
 		double _chi2Contribution( const Vector3 & point, InteractionPoint* pIP );  //the contribution from the ip only (N.B. pIP could be NULL)
 	};

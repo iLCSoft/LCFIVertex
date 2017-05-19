@@ -127,7 +127,8 @@ and then position().
 		*/
 		~CandidateVertex()
 		{}
-
+		CandidateVertex(const CandidateVertex&) = delete;
+		CandidateVertex& operator=(const CandidateVertex&) = delete;
 		//! Remove the first reference to a TrackState from this vertices track list
 		/*!
 		This vertices TrackState list is searched for the first reference to TrackToRemove. If found it is removed and the fit invalidated via invalidateFit().
@@ -372,29 +373,29 @@ and then position().
 		static VertexResolver* _getFallbackResolver();
 		static VertexFuncMaxFinder* _getFallbackMaxFinder();
 			
-		VertexFitter*	     _Fitter;
-		VertexResolver*		 _Resolver;
-		VertexFuncMaxFinder* _MaxFinder;
+		VertexFitter*	     _Fitter=nullptr;
+		VertexResolver*		 _Resolver=nullptr;
+		VertexFuncMaxFinder* _MaxFinder=nullptr;
 		
 
 		//Tracks and IP
-		InteractionPoint* _IP;
-		std::vector<vertex_lcfi::TrackState*> _TrackStates;
+		InteractionPoint* _IP=nullptr;
+		std::vector<vertex_lcfi::TrackState*> _TrackStates{};
 
 		//Vertex Function
-		VertexFunction*      _VertexFunction;
-		mutable double _VertexFuncMaxValue;
-		mutable Vector3 _VertexFuncMaxPosition;
-		mutable bool _VertexFuncMaxIsValid;
+		VertexFunction*      _VertexFunction=nullptr;
+		mutable double _VertexFuncMaxValue=false;
+		mutable Vector3 _VertexFuncMaxPosition{};
+		mutable bool _VertexFuncMaxIsValid=false;
 
 		//Fit
-		mutable Vector3 _Position;
-		mutable Matrix3x3 _PositionError;
-		mutable double _ChiSquaredOfFit;
-		mutable std::map<vertex_lcfi::TrackState*,double> _ChiSquaredOfTrack;
-		mutable double _ChiSquaredOfIP;
-		mutable bool _FitIsValid;
-		mutable bool _ErrorOfFitIsValid;
+		mutable Vector3 _Position{};
+		mutable Matrix3x3 _PositionError{};
+		mutable double _ChiSquaredOfFit=0.0;
+		mutable std::map<vertex_lcfi::TrackState*,double> _ChiSquaredOfTrack{};
+		mutable double _ChiSquaredOfIP=0.0;
+		mutable bool _FitIsValid=false;
+		mutable bool _ErrorOfFitIsValid=false;
 				     
 	template <class charT, class traits> inline
 	friend std::basic_ostream<charT,traits>& operator<<(std::basic_ostream<charT,traits>&os,const CandidateVertex& cv);

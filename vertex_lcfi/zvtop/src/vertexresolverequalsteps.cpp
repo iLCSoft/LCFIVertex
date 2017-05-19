@@ -28,7 +28,7 @@ namespace vertex_lcfi { namespace ZVTOP
 			if (Vertex2Value < VertexMin)
 				VertexMin = Vertex2Value;
 			
-			if (!VertexMin > 0)   //Check for bad denominator
+			if (!(VertexMin > 0))   //Check for bad denominator
 				return 0;
 		
 			//Now starting 1 step away from Vertex1 step along evaluating VF

@@ -40,7 +40,8 @@ covariance matrix. (Both in x,y,z space)
 		\param IP Pointer to InteractionPoint to use
 		*/
 		GaussEllipsoid(InteractionPoint* IP);
-
+		GaussEllipsoid(const GaussEllipsoid&) = delete;
+		GaussEllipsoid& operator=(const GaussEllipsoid&) = delete;
 		//!Calculate the value of the ellipsoid at a point
 		/*!
 		\param Point Vector3 of the spatial point

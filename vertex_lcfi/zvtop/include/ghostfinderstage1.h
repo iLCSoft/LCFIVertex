@@ -51,19 +51,19 @@ and ignores the position of the Interaction Point. This should be fixed in a fut
 		//method that gives a value for chi2 at a point, this specific name
 		//is used so that the function minimiser template can be used.
 		double valueAt(std::vector<double> CurrentAngles);
+
 	private:
-		double _CurrentWidth;
-		Vector3 _JetDir;
-		int _UseChiEquation;
-		std::vector<TrackState*> _JetTracks;
-	
 		Track _makeGhost(std::vector<double> Angles, double Width);
 		double _tanLambda(double theta);
-		std::map<TrackState*,double> _ChiToLZero;
 		void _fillLZeroChis();
 		double _findAdjustedWidth(TrackState* GhostTrack,double CurrentWidth, std::vector<TrackState*> & JetTracks, double MaxChi2Allowed);
-	
-		VertexFitterLSM _Fitter;
+		
+		double _CurrentWidth=0.0;
+		Vector3 _JetDir{};
+		int _UseChiEquation=0;
+		std::vector<TrackState*> _JetTracks{};
+		std::map<TrackState*,double> _ChiToLZero{};
+		VertexFitterLSM _Fitter{};
 	};
 }
 }
