@@ -31,6 +31,8 @@ BatchBackPropagationAlgorithm
 public:
 	BatchBackPropagationAlgorithm(NeuralNet &theNetwork,const double learningRate=0.5,const double momentumConstant=0.5);
 	~BatchBackPropagationAlgorithm(void);
+	BatchBackPropagationAlgorithm(const BatchBackPropagationAlgorithm&) = delete;
+	BatchBackPropagationAlgorithm& operator=(const BatchBackPropagationAlgorithm&) = delete;
 	void setLearningRate(const double newLearningRate)
 	{ _learningRate = newLearningRate;}
 	void setMomentumConstant(const double newMomentumConstant)
@@ -61,23 +63,23 @@ private:
 
 private:
 	NeuralNet &_theNetwork;
-	double _learningRate;
-	double _maxErrorInc;
-	const std::vector<double> *_inputs,*_target;
-	NetMatrix _neuronErrorSignals;
-	NetMatrix _neuronOutputs;
-	NetMatrix _neuronDerivativeOutputs;
-	NetMatrix _runningGradientTotal;
-	std::vector<double> _momentumWeights;
-	std::vector<double> _previousEpochWeights;
-	double _momentumConstant;
-	int _numberOfTrainingEvents;
-	double _previousEpochError;
-	double _runningEpochErrorTotal;
-	const NeuralNetDataSet *_currentDataSet;
-	int _progressPrintoutFrequency;
-	int _epochsToWaitBeforeRestore;
-	std::vector<double> _savedEpochErrorValues;
+	double _learningRate=0.0;
+	double _momentumConstant=0.0;
+	double _maxErrorInc=0.0;
+	int _numberOfTrainingEvents=0;
+	const std::vector<double> *_inputs=nullptr,*_target=nullptr;
+	NetMatrix _neuronErrorSignals{};
+	NetMatrix _neuronOutputs{};
+	NetMatrix _neuronDerivativeOutputs{};
+	NetMatrix _runningGradientTotal{};
+	std::vector<double> _momentumWeights{};
+	std::vector<double> _previousEpochWeights{};
+	double _previousEpochError=0.0;
+	double _runningEpochErrorTotal=0.0;
+	const NeuralNetDataSet *_currentDataSet=nullptr;
+	int _progressPrintoutFrequency=0;
+	int _epochsToWaitBeforeRestore=0;
+	std::vector<double> _savedEpochErrorValues{};
 };
 
 }//namespace nnet

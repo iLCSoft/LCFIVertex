@@ -39,7 +39,8 @@ protected:
     const NeuralNet *_parentNetwork;
 
 private:
-    InputNormaliser(const InputNormaliser &other); // Declared but not defined
+    InputNormaliser(const InputNormaliser &other) = delete; // Declared but not defined
+    InputNormaliser& operator=(const InputNormaliser&) = delete;
 };
 
 #ifndef __CINT__

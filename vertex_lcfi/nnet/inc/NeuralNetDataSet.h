@@ -45,22 +45,22 @@ protected:
 private:
 	typedef std::pair<std::vector<double>,std::vector<double> > DataSetItem;
 
-	std::vector<DataSetItem> _theData;
-	std::vector<double>::size_type _inputDataSize;
-	std::vector<double>::size_type _targetDataSize;
-	mutable std::vector<double> runningInputSum;
-	mutable std::vector<double> runningInputSumSqr;
-	mutable std::vector<double> runningTargetMin;
-	mutable std::vector<double> runningTargetRange;
-    mutable std::vector<double> runningInputMin;
-    mutable std::vector<double> runningInputRange;
-	mutable bool _changed;
+	std::vector<DataSetItem> _theData{};
+	std::vector<double>::size_type _inputDataSize{};
+	std::vector<double>::size_type _targetDataSize{};
+	mutable std::vector<double> runningInputSum{};
+	mutable std::vector<double> runningInputSumSqr{};
+	mutable std::vector<double> runningTargetMin{};
+	mutable std::vector<double> runningTargetRange{};
+	mutable std::vector<double> runningInputMin{};
+	mutable std::vector<double> runningInputRange{};
+	mutable bool _changed=false;
 #ifndef __CINT__
 	std::streamsize
 #else
 	int
 #endif
-		_outputPrecision;
+	_outputPrecision;
 
 public:
 	friend

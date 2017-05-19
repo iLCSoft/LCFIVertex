@@ -25,7 +25,8 @@ public:
 	void setMomentumConstant(const double newMomentumConstant)
 	{ _momentumConstant = newMomentumConstant;}
 	double train(const std::vector<double> &inputValues,const std::vector<double> &desiredOutput);
-
+        BackPropagationAlgorithm(const BackPropagationAlgorithm&) = delete;
+        BackPropagationAlgorithm& operator=(const BackPropagationAlgorithm&) = delete;
 protected:
 	std::vector<double> layerOutput(const int layer) const;
 	void calculateLayerOutputs();
@@ -39,13 +40,13 @@ private:
 
 private:
 	NeuralNet &_theNetwork;
-	double _learningRate;
-	const std::vector<double> *_inputs,*_target;
-	NetMatrix _neuronErrorSignals;
-	NetMatrix _neuronOutputs;
-	NetMatrix _neuronDerivativeOutputs;
-	std::vector<double> _momentumWeights;
-	double _momentumConstant;
+	double _learningRate=0.0;
+	const std::vector<double> *_inputs=nullptr,*_target=nullptr;
+	NetMatrix _neuronErrorSignals{};
+	NetMatrix _neuronOutputs{};
+	NetMatrix _neuronDerivativeOutputs{};
+	std::vector<double> _momentumWeights{};
+	double _momentumConstant=0.0;
 };
 
 }//namespace nnet

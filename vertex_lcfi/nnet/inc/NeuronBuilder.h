@@ -35,8 +35,10 @@ public:
 	virtual std::string buildsType() const = 0;
     void setNetwork(const NeuralNet *theNetwork) {_theNetwork = theNetwork;}
 
+    NeuronBuilder(const nnet::NeuronBuilder&) = delete;
+    NeuronBuilder& operator=(const NeuronBuilder&) = delete;
 protected:
-    const NeuralNet *_theNetwork;
+    const NeuralNet *_theNetwork=nullptr;
 };
 
 }//namespace nnet

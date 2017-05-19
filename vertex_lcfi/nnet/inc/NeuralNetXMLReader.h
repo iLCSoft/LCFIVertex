@@ -31,7 +31,9 @@ class NEURALNETDLL NeuralNetXMLReader
 public:
 	NeuralNetXMLReader(const std::string &xmlFileName);
 	NeuralNetXMLReader(const char *xmlFileName);
-	~NeuralNetXMLReader(void);
+	~NeuralNetXMLReader();
+	NeuralNetXMLReader(const nnet::NeuralNetXMLReader&) = delete;
+	NeuralNetXMLReader& operator=(const nnet::NeuralNetXMLReader&) = delete;
 	void networkTopology(int &numberOfInputs,int &numberOfLayers);
     void getNormalisationData(std::vector<std::string> &normaliserTypes,std::vector<std::vector<double> > &constructionData,
         		              std::vector<double> &targetoffsets,std::vector<double> &targetranges);
@@ -45,25 +47,25 @@ private:
 	void getNeuronCollection();
 
 private:
-	std::string _xmlFileName;
-	bool _ok;
-	int _currentLayer;
-	int _currentNeuron;
+	std::string _xmlFileName{};
+	bool _ok=false;
+	int _currentLayer=0;
+	int _currentNeuron=0;
 #if defined(_WIN32)&&!defined(USEXERCES)&&!defined(USETINYXML)
-	MSXML2::IXMLDOMDocumentPtr _pXMLDoc;
-	MSXML2::IXMLDOMNodeListPtr _pLayers;
-	MSXML2::IXMLDOMNodeListPtr _pNeurons;
+	MSXML2::IXMLDOMDocumentPtr _pXMLDoc{};
+	MSXML2::IXMLDOMNodeListPtr _pLayers{};
+	MSXML2::IXMLDOMNodeListPtr _pNeurons{};
 #elif defined(USEXERCES)&&!defined(USETINYXML)
-	XERCES_CPP_NAMESPACE_QUALIFIER XercesDOMParser *_pDOMParser;
-	XERCES_CPP_NAMESPACE_QUALIFIER ErrorHandler *_errorHandler;
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *_pDoc;
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMNodeList *_pLayers;
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMNodeList *_pNeurons;
+	XERCES_CPP_NAMESPACE_QUALIFIER XercesDOMParser *_pDOMParser=nullptr;
+	XERCES_CPP_NAMESPACE_QUALIFIER ErrorHandler *_errorHandler=nullptr;
+	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *_pDoc=nullptr;
+	XERCES_CPP_NAMESPACE_QUALIFIER DOMNodeList *_pLayers=nullptr;
+	XERCES_CPP_NAMESPACE_QUALIFIER DOMNodeList *_pNeurons=nullptr;
 #else
-    TiXmlDocument *_pXMLDoc;
-    TiXmlElement *_pDocRoot;
-    std::vector<TiXmlNode *> *_pLayers;
-    std::vector<TiXmlNode *> *_pNeurons;
+    TiXmlDocument *_pXMLDoc=nullptr;
+    TiXmlElement *_pDocRoot=nullptr;
+    std::vector<TiXmlNode *> *_pLayers=nullptr;
+    std::vector<TiXmlNode *> *_pNeurons=nullptr;
 #endif
 };
 

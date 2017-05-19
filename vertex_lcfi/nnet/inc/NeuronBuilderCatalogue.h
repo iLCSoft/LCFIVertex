@@ -27,7 +27,7 @@ protected:
 
 private:
 	static NeuronBuilderCatalogue *_instance;
-	std::vector<NeuronBuilder *> _theBuilders;
+	std::vector<NeuronBuilder *> _theBuilders{};
 };
 
 }//namespace nnet

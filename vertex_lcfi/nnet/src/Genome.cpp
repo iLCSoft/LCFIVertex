@@ -21,18 +21,17 @@ Genome::Genome(const int numberOfGenes,const bool setInitialRandomValues)
 }
 
 Genome::Genome(const std::vector<double> &chromosome)
-: _fitness(0.0)
+  : _fitness(0.0),
+    _chromosome( chromosome ),
+    _numberOfGenes( (int)_chromosome.size() )
 {
-	_chromosome = chromosome;
-	_numberOfGenes = (int)_chromosome.size();
 }
 
 Genome::Genome(const std::vector<double> &chromosome,const double fitness)
-: _fitness(fitness)
-{
-	_chromosome = chromosome;
-	_numberOfGenes = (int)_chromosome.size();
-}
+  : _fitness( fitness ),
+    _chromosome( chromosome ),
+    _numberOfGenes( (int)_chromosome.size() )
+{}
 
 Genome::~Genome(void)
 {

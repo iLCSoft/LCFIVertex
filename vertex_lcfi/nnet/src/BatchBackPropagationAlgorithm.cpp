@@ -130,7 +130,7 @@ double BatchBackPropagationAlgorithm::trainWithDataSet(const int numberOfEpochs)
 
 	for (int epoch=0;epoch<numberOfEpochs;++epoch)
 	{
-		double thisIterationError = processDataSet();
+		processDataSet();
 		if ((_runningEpochErrorTotal/(double)_numberOfTrainingEvents) > _maxErrorInc*_previousEpochError)
 		{
 			std::cout << "Error increased. Trying to recover.." << std::endl;
@@ -147,7 +147,7 @@ double BatchBackPropagationAlgorithm::trainWithDataSet(const int numberOfEpochs)
 			_momentumConstant = 0.0;
 			momentumConstantReset = true;
 			epochToRestoreMomentumConstant = epoch+_epochsToWaitBeforeRestore;
-			thisIterationError = processDataSet();
+			processDataSet();
 		}
 		else
 		{

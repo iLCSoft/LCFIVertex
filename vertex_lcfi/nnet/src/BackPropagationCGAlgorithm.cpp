@@ -583,7 +583,7 @@ double BackPropagationCGAlgorithm::trainWithDataSet(const int numberOfEpochs)
 	for (int epoch=0;epoch<numberOfEpochs;++epoch)
 	{
 		//std::cout << "Epoch " << epoch << std::endl;
-		double thisIterationError = processDataSet();
+		processDataSet();
 		bool goodEpoch = true;
         double gradient = 0.0;
 		epochError = newEpoch(goodEpoch,gradient);

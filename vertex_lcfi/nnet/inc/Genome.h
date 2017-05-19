@@ -32,8 +32,8 @@ protected:
 	void mutate(Genome &theGenome);
 
 private:
-	std::vector<double> _chromosome;
 	double _fitness;
+	std::vector<double> _chromosome{};
 	int _numberOfGenes;
 
 public:
