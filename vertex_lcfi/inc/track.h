@@ -29,7 +29,8 @@ namespace vertex_lcfi
 		
 		//! Default Constuctor
 		Track();
-		
+		Track(const Track&) = default;
+		Track& operator=(const Track&) = default;
 		//! Full Constructor
 		/*!
 		\param Event Pointer to the Event the track belongs to
@@ -108,13 +109,13 @@ namespace vertex_lcfi
 		
 		private:
 		//Track Parameters
-		Event*			_Event;
-		HelixRep 		_H;
-		Vector3			_PMomentum;
-		double			_Charge;
-		SymMatrix5x5		_CovarianceMatrix;
-		std::vector<int>	_NumHitsSubDetector;
-		void*			_TrackingNum;
+		Event*			_Event=nullptr;
+		HelixRep 		_H{};
+		Vector3			_PMomentum{};
+		double			_Charge{};
+		SymMatrix5x5		_CovarianceMatrix{};
+		std::vector<int>	_NumHitsSubDetector{};
+		void*			_TrackingNum=nullptr;
 	};
 	
 	template <class charT, class traits> inline

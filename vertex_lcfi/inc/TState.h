@@ -23,7 +23,9 @@ namespace vertex_lcfi
     virtual ~TState();
 
     TState(TrackState* TrackState);    
-    
+    TState(const TState&) = default;
+    TState& operator=(const vertex_lcfi::TState&) = default;
+
     void GetMeasurement( const double xyz[], double m[], double V[] ) const;
     void TransportBz( double dS, double P[], double C[] ) const;
     
@@ -39,17 +41,17 @@ namespace vertex_lcfi
   protected:
     
     //Pointer to Track that created this state
-		Track*			fParentTrack;
+    Track* fParentTrack=nullptr;
     
     //Pointer to TrackState that created this state
-    TrackState* fParentState;
+    TrackState* fParentState=nullptr;
     
     double      fP[6];  //* Main particle parameters {X,Y,Z,Px,Py,Pz}
     double      fC[21]; //* Low-triangle covariance matrix of fP
-    int         fQ;     //* Particle charge    
-    double      fB;     //* B-field (Bz only)
+    int         fQ=0;     //* Particle charge
+    double      fB=0.0;     //* B-field (Bz only)
     
-    double fCLight;
+    double fCLight=0.0;
     
   private:
     

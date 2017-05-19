@@ -31,7 +31,8 @@ namespace vertex_lcfi
 		
 		//! Default Constuctor
 		Vertex() {}
-		
+		Vertex(const Vertex&) = default;
+		Vertex& operator=(const Vertex&) = default;
 		//! Full Constructor
 		/*!
 		\param Event Pointer to vertices Event
@@ -185,14 +186,14 @@ namespace vertex_lcfi
 		
 
 	private:
-		Event* _Event;
-		std::vector<vertex_lcfi::Track*> _Tracks;
-		Vector3 _Position;
-		SymMatrix3x3 _PosError;
-		bool _IsPrimary;
-		double _Chi2;
-		double _Probability;
-		std::map<Track*,double> _ChiSquaredOfTrack;
+		Event* _Event=nullptr;
+		std::vector<vertex_lcfi::Track*> _Tracks{};
+		Vector3 _Position{};
+		SymMatrix3x3 _PosError{};
+		bool _IsPrimary=false;
+		double _Chi2=0.0;
+		double _Probability=0.0;
+		std::map<Track*,double> _ChiSquaredOfTrack{};
 	};
 
 	}
