@@ -38,14 +38,14 @@ namespace util{
 	class bin
 	{
 	public:
-		bin(){_contents=0;}
+		bin():_contents(0){}
 		T& region_low(){ return _regionLow;}	// the lower end of this bin
 		T& region_high(){ return _regionHigh;}	// the higher end
 		double& contents(){ return _contents;}	// the actual amount of elements in it
-		bin<T> operator++(){_contents++;return *this;} // increase the number of elements in this bin
+		bin<T>& operator++(){_contents++;return *this;} // increase the number of elements in this bin
 	protected:
-		T _regionLow;
-		T _regionHigh;
+		T _regionLow{};
+		T _regionHigh{};
 		double _contents;
 	};
 
@@ -68,8 +68,8 @@ namespace util{
 		int size(){return _data.size();}
 	protected:
 		std::vector< bin<T> > _binData( int numberOfBins, T minimum, T maximum, bool cumulate, bool reverseCumulate=false );
-		bool _sortIsValid;
-		std::vector<T> _data;
+		bool _sortIsValid=false;
+		std::vector<T> _data{};
 	};
 
 	// This class just takes in cut values into either signal or background, and
@@ -86,8 +86,8 @@ namespace util{
 		int number_of_background(){return _background.size();}
 		std::vector< std::pair<double,double> > eff_pur( int numberOfPoints );
 	protected:
-		histogram_data<T> _signal;
-		histogram_data<T> _background;
+		histogram_data<T> _signal{};
+		histogram_data<T> _background{};
 	};
 
 	template<class T>
@@ -243,14 +243,14 @@ namespace util{
 	
 		std::vector< std::pair<double,double> > returnVal;
 	
-		T maximum;
-		T minimum;
+		//T maximum;
+		//T minimum;
 	
-		if( _signal.maximum()>_background.maximum() ) maximum=_signal.maximum();
-		else  maximum=_background.maximum();
+		// if( _signal.maximum()>_background.maximum() ) maximum=_signal.maximum();
+		// else  maximum=_background.maximum();
 	
-		if( _signal.minimum()<_background.minimum() ) minimum=_signal.minimum();
-		else  minimum=_background.minimum();
+		// if( _signal.minimum()<_background.minimum() ) minimum=_signal.minimum();
+		// else  minimum=_background.minimum();
 	
 		// There is a +1 here because we are going to ditch the last bin (calculating Eff-Pur for a cut of 0 makes no sense)
 		std::vector< bin<T> > binnedSignal=_signal.binned_reversecumulative_data( numberOfPoints+1,0,1);//, minimum, maximum );

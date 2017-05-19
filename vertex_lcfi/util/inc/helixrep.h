@@ -20,7 +20,7 @@ class HelixRep
 	public:
 
         // Default constructor
-        HelixRep():_d0(0),_z0(0),_Phi(0),_InvR(1),_TanLambda(0),_Changed(true)
+	HelixRep():_d0(0),_z0(0),_Phi(0),_InvR(1),_TanLambda(0),_Changed(true),_Theta(0.0)
 	{}
 	
 	inline const double & d0() const {return _d0;}
@@ -49,9 +49,9 @@ class HelixRep
 	
 	mutable bool _Changed;
 	mutable double _Theta;
-	mutable double _Circumference;
-	mutable double _HalfCircumference;
-	mutable double _ZLength;
+	mutable double _Circumference=0.0;
+	mutable double _HalfCircumference=0.0;
+	mutable double _ZLength=0.0;
 	void _reCalculate() const
 	{
 		_Changed = false;

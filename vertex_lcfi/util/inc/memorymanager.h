@@ -41,7 +41,7 @@ namespace vertex_lcfi
 		//! Do not use
 		MetaMemoryManager& operator= (const MetaMemoryManager&);
 	private:
-		std::vector<MemoryManagerType*> _Types;
+		std::vector<MemoryManagerType*> _Types{};
 	};
 
 	//!Memory management
@@ -78,7 +78,7 @@ namespace vertex_lcfi
 		//! Do not use
 		MemoryManager<T>& operator= (const MemoryManager<T>&) {return MemoryManager<T>();}
 	private:
-		std::vector<T*> _Objects;
+		std::vector<T*> _Objects{};
 		
 	};
 	

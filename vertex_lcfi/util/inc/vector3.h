@@ -44,16 +44,18 @@ Simple 3 Vector class
 	{
 	}
 		
-	template<typename R> void operator=(const boost::numeric::ublas::vector_expression<R>& r)
-        {
-            Base_Vector::operator=(r);
-        }
+	// template<typename R> Vector3& operator=(const boost::numeric::ublas::vector_expression<R>& r)
+        // {
+        //     Base_Vector::operator=(r);
+        //     return *this;
+        // }
 
 	
         
         
-void operator=(const Base_Vector &r);
-		bool operator!=(const Vector3 &r);
+	Vector3& operator=(const Vector3 &r);
+	bool operator!=(const Vector3 &r);
+
         // Construction with components
         Vector3(const double &c1,const double &c2,const double &c3);
         // Accessor functions

@@ -13,9 +13,10 @@ namespace util
             Base_Vector::clear();
         }
 	
-	void Vector3::operator=(const Base_Vector &r)
+	Vector3& Vector3::operator=(const Vector3 &r)
         {
             Base_Vector::operator=(r);
+            return *this;
         }
 
 	bool Vector3::operator!=(const Vector3 &r)
