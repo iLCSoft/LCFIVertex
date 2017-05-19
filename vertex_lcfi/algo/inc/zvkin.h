@@ -83,12 +83,12 @@ namespace vertex_lcfi
 		DecayChain* calculateFor(Jet* MyJet) const;
 		
 	private:
-		bool _UseEventIP;
-		bool _AutoJetAxis;
-		Vector3 _JetAxis;
-		double _MinimumProbability;
-		double _InitialGhostWidth;
-		double _MaxChi2Allowed;
+		bool _UseEventIP=false;
+		bool _AutoJetAxis=false;
+		Vector3 _JetAxis{};
+		double _MinimumProbability=0.0;
+		double _InitialGhostWidth=0.0;
+		double _MaxChi2Allowed=0.0;
 		
 		
 	};

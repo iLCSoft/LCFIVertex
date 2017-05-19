@@ -26,17 +26,17 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void VertexMomentum::setStringParameter(const string & Parameter, const string & Value)
+  void VertexMomentum::setStringParameter(const string & Parameter, const string& )
   {
   this->badParameter(Parameter);
   }
   
-  void VertexMomentum::setDoubleParameter(const string & Parameter, const double Value)
+  void VertexMomentum::setDoubleParameter(const string & Parameter, const double )
   {
   this->badParameter(Parameter);
   }		
   
-  void VertexMomentum::setPointerParameter(const string & Parameter, void * Value)
+  void VertexMomentum::setPointerParameter(const string & Parameter, void* )
   {
   this->badParameter(Parameter);
   }	

@@ -93,18 +93,18 @@ namespace vertex_lcfi
 	       std::map<Projection, double> calculateFor(Jet* MyJet) const;
 		
 	private:
-		std::string _Name;
-		std::vector<std::string> _ParameterNames;
-		mutable std::vector<std::string> _ParameterValues;
-	      	std::vector<double> _ResolutionParameterRphi;
+		std::string _Name{};
+		std::vector<std::string> _ParameterNames{};
+		mutable std::vector<std::string> _ParameterValues{};
+		std::vector<double> _ResolutionParameterRphi{};
 		//double* _ResolutionParameterRphi;
-		std::vector<double>  _ResolutionParameterZ;
-		std::vector<double>  _ResolutionParameter3D;
-		std::vector<double> temp;
-		std::vector<double> temp1;
-		std::vector<double> temp2;
-		double _MaxD0Significance;
-		double _MaxD0andZ0;
+		std::vector<double>  _ResolutionParameterZ{};
+		std::vector<double>  _ResolutionParameter3D{};
+		std::vector<double> temp{};
+		std::vector<double> temp1{};
+		std::vector<double> temp2{};
+		double _MaxD0Significance=0.0;
+		double _MaxD0andZ0=0.0;
 		double probparam(double, int, double  ) const;
 	  };
 

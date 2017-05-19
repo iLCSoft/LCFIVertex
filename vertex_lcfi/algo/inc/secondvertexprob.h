@@ -87,11 +87,11 @@ namespace vertex_lcfi
 		double calculateFor(DecayChain* MyDecayChain ) const;
 		
 	private:
-		std::string _Name;
-		std::vector<std::string> _ParameterNames;
-		mutable std::vector<std::string> _ParameterValues;
-		double _Chisquarecut; 
-		double _Ntrackscut;
+		std::string _Name{};
+		std::vector<std::string> _ParameterNames{};
+		mutable std::vector<std::string> _ParameterValues{};
+		double _Chisquarecut=0.0;
+		double _Ntrackscut=0.0;
 	  };
 
 }

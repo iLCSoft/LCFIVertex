@@ -55,7 +55,7 @@ namespace vertex_lcfi
 	  return _ParameterValues;
 	}
 	
-	void TwoTrackPid::setStringParameter(const string & Parameter, const string & Value)
+	void TwoTrackPid::setStringParameter(const string & Parameter, const string& )
 	{
 	this->badParameter(Parameter);
 	}
@@ -95,7 +95,7 @@ namespace vertex_lcfi
 	  this->badParameter(Parameter);
 	}
 	
-	void TwoTrackPid::setPointerParameter(const string & Parameter, void * Value)
+	void TwoTrackPid::setPointerParameter(const string & Parameter, void* )
 	{
 	this->badParameter(Parameter);
 	}

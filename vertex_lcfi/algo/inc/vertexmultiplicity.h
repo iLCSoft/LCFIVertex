@@ -24,7 +24,7 @@ namespace vertex_lcfi
 	public Algo<DecayChain*,int>
 	{
 	public:
-		
+		VertexMultiplicity() {}
 		//! Name
 		/*!
 		String name of the algorithm
@@ -79,9 +79,9 @@ namespace vertex_lcfi
 		int calculateFor(DecayChain* MyDecayChain) const;
 		
 	private:
-		std::string _Name;
-		std::vector<std::string> _ParameterNames;
-		std::vector<std::string> _ParameterValues;
+		std::string _Name{};
+		std::vector<std::string> _ParameterNames{};
+		std::vector<std::string> _ParameterValues{};
 	  };
 
 	}

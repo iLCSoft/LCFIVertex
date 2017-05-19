@@ -49,7 +49,7 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void VertexMass::setStringParameter(const string & Parameter, const string & Value)
+  void VertexMass::setStringParameter(const string & Parameter, const string& )
   {
   this->badParameter(Parameter);
   }
@@ -74,7 +74,7 @@ namespace vertex_lcfi
   this->badParameter(Parameter);
   }		
   
-  void VertexMass::setPointerParameter(const string & Parameter, void * Value)
+  void VertexMass::setPointerParameter(const string & Parameter, void* )
   {
   this->badParameter(Parameter);
   }    
@@ -180,7 +180,7 @@ namespace vertex_lcfi
     double cosi, sine, aa, bb, cc,  det2;
     double smin, amin, amax, temp, xmin, xmax, ymin, ymax ;
     bool iterate = true ;
-    double p3norm =0;
+    //double p3norm =0;
     double ptmin = 0;
     double ptmax = 0;
     
@@ -243,7 +243,7 @@ namespace vertex_lcfi
     if( sigma > 0 ) sigma = sqrt(sigma);
     else sigma = 0;
     
-    p3norm = sigma;
+    //p3norm = sigma;
     
     if(sigma <= sigmax) ptmin = 0;
     
