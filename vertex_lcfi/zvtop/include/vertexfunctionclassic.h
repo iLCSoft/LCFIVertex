@@ -57,7 +57,8 @@ Destruction cleans up all GaussTube and GaussEllipsoid objects created.
 		VertexFunctionClassic(std::vector<Track*> & Tracks , InteractionPoint* IP, const double Kip, const double Kalpha, const Vector3 & JetAxis);
 		//!Destructor
 		~VertexFunctionClassic();
-
+		VertexFunctionClassic(const vertex_lcfi::ZVTOP::VertexFunctionClassic&) = delete;
+		VertexFunctionClassic& operator=(const vertex_lcfi::ZVTOP::VertexFunctionClassic&) = delete;
 		//!Find the value of the vertex function at Point
 		double valueAt(const Vector3 & Point) const;
 		//!Find the spacial derivative of the vertex function at Point (not implemented)
@@ -68,18 +69,17 @@ Destruction cleans up all GaussTube and GaussEllipsoid objects created.
 	private:
 		//This is seperated his as later on we might want to take and add tracks willy-nilly so I
 		//need to keep track of which ones I made
-		std::vector<VertexFunctionElement*> _AllElements;
-		std::vector<VertexFunctionElement*> _ElementsNewedByThis;
-		std::vector<GaussTube*>				_Tubes;
-		GaussEllipsoid*						_Ellipsoid;
+		std::vector<VertexFunctionElement*> _AllElements{};
+		std::vector<VertexFunctionElement*> _ElementsNewedByThis{};
+		std::vector<GaussTube*> _Tubes{};
+		GaussEllipsoid* _Ellipsoid=nullptr;
+		
+		double _Kip=0.0;
+		double _Kalpha=0.0;
+		Vector3 _JetAxis{};
 		
 		double _sumOfTubes(const Vector3 & Point) const;
 		double _sumOfSquaredTubes(const Vector3 & Point) const;
-
-			
-		double _Kip;
-		double _Kalpha;
-		Vector3 _JetAxis;
 
 	};
 }

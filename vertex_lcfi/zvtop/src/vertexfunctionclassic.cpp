@@ -105,14 +105,14 @@ namespace vertex_lcfi { namespace ZVTOP
 			return 0;
 	}
 	
-	Matrix3x3 VertexFunctionClassic::firstDervAt(const Vector3 &Point) const
+	Matrix3x3 VertexFunctionClassic::firstDervAt(const Vector3& /*Point*/) const
 	{
 	//	TODO Implement if needed this funcion could be one class up
 		return Matrix3x3();
 	}
 
 	
-	Matrix3x3 VertexFunctionClassic::secondDervAt(const Vector3 &Point) const
+	Matrix3x3 VertexFunctionClassic::secondDervAt(const Vector3& /*Point*/) const
 	{
 	//	TODO Implement if needed this funcion could be one class up
 		return Matrix3x3();

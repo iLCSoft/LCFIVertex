@@ -18,7 +18,7 @@ namespace vertex_lcfi { namespace ZVTOP
 	{
 	}
 	
-	Track* GhostFinderStage1::findGhost(double InitialWidth, double MaxChi2Allowed, const Vector3 & JetDir, const std::vector<Track*> & JetTracks, InteractionPoint* IP)
+  Track* GhostFinderStage1::findGhost(double InitialWidth, double MaxChi2Allowed, const Vector3 & JetDir, const std::vector<Track*> & /*JetTracks*/, InteractionPoint* /*IP*/)
 	{
 		//TODO Upgrade to movable IP (requires more clever ghost creation)
 		//TODO confirm precision is that required from paper

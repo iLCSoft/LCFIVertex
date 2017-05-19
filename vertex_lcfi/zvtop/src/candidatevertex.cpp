@@ -328,7 +328,7 @@ bool CandidateVertex::isResolvedFrom(CandidateVertex* const Vertex, const double
 	return 0;
 }
 
-bool CandidateVertex::isResolvedFrom(CandidateVertex* const Vertex, const double Threshold, CandidateVertex::eResolveType Type, VertexResolver* Resolver) const
+bool CandidateVertex::isResolvedFrom(CandidateVertex* const Vertex, const double Threshold, CandidateVertex::eResolveType Type, VertexResolver* /*Resolver*/ ) const
 {
 	//Todo null vertex pointer check
 	switch (Type)
@@ -428,9 +428,10 @@ double CandidateVertex::chiSquaredOfIP() const
 
 const std::map<TrackState*, double> & CandidateVertex::chiSquaredOfAllTracks() const
 {
-    if (!_FitIsValid)
-        this->refit(); //TODO CHECK FIT OK
-	return _ChiSquaredOfTrack;
+  if (!_FitIsValid) {
+    this->refit(); //TODO CHECK FIT OK
+  }
+  return _ChiSquaredOfTrack;
 }
 
 double CandidateVertex::chiSquaredOfFit() const

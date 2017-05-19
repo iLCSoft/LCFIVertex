@@ -44,6 +44,8 @@ Destruction cleans up all GaussTube and GaussEllipsoid objects created.
 		//First two use defualt gausstube
 		VertexFunctionSimple(std::vector<Track*> & Tracks);
 		VertexFunctionSimple(std::vector<Track*> & Tracks , InteractionPoint* IP);
+		VertexFunctionSimple(const vertex_lcfi::ZVTOP::VertexFunctionSimple&) = delete;
+		VertexFunctionSimple& operator=(const vertex_lcfi::ZVTOP::VertexFunctionSimple&) = delete;
 		//Delete Elements I made
 		~VertexFunctionSimple();
 
@@ -55,10 +57,10 @@ Destruction cleans up all GaussTube and GaussEllipsoid objects created.
 	private:
 		//This is seperated his as later on we might want to take and add tracks willy-nilly so I
 		//need to keep track of which ones I made
-		std::vector<VertexFunctionElement*> _AllElements;
-		std::vector<VertexFunctionElement*> _ElementsNewedByThis;
-		std::vector<GaussTube*>				_Tubes;
-		GaussEllipsoid*						_Ellipsoid;
+		std::vector<VertexFunctionElement*> _AllElements{};
+		std::vector<VertexFunctionElement*> _ElementsNewedByThis{};
+		std::vector<GaussTube*> _Tubes{};
+		GaussEllipsoid* _Ellipsoid=nullptr;
 		
 		double _sumOfTubes(const Vector3 & Point) const;
 		double _sumOfSquaredTubes(const Vector3 & Point) const;

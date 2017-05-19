@@ -24,12 +24,13 @@ by stepping till minimum reached. Currently hard wired step size.
 	public:
 		VertexFuncMaxFinderClassicStepper();
 		Vector3 findNearestMaximum(const Vector3 & StartPoint, VertexFunction* VertexFunction);
-		
+		VertexFuncMaxFinderClassicStepper(const vertex_lcfi::ZVTOP::VertexFuncMaxFinderClassicStepper&) = delete;
+		VertexFuncMaxFinderClassicStepper& operator=(const vertex_lcfi::ZVTOP::VertexFuncMaxFinderClassicStepper&) = delete;
 	private:
 		
-		Vector3 _CurrentPos;
-		double _CurrentValue;
-		VertexFunction* _Function;
+		Vector3 _CurrentPos{};
+		double _CurrentValue=0;
+		VertexFunction* _Function=nullptr;
 
 
 		void _minimiseAlongAxis(const Vector3 & Step);
