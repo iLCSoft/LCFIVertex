@@ -34,7 +34,7 @@ protected:
 
 private:
     LinearNeuron(const LinearNeuron &other); // Declared but not defined
-	double _slopeEnd;
+    double _slopeEnd=0.0;
 };
 
 }//namespace nnet

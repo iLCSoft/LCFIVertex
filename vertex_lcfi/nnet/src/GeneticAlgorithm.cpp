@@ -244,7 +244,6 @@ double GeneticAlgorithm::error(const NeuralNetDataSet &dataSet) const
 {
 	std::vector<double> inputs;
 	std::vector<double> target;
-	std::vector<double> output;
 	double error = 0.0;
 	for (int i=0;i<dataSet.numberOfDataItems();++i)
 	{

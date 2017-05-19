@@ -30,14 +30,15 @@ using nnet::NeuronLayer;
 NeuralNet::NeuralNet(const int numberOfInputs,const std::vector<int> &numberOfNeuronsPerLayer,
 					 NeuronBuilder *theNeuronBuilder,bool initialiseRandomSeed)
 : _numberOfInputs(numberOfInputs),
-  _theNeuronBuilder(theNeuronBuilder),_serialisationPrecision(12)
+  _theNeuronBuilder(theNeuronBuilder),
+#ifndef NEURALNETNOXMLREADER
+  _serialisationMode(XML),
+#else
+  _serialisationMode(PlainText),
+#endif
+  _serialisationPrecision(12)
 {
     theNeuronBuilder->setNetwork(this);
-#ifndef NEURALNETNOXMLREADER
-    _serialisationMode = XML;
-#else
-    _serialisationMode = PlainText;
-#endif
 	_numberOfLayers = (int)numberOfNeuronsPerLayer.size();
 	constructLayers(numberOfInputs,_numberOfLayers,numberOfNeuronsPerLayer,initialiseRandomSeed);
 	for (int i=0;i<_numberOfInputs;++i)
@@ -54,13 +55,14 @@ NeuralNet::NeuralNet(const int numberOfInputs,const std::vector<int> &numberOfNe
 NeuralNet::NeuralNet(const int numberOfInputs,const std::vector<std::vector<std::string> > &namedNeuronsPerLayer,
 					 bool initialiseRandomSeed)
 : _numberOfInputs(numberOfInputs),
-  _theNeuronBuilder(NULL),_serialisationPrecision(12)
-{
+  _theNeuronBuilder(nullptr),
 #ifndef NEURALNETNOXMLREADER
-    _serialisationMode = XML;
+  _serialisationMode (XML),
 #else
-    _serialisationMode = PlainText;
+  _serialisationMode(PlainText),
 #endif
+  _serialisationPrecision(12)
+{
 	_numberOfLayers = (int)namedNeuronsPerLayer.size();
 	constructLayers(namedNeuronsPerLayer,initialiseRandomSeed);
 	for (int i=0;i<_numberOfInputs;++i)
@@ -74,16 +76,17 @@ NeuralNet::NeuralNet(const int numberOfInputs,const std::vector<std::vector<std:
 	}
 }
 
-NeuralNet::NeuralNet(const NeuralNet &other)
+NeuralNet::NeuralNet(const NeuralNet &other):
+  _numberOfInputs(other._numberOfInputs),
+  _theNeuronBuilder(nullptr),
+  _serialisationMode(other._serialisationMode),
+  _serialisationPrecision(other._serialisationPrecision)
 {
-	NeuralNet &theother=const_cast<NeuralNet &>(other);
-	clear();
-	_numberOfLayers = other.numberOfLayers();
-	_numberOfInputs = other.numberOfInputs();
-	_serialisationPrecision = other.getSerialisationPrecision();
-	for (int i=0;i<_numberOfLayers;++i)
-		_theLayers.push_back(new NeuronLayer(*(theother.layer(i)),this));
-	_theNeuronBuilder = (NeuronBuilder *)0;
+    NeuralNet &theother=const_cast<NeuralNet &>(other);
+    clear();
+    _numberOfLayers = other.numberOfLayers();
+    for (int i=0;i<_numberOfLayers;++i)
+      _theLayers.push_back(new NeuronLayer(*(theother.layer(i)),this));
 
     std::vector<InputNormaliser *> otherNormalisers = other.inputNormalisers();
     std::vector<InputNormaliser *> myNewNormalisers;
@@ -95,30 +98,29 @@ NeuralNet::NeuralNet(const NeuralNet &other)
 	_targetNormalisationOffsets.assign(othermeans.begin(),othermeans.end());
     std::vector<double> othervariances = other.targetNormalisationRanges();
 	_targetNormalisationRanges.assign(othervariances.begin(),othervariances.end());
-    _serialisationMode = other.getSerialisationMode();
 }
 
 NeuralNet::NeuralNet(const std::string &xmlfile,std::vector<NeuronBuilder *> &theNeuronBuilders,const SerialisationMode readMode)
-: _numberOfLayers(0),_numberOfInputs(0),_serialisationPrecision(12),_serialisationMode(readMode)
+: _numberOfLayers(0),_numberOfInputs(0),_serialisationMode(readMode),_serialisationPrecision(12)
 {
 	buildFromUrl(xmlfile,theNeuronBuilders);
 }
 
 NeuralNet::NeuralNet(const char *xmlfile,std::vector<NeuronBuilder *> &theNeuronBuilders,const SerialisationMode readMode)
-: _numberOfLayers(0),_numberOfInputs(0),_serialisationPrecision(12),_serialisationMode(readMode)
+: _numberOfLayers(0),_numberOfInputs(0),_serialisationMode(readMode),_serialisationPrecision(12)
 {
 	std::string url = xmlfile;
 	buildFromUrl(url,theNeuronBuilders);
 }
 
 NeuralNet::NeuralNet(const std::string &xmlfile,const SerialisationMode readMode)
-: _numberOfLayers(0),_numberOfInputs(0),_serialisationPrecision(12),_serialisationMode(readMode)
+  : _numberOfLayers(0),_numberOfInputs(0),_serialisationMode(readMode),_serialisationPrecision(12)
 {
 	buildFromUrl(xmlfile);
 }
 
 NeuralNet::NeuralNet(const char *xmlfile,const SerialisationMode readMode)
-: _numberOfLayers(0),_numberOfInputs(0),_serialisationPrecision(12),_serialisationMode(readMode)
+  : _numberOfLayers(0),_numberOfInputs(0),_serialisationMode(readMode),_serialisationPrecision(12)
 {
 	std::string url = xmlfile;
 	buildFromUrl(url);
@@ -205,8 +207,7 @@ void NeuralNet::buildFromPlainText(const std::string &url,const std::vector<Neur
 {
 	clear();
 	_theNeuronBuilder = (NeuronBuilder *)0;
-    std::vector<std::string> normaliserTypes;
-    std::vector<std::vector<double> > normaliserConstructionData;
+        std::vector<std::string> normaliserTypes;
 	std::ifstream ifs;
 	ifs.open(url.c_str(),std::ios::in);
 	if (ifs.is_open())
@@ -251,8 +252,8 @@ void NeuralNet::buildFromPlainText(const std::string &url,const std::vector<Neur
 		{
 			NeuronLayer *newLayer = new NeuronLayer(this);
 			std::getline(ifs,line);
-			std::istringstream iss(line);
-			iss >> numberOfNeurons;
+			std::istringstream issNumNeuron(line);
+			issNumNeuron >> numberOfNeurons;
 
 			for (int j=0;j<numberOfNeurons;++j)
 			{
@@ -263,12 +264,12 @@ void NeuralNet::buildFromPlainText(const std::string &url,const std::vector<Neur
 				ifs >> std::ws;
 
 				std::getline(ifs,line);
-				std::istringstream iss(line);
+				std::istringstream issNeuron(line);
 
-				iss >> neuronType >> numberOfInputs >> std::ws;
+				issNeuron >> neuronType >> numberOfInputs >> std::ws;
 
 				std::string value;
-				while (std::getline(iss,value,' '))
+				while (std::getline(issNeuron,value,' '))
 				{
 					std::istringstream iss(value);
 					iss >> filedata;
@@ -389,8 +390,7 @@ void NeuralNet::buildFromPlainText(const std::string &url)
 {
 	clear();
 	_theNeuronBuilder = (NeuronBuilder *)0;
-    std::vector<std::string> normaliserTypes;
-    std::vector<std::vector<double> > normaliserConstructionData;
+        std::vector<std::string> normaliserTypes;
 	std::ifstream ifs;
 	ifs.open(url.c_str(),std::ios::in);
 	if (ifs.is_open())
@@ -435,8 +435,8 @@ void NeuralNet::buildFromPlainText(const std::string &url)
 		{
 			NeuronLayer *newLayer = new NeuronLayer(this);
 			std::getline(ifs,line);
-			std::istringstream iss(line);
-			iss >> numberOfNeurons;
+			std::istringstream issNumNeuron(line);
+			issNumNeuron >> numberOfNeurons;
 
 			for (int j=0;j<numberOfNeurons;++j)
 			{
@@ -447,12 +447,12 @@ void NeuralNet::buildFromPlainText(const std::string &url)
 				ifs >> std::ws;
 
 				std::getline(ifs,line);
-				std::istringstream iss(line);
+				std::istringstream issNeuron(line);
 
-				iss >> neuronType >> numberOfInputs >> std::ws;
+				issNeuron >> neuronType >> numberOfInputs >> std::ws;
 
 				std::string value;
-				while (std::getline(iss,value,' '))
+				while (std::getline(issNeuron,value,' '))
 				{
 					std::istringstream iss(value);
 					iss >> filedata;
@@ -704,7 +704,7 @@ std::vector<std::pair<double,double> > NeuralNet::networkOutputRange() const
 
 void NeuralNet::setInputNormalisers(const std::vector<InputNormaliser *> &theNormalisers)
 {
-    if (theNormalisers.size() == _numberOfInputs)
+    if (int(theNormalisers.size()) == _numberOfInputs)
     {
         if ((int)_inputNormalisers.size() != 0)
         {

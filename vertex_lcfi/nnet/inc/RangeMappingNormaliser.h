@@ -27,9 +27,9 @@ public:
 
 private:
     double _inputMin;
-    double _inputRange;
+    double _inputRange=0.0;
     double _outputMin;
-    double _outputRange;
+    double _outputRange=0.0;
 };
 
 }//namespace nnet

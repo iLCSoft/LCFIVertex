@@ -232,9 +232,9 @@ void NeuralNetXMLReader::getNormalisationData(std::vector<std::string> &normalis
         if ((int)constructionData.size() != 0)
             for (int i=0;i<(int)constructionData.size();++i)
                 constructionData[i].clear();
-		constructionData.clear();
-		targetoffsets.clear();
-		targetranges.clear();
+        constructionData.clear();
+        targetoffsets.clear();
+        targetranges.clear();
 
 #if defined(_WIN32)&&!defined(USEXERCES)&&!defined(USETINYXML)
 		MSXML2::IXMLDOMNodeListPtr pInputVals = _pXMLDoc->selectNodes("/NeuralNet/InputNormalisationData");
@@ -428,14 +428,14 @@ void NeuralNetXMLReader::getNormalisationData(std::vector<std::string> &normalis
 #else
         TiXmlNode *thenode = 0;
         std::vector<double> tmpdata;
-        while (thenode = _pDocRoot->IterateChildren("InputNormalisationData",thenode))
+        while ((thenode = _pDocRoot->IterateChildren("InputNormalisationData",thenode)))
         {
             TiXmlNode *theNormaliser = thenode->FirstChild("InputNormaliser");
             tmpdata.clear();
             std::string name = theNormaliser->ToElement()->Attribute("Type");
             normaliserTypes.push_back(name);
             TiXmlNode *params = 0;
-            while (params = theNormaliser->IterateChildren(params))
+            while ((params = theNormaliser->IterateChildren(params)))
             {
                 double p;
                 params->ToElement()->Attribute("Value",&p);
@@ -444,7 +444,7 @@ void NeuralNetXMLReader::getNormalisationData(std::vector<std::string> &normalis
             constructionData.push_back(tmpdata);
         }
         thenode = 0;
-        while (thenode = _pDocRoot->IterateChildren("TargetNormalisationData",thenode))
+        while ((thenode = _pDocRoot->IterateChildren("TargetNormalisationData",thenode)))
         {
             double offset, range;
             thenode->ToElement()->Attribute("Offset",&offset);
@@ -476,7 +476,7 @@ void NeuralNetXMLReader::getLayerCollection()
 #else
     _pLayers = new std::vector<TiXmlNode *>;
     TiXmlNode *node = 0;
-    while (node = _pDocRoot->IterateChildren("NeuronLayer",node))
+    while ((node = _pDocRoot->IterateChildren("NeuronLayer",node)))
         _pLayers->push_back(node);
 #endif
 }
@@ -582,7 +582,7 @@ void NeuralNetXMLReader::getNeuronCollection()
     _pNeurons = new std::vector<TiXmlNode *>;
     TiXmlNode *parent = (*_pLayers)[_currentLayer];
     TiXmlNode *thenode = 0;
-    while (thenode = parent->IterateChildren("Neuron",thenode))
+    while ((thenode = parent->IterateChildren("Neuron",thenode)))
         _pNeurons->push_back(thenode);
 #endif
 }
@@ -678,7 +678,7 @@ int NeuralNetXMLReader::nextNeuron(std::string &neuronType,std::vector<double> &
     theNeuron->ToElement()->Attribute("NumberOfInputs",&numberOfInputs);
     // build construction data by reading all child nodes
     TiXmlNode *theNode = 0;
-    while (theNode = theNeuron->IterateChildren(theNode))
+    while ((theNode = theNeuron->IterateChildren(theNode)))
     {
         std::string thevalue = theNode->FirstChild()->ToText()->ValueStr();
         char *stopconv;

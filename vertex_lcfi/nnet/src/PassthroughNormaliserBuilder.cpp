@@ -13,7 +13,7 @@ PassthroughNormaliserBuilder::~PassthroughNormaliserBuilder(void)
 {
 }
 
-InputNormaliser *PassthroughNormaliserBuilder::buildNormaliser(const std::vector<double> &constructionData) const
+InputNormaliser *PassthroughNormaliserBuilder::buildNormaliser(const std::vector<double> &/*constructionData*/) const
 {
     return new PassthroughNormaliser(_parentNetwork);
 }

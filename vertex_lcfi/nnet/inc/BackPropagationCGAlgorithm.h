@@ -34,6 +34,8 @@ public:
 public:
 	BackPropagationCGAlgorithm(NeuralNet &theNetwork);
 	~BackPropagationCGAlgorithm(void);
+	BackPropagationCGAlgorithm(const BackPropagationCGAlgorithm&)= delete;
+	BackPropagationCGAlgorithm& operator=(const BackPropagationCGAlgorithm&) = delete;
 	double train(const int numberOfEpochs,const NeuralNetDataSet &dataSet,
         const NeuralNet::InputNormalisationSelect normaliseTrainingData=NeuralNet::PassthroughNormalised);
     double train(const int numberOfEpochs,const NeuralNetDataSet &dataSet,const std::vector<InputNormaliser *> &inputNormalisers);
@@ -71,31 +73,31 @@ private:
 private:
 	NeuralNet &_theNetwork;
 	BetaFunctionSelect _theBetaFunction;
-	const std::vector<double> *_inputs,*_target;
-	NetMatrix _neuronErrorSignals;
-	NetMatrix _neuronOutputs;
-	NetMatrix _neuronDerivativeOutputs;
-	NetMatrix _dEdw;
-	const NeuralNetDataSet *_currentDataSet;
-	double _previousEpochError;
-	double _runningEpochErrorTotal;
 	int _numberOfTrainingEvents;
-	std::vector<double> _runningDeDwSum;
-	std::vector<double> _previousEpochDeDw;
+	double _runningEpochErrorTotal;
+	double _previousEpochError;
 	double _linearSearchStepLength;
-	std::vector<double> _currentSearchDirection;
 	double _linearSearchMu;
 	double _linearSearchSigma;
+	int _linearSearchMaxIterations;
+	int _numberOfEpochs;
 	double _linearSearchGamma;
 	double _linearSearchTolerance;
-	int _linearSearchMaxIterations;
-	int _epochsBeforeGradientReset;
-	int _numberOfEpochs;
 	int _progressPrintoutFrequency;
-	std::vector<double> _savedEpochErrorValues;
 	double _linearSearchAbsGradientCutoff;
-    double _previousEpochStepLength;
-    std::vector<double> _previousEpochDeltaWeights;
+        double _previousEpochStepLength;
+	const std::vector<double> *_inputs=nullptr,*_target=nullptr;
+	NetMatrix _neuronErrorSignals{};
+	NetMatrix _neuronOutputs{};
+	NetMatrix _neuronDerivativeOutputs{};
+	NetMatrix _dEdw{};
+	const NeuralNetDataSet *_currentDataSet=nullptr;
+	std::vector<double> _runningDeDwSum{};
+	std::vector<double> _previousEpochDeDw{};
+	std::vector<double> _currentSearchDirection{};
+	int _epochsBeforeGradientReset=0;
+	std::vector<double> _savedEpochErrorValues{};
+	std::vector<double> _previousEpochDeltaWeights{};
 };
 
 }//namespace nnet

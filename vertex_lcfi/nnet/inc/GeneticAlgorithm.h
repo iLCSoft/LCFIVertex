@@ -33,7 +33,7 @@ GeneticAlgorithm
 public:
 	GeneticAlgorithm(NeuralNet &theNetwork,const int populationSize,const double mutationRate=0.1,
 		const double crossoverRate=0.7);
-	~GeneticAlgorithm(void);
+	virtual ~GeneticAlgorithm();
 	void setNumberOfEliteGenomes(const int n)
 	{ _numberOfEliteCrossGenerationGenomes = n;}
 	void setEliteGenomeReplicationCount(const int count);
@@ -61,21 +61,18 @@ protected:
 
 private:
 	NeuralNet &_theNetwork;
-	std::vector<Genome *> _thePopulation;
 	int _populationSize;
-	int _numberOfEvaluations;
-
 	// Parameters for elitism.
 	// Allow this many of the best genomes a free ride
 	// into the next generation.
 	int _numberOfEliteCrossGenerationGenomes;
-
 	// Allow this many copies of them
 	int _numberOfCopiesOfEliteGenomes;
-
+	int _numberOfEvaluations;
 	int _progressPrintoutFrequency;
-    double _maxGenomeFitness;
-    std::vector<double> _savedEpochErrorValues;
+	double _maxGenomeFitness;
+	std::vector<Genome *> _thePopulation{};
+	std::vector<double> _savedEpochErrorValues{};
 };
 
 }//namespace nnet

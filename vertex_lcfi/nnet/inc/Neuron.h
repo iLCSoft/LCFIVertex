@@ -44,22 +44,24 @@ public:
 	virtual Neuron *clone(const NeuralNet *parentNetwork) const = 0;
 	virtual void outputRange(double &outputmin,double &outputmax) const = 0;
 
+	Neuron& operator=(const Neuron&) = delete;
+	Neuron(const nnet::Neuron&) = delete;
 protected:
 	Neuron(const int numberOfInputs,const double bias,const NeuralNet *parentNetwork=0);
-	virtual ~Neuron(void);
+	virtual ~Neuron();
 	virtual double thresholdFunction(const double activation) const = 0;
 	virtual double derivative(const double x) const = 0;
-	virtual void serialiseExtra(std::ostream &os) const {};
+	virtual void serialiseExtra(std::ostream &) const {};
 	virtual std::string neuronType() const = 0;
 
 private:
 	double activation(const std::vector<double> &inputs) const;
 
 protected:
-	const int _numberOfInputs;
-	const double _bias;
-	std::vector<double> _weights;
-    const NeuralNet *_parentNetwork;
+	const int _numberOfInputs=0;
+	const double _bias=0;
+	std::vector<double> _weights{};
+	const NeuralNet *_parentNetwork=nullptr;
 };
 
 }//namespace nnet

@@ -21,8 +21,10 @@ public:
     virtual std::string buildsType() const = 0;
     virtual InputNormaliser *buildNormaliser(const std::vector<double> &constructionData) const = 0;
 
+    InputNormaliserBuilder(const InputNormaliserBuilder&) = delete;
+    InputNormaliserBuilder& operator=(const InputNormaliserBuilder&) = delete;
 protected:
-    const NeuralNet *_parentNetwork;
+    const NeuralNet *_parentNetwork=nullptr;
 };
 
 }//namespace nnet

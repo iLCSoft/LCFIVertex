@@ -41,6 +41,7 @@ public:
 	NeuralNet(const int numberOfInputs,const std::vector<int> &numberOfNeuronsPerLayer,NeuronBuilder *theNeuronBuilder,bool initialiseRandomSeed=true);
 	NeuralNet(const int numberOfInputs,const std::vector<std::vector<std::string> > &namedNeuronsPerLayer,bool initialiseRandomSeed=true);
 	NeuralNet(const NeuralNet &other);
+	NeuralNet& operator=(NeuralNet const&) = delete;
 	NeuralNet(const std::string &xmlfile,std::vector<NeuronBuilder *> &theNeuronBuilders,const SerialisationMode readMode=XML);
 	NeuralNet(const char *xmlfile,std::vector<NeuronBuilder *> &theNeuronBuilders,const SerialisationMode readMode=XML);
 	NeuralNet(const std::string &xmlfile,const SerialisationMode readMode=XML);
@@ -78,20 +79,20 @@ protected:
     void buildFromPlainText(const std::string &url);
 
 private:
-	int _numberOfLayers;
-	int _numberOfInputs;
-	std::vector<NeuronLayer *> _theLayers;
-	const NeuronBuilder *_theNeuronBuilder;
-	std::vector<double> _targetNormalisationOffsets;
-	std::vector<double> _targetNormalisationRanges;
-    std::vector<InputNormaliser *> _inputNormalisers;
-    SerialisationMode _serialisationMode;
+	int _numberOfLayers=0;
+	int _numberOfInputs=0;
+	std::vector<NeuronLayer *> _theLayers{};
+	const NeuronBuilder *_theNeuronBuilder=nullptr;
+	std::vector<double> _targetNormalisationOffsets{};
+	std::vector<double> _targetNormalisationRanges{};
+	std::vector<InputNormaliser *> _inputNormalisers{};
+	SerialisationMode _serialisationMode;
 #ifdef __CINT__
 	int
 #else
 	std::streamsize
 #endif
-		_serialisationPrecision;
+	_serialisationPrecision;
 };
 
 // Non member stream output operator

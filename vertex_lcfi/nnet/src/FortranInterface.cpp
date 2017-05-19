@@ -20,7 +20,7 @@ protected:
 
 private:
 	static NNFInterfaceManager<T> *_instance;
-	std::vector<std::pair<int,T*> > _managedItems;
+	std::vector<std::pair<int,T*> > _managedItems{};
 };
 
 template<typename T>
@@ -546,10 +546,10 @@ NEURALNETDLL void BATCHTRAINSETNORMALISERS(const int *iga,const int *iset,const 
     std::vector<InputNormaliser *> theNormalisers;
     for (int i=0;i<*nNormalisers;++i)
         theNormalisers.push_back(NNFInterfaceManager<InputNormaliser>::instance()->item(*(normalisers+i)));
-	if ((thega != (GeneticAlgorithm *)0)&&(ds != (NeuralNetDataSet *)0))
-	{
+    if ((thega != (GeneticAlgorithm *)0)&&(ds != (NeuralNetDataSet *)0))
+    {
         thega->batchTrain(*nepochs,*ds,theNormalisers);
-	}
+    }
 }
 
 NEURALNETDLL double TRAINWITHCGALGSETNORMALISERS(const int *ialg,const int *iset,const int *epochs,const int *nNormalisers,const int *normalisers)
@@ -559,10 +559,10 @@ NEURALNETDLL double TRAINWITHCGALGSETNORMALISERS(const int *ialg,const int *iset
     std::vector<InputNormaliser *> theNormalisers;
     for (int i=0;i<*nNormalisers;++i)
         theNormalisers.push_back(NNFInterfaceManager<InputNormaliser>::instance()->item(*(normalisers+i)));
-	if ((cg != (BackPropagationCGAlgorithm *)0)&&(ds != (NeuralNetDataSet *)0))
-		return cg->train(*epochs,*ds,theNormalisers);
-	else
-		return -1.0;
+    if ((cg != (BackPropagationCGAlgorithm *)0)&&(ds != (NeuralNetDataSet *)0))
+        return cg->train(*epochs,*ds,theNormalisers);
+    else
+        return -1.0;
 }
 
 NEURALNETDLL double TRAINWITHBATCHBACKPROPSETNORMALISERS(const int *ibp,const int *dataset,const int *epochs,const int *nNormalisers,const int *normalisers)
@@ -572,12 +572,12 @@ NEURALNETDLL double TRAINWITHBATCHBACKPROPSETNORMALISERS(const int *ibp,const in
     std::vector<InputNormaliser *> theNormalisers;
     for (int i=0;i<*nNormalisers;++i)
         theNormalisers.push_back(NNFInterfaceManager<InputNormaliser>::instance()->item(*(normalisers+i)));
-	if ((thebbp != (BatchBackPropagationAlgorithm *)0)&&(theds != (NeuralNetDataSet *)0))
-	{
-		return thebbp->train(*epochs,*theds,theNormalisers);
-	}
-	else
-		return -1.0;
+    if ((thebbp != (BatchBackPropagationAlgorithm *)0)&&(theds != (NeuralNetDataSet *)0))
+    {
+	return thebbp->train(*epochs,*theds,theNormalisers);
+    }
+    else
+        return -1.0;
 }
 
 NEURALNETDLL void SETSERIALISATIONMODE(const int *nn,const int *mode)

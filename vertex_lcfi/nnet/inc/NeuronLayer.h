@@ -39,6 +39,7 @@ public:
 	NeuronLayer(const int numberOfNeurons,const int numberOfInputsPerNeuron,const NeuronBuilder &theNeuronBuilder,const NeuralNet *parentNetwork=0);
 	NeuronLayer(const int numberOfInputsPerNeuron,const std::vector<std::string> &namedNeurons,const NeuralNet *parentNetwork=0);
 	NeuronLayer(const NeuronLayer &other,const NeuralNet *newParent);
+	NeuronLayer& operator=(const nnet::NeuronLayer&) = delete;
 	void destroy() const;
 	void serialise(std::ostream &os) const;
 	int numberOfNeurons() const {return (int)_theNeurons.size();}
@@ -55,8 +56,8 @@ protected:
 	void clear();
 
 private:
-	std::vector<Neuron *> _theNeurons;
-    const NeuralNet *_parentNetwork;
+	std::vector<Neuron *> _theNeurons{};
+	const NeuralNet *_parentNetwork=nullptr;
 
     NeuronLayer(const NeuronLayer &other); // Declared but not defined
 
