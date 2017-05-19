@@ -37,13 +37,14 @@ namespace util
         {}
                 // Construction and assignment from a ublas matrix expression or copy assignment
         template<typename R> SymMatrix2x2(const boost::numeric::ublas::matrix_expression<R>& r) : Base_Matrix(r) {}
-        template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // {
+        //     Base_Matrix::operator=(r);
+        // }
+        SymMatrix2x2& operator=(const SymMatrix2x2 &r)
         {
             Base_Matrix::operator=(r);
-        }
-        void operator=(const Base_Matrix &r)
-        {
-            Base_Matrix::operator=(r);
+            return *this;
         }
 
     };
@@ -61,13 +62,14 @@ namespace util
 
         // Construction and assignment from a ublas matrix expression or copy assignment
         template<typename R> Matrix2x2(const boost::numeric::ublas::matrix_expression<R>& r) : Base_Matrix(r) {}
-        template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // {
+        //     Base_Matrix::operator=(r);
+        // }
+        Matrix2x2& operator=(const Matrix2x2 &r)
         {
             Base_Matrix::operator=(r);
-        }
-        void operator=(const Base_Matrix &r)
-        {
-            Base_Matrix::operator=(r);
+            return *this;
         }
 
     };
@@ -85,13 +87,14 @@ namespace util
 
         // Construction and assignment from a ublas matrix expression or copy assignment
         template<typename R> Matrix3x3(const boost::numeric::ublas::matrix_expression<R>& r) : Base_Matrix(r) {}
-        template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // {
+        //     Base_Matrix::operator=(r);
+        // }
+        Matrix3x3& operator=(const Matrix3x3 &r)
         {
             Base_Matrix::operator=(r);
-        }
-        void operator=(const Base_Matrix &r)
-        {
-            Base_Matrix::operator=(r);
+            return *this;
         }
 
     };
@@ -109,13 +112,14 @@ namespace util
 
         // Construction and assignment from a ublas matrix expression or copy assignment
         template<typename R> Matrix5x5(const boost::numeric::ublas::matrix_expression<R>& r) : Base_Matrix(r) {}
-        template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // {
+        //     Base_Matrix::operator=(r);
+        // }
+        Matrix5x5& operator=(const Matrix5x5 &r)
         {
             Base_Matrix::operator=(r);
-        }
-        void operator=(const Base_Matrix &r)
-        {
-            Base_Matrix::operator=(r);
+            return *this;
         }
 
     };
@@ -129,13 +133,14 @@ namespace util
         {}
                 // Construction and assignment from a ublas matrix expression or copy assignment
         template<typename R> SymMatrix6x6(const boost::numeric::ublas::matrix_expression<R>& r) : Base_Matrix(r) {}
-        template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // {
+        //     Base_Matrix::operator=(r);
+        // }
+	SymMatrix6x6& operator=(const SymMatrix6x6 &r)
         {
             Base_Matrix::operator=(r);
-        }
-        void operator=(const Base_Matrix &r)
-        {
-            Base_Matrix::operator=(r);
+            return *this;
         }
 
     };
@@ -150,13 +155,14 @@ namespace util
         {}
                 // Construction and assignment from a ublas matrix expression or copy assignment
         template<typename R> Matrix6x6(const boost::numeric::ublas::matrix_expression<R>& r) : Base_Matrix(r) {}
-        template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // {
+        //     Base_Matrix::operator=(r);
+        // }
+        Matrix6x6& operator=(const Matrix6x6 &r)
         {
             Base_Matrix::operator=(r);
-        }
-        void operator=(const Base_Matrix &r)
-        {
-            Base_Matrix::operator=(r);
+            return *this;
         }
 
     };
@@ -171,13 +177,15 @@ namespace util
         {}
                 // Construction and assignment from a ublas matrix expression or copy assignment
         template<typename R> SymMatrix5x5(const boost::numeric::ublas::matrix_expression<R>& r) : Base_Matrix(r) {}
-        template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // template<typename R> SymMatrix5x5& operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // {
+        //     Base_Matrix::operator=(r);
+        //     return *this;
+        // }
+        SymMatrix5x5& operator=(const SymMatrix5x5 &r)
         {
             Base_Matrix::operator=(r);
-        }
-        void operator=(const Base_Matrix &r)
-        {
-            Base_Matrix::operator=(r);
+            return *this;
         }
 
     };
@@ -192,13 +200,14 @@ namespace util
         {}
                 // Construction and assignment from a ublas matrix expression or copy assignment
         template<typename R> SymMatrix3x3(const boost::numeric::ublas::matrix_expression<R>& r) : Base_Matrix(r) {}
-        template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // template<typename R> void operator=(const boost::numeric::ublas::matrix_expression<R>& r)
+        // {
+        //     Base_Matrix::operator=(r);
+        // }
+        SymMatrix3x3& operator=(const SymMatrix3x3 &r)
         {
             Base_Matrix::operator=(r);
-        }
-        void operator=(const Base_Matrix &r)
-        {
-            Base_Matrix::operator=(r);
+            return *this;
         }
 
     };
