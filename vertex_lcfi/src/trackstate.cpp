@@ -220,7 +220,7 @@ namespace vertex_lcfi
 		}
 		
 		//Iterative Fallback TODO - Can only do one cycle for helix helix
-		if (this->isCharged() && TrackToSwimTo->isCharged() || this->isCharged() && TrackToSwimTo->isNeutral() || this->isNeutral() && TrackToSwimTo->isCharged())	
+		if ( (this->isCharged() && TrackToSwimTo->isCharged()) || (this->isCharged() && TrackToSwimTo->isNeutral()) || (this->isNeutral() && TrackToSwimTo->isCharged()) )
 		{
 			TrackState toswimto = *TrackToSwimTo;
 			toswimto.resetToRef();

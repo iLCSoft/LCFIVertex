@@ -232,7 +232,7 @@ bool TState::GetDStoTStateBz( const TState *p,
   
   double bq  = fB*fQ*fCLight;
   double bq1 = fB*(p->fQ)*fCLight;
-  double s=0, ds=0, s1=0, ds1=0;
+  double sTrack=0, ds=0, s1=0, ds1=0;
   
   if( fabs(bq)>1.e-8 || fabs(bq1)>1.e-8 ){
     
@@ -263,11 +263,11 @@ bool TState::GetDStoTStateBz( const TState *p,
     if( sa1<0 ) sa1=0;
     
     if( fabs(bq)>1.e-8 ){
-      s  = atan2(bq*( bq1*(dx*px +dy*py) + a ), cS)/bq;
+      sTrack  = atan2(bq*( bq1*(dx*px +dy*py) + a ), cS)/bq;
       ds = atan2(sqrt(sa),ca)/bq;
     } else {
-      s = ((dx*px + dy*py) + (py*px1-px*py1)/bq1)/p2;
-      ds = s*s - (d2-2*(px1*dy-py1*dx)/bq1)/p2; 
+      sTrack = ((dx*px + dy*py) + (py*px1-px*py1)/bq1)/p2;
+      ds = sTrack*sTrack - (d2-2*(px1*dy-py1*dx)/bq1)/p2;
       if( ds<0 ) ds = 0;
       ds = sqrt(ds);   
     }
@@ -285,8 +285,8 @@ bool TState::GetDStoTStateBz( const TState *p,
   
   double ss[2], ss1[2], g[2][5], g1[2][5];
   
-  ss[0]  = s + ds;
-  ss[1]  = s - ds;
+  ss[0]  = sTrack + ds;
+  ss[1]  = sTrack - ds;
   ss1[0] = s1 + ds1;
   ss1[1] = s1 - ds1;
 

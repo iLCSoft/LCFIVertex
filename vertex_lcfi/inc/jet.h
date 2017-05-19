@@ -27,7 +27,8 @@ namespace vertex_lcfi
 		
 		//! Default Constructor
 		Jet();
-		
+		Jet(const Jet&) = default;
+		Jet& operator=(const Jet&) = default;
 		//! Full Constructor
 		/*!
 		\param Event Pointer to the event containing this jet
@@ -95,11 +96,11 @@ namespace vertex_lcfi
 		
 		
 	private:
-		Event* _Event;
-		std::vector<vertex_lcfi::Track*> _Tracks;
-		void* _TrackingNum;
-		double _Energy;
-		Vector3 _Momentum;
+		Event* _Event=nullptr;
+		std::vector<vertex_lcfi::Track*> _Tracks{};
+		void* _TrackingNum=nullptr;
+		double _Energy=0.0;
+		Vector3 _Momentum{};
 	};
 
 	}

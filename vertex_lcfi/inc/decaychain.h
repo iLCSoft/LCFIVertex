@@ -26,7 +26,7 @@ namespace vertex_lcfi
 		
 		//! Copy Constructor
 		DecayChain(const DecayChain & OldDecayChain);
-		
+		DecayChain& operator=(const vertex_lcfi::DecayChain&) = delete;
 		
 		//! Full Constructor
 		/*!
@@ -132,17 +132,17 @@ namespace vertex_lcfi
 		*/
 		
 	private:
-		Jet*	_OwnerJet;
-		std::vector<vertex_lcfi::Track*> _AttachedTracks;
-		std::vector<vertex_lcfi::Vertex*> _Vertices;
-		
+		Jet*	_OwnerJet=nullptr;
+		std::vector<vertex_lcfi::Track*> _AttachedTracks{};
+		std::vector<vertex_lcfi::Vertex*> _Vertices{};
+
 		//Caching Variables
-		mutable bool _MomValid;
-		mutable util::Vector3 _Momentum;
-		mutable bool _ChargeValid;
-		mutable double _Charge;
-		mutable bool _AllTracksValid;
-		mutable std::vector<Track*> _AllTracks;
+		mutable bool _MomValid=false;
+		mutable util::Vector3 _Momentum{};
+		mutable bool _ChargeValid=false;
+		mutable double _Charge=0.0;
+		mutable bool _AllTracksValid=false;
+		mutable std::vector<Track*> _AllTracks{};
 		
 		//Wipe cache (for when track content has changed)
 		void _invalidateCache() const;

@@ -28,7 +28,8 @@ namespace vertex_lcfi
 		Sets ip to origin and ip error to 10micron spherical
 		*/
 		Event();
-		
+		Event( const Event&) = default;
+		Event& operator=(const Event&) = default;
 		//! Construct with interaction point
 		/*!
 		\param Position ip position
@@ -93,12 +94,12 @@ namespace vertex_lcfi
 		
 
 	private:
-		Vertex* _IPVertex;
+		Vertex* _IPVertex=nullptr;
 		//Depreceated in favour of holding a complete vertex object
 		//Vector3 _IPPosition;
 		//SymMatrix3x3 _IPError;
-		std::vector<Jet*> _Jets;
-		std::vector<Track*> _Tracks;
+		std::vector<Jet*> _Jets{};
+		std::vector<Track*> _Tracks{};
 	};
 
 	}

@@ -26,8 +26,7 @@ For details of the parameterisation see Track
 	{
 	public:
 		//!Destructor
-		~TrackState()
-		{}
+		~TrackState() {}
 			
 		//!Construct from a given track
 		/*!
@@ -35,7 +34,8 @@ For details of the parameterisation see Track
 		(usually the perigee to the ref point)
 		*/ 	
 		TrackState(Track* Track);
-		
+		TrackState(const vertex_lcfi::TrackState&) = default;
+		TrackState& operator=(const vertex_lcfi::TrackState&) = default;
 		//!Construct from track parameters
 		/*!
 		Constructs a track state given parameters, with inital position distance swum=0 
@@ -135,34 +135,34 @@ For details of the parameterisation see Track
 		TrackState()
 		{}
 		
-		double 			_Charge;
+		double 			_Charge=0.0;
 	
-		HelixRep		_Init;
+		HelixRep		_Init{};
 		//Order tsi,eta,theta,phi,invr
-		SymMatrix5x5		_InitCovarMatrix;
+		SymMatrix5x5		_InitCovarMatrix{};
 		
-		mutable Vector3		_Position;
-		mutable bool		_PosValid;
+		mutable Vector3		_Position{};
+		mutable bool		_PosValid{};
 		
-		mutable Vector3		_Momentum;
-		mutable bool		_MomValid;
+		mutable Vector3		_Momentum{};
+		mutable bool		_MomValid{};
 				
-		mutable SymMatrix2x2	_PositionCovarMatrix;
-		mutable bool		_PositionCovarValid;
+		mutable SymMatrix2x2	_PositionCovarMatrix{};
+		mutable bool		_PositionCovarValid{};
 				
-		mutable SymMatrix2x2	_InversePositionCovarMatrix;
-		mutable bool		_InversePositionCovarValid;
+		mutable SymMatrix2x2	_InversePositionCovarMatrix{};
+		mutable bool		_InversePositionCovarValid{};
 		
-		mutable SymMatrix3x3	_PositionCovarMatrixXYZ;
-		mutable bool		_PositionCovarValidXYZ;
+		mutable SymMatrix3x3	_PositionCovarMatrixXYZ{};
+		mutable bool		_PositionCovarValidXYZ{};
 				
-		mutable SymMatrix3x3	_InversePositionCovarMatrixXYZ;
-		mutable bool		_InversePositionCovarValidXYZ;
+		mutable SymMatrix3x3	_InversePositionCovarMatrixXYZ{};
+		mutable bool		_InversePositionCovarValidXYZ{};
 				
-		double 			_DistanceSwum;
+		double 			_DistanceSwum=0.0;
 		
 		//Pointer to Track that created this state
-		Track*			_ParentTrack;
+		Track*			_ParentTrack=nullptr;
 
 		//Swimmer to use if none specified
 		static const double 	_swimprecision; //Set in CPP file
