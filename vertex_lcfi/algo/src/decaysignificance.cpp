@@ -26,17 +26,17 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void VertexDecaySignificance::setStringParameter(const string & Parameter, const string & Value)
+  void VertexDecaySignificance::setStringParameter(const string & Parameter, const string& )
   {
   this->badParameter(Parameter);
   }
   
-  void VertexDecaySignificance::setDoubleParameter(const string & Parameter, const double Value)
+  void VertexDecaySignificance::setDoubleParameter(const string & Parameter, const double )
   {
   this->badParameter(Parameter);
   }		
   
-  void VertexDecaySignificance::setPointerParameter(const string & Parameter, void * Value)
+  void VertexDecaySignificance::setPointerParameter(const string & Parameter, void* )
   {
   this->badParameter(Parameter);
   }	

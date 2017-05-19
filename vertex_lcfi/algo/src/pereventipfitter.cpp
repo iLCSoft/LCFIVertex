@@ -47,7 +47,7 @@ namespace vertex_lcfi
 		return paramValues;
 	}	
 	
-	void PerEventIPFitter::setStringParameter(const string & Parameter, const string & Value)
+	void PerEventIPFitter::setStringParameter(const string & Parameter, const string& )
 	{
 	this->badParameter(Parameter);
 	}
@@ -61,7 +61,7 @@ namespace vertex_lcfi
 		else this->badParameter(Parameter);
 	}		
 	
-	void PerEventIPFitter::setPointerParameter(const string & Parameter, void * Value)
+	void PerEventIPFitter::setPointerParameter(const string & Parameter, void* )
 	{
 		this->badParameter(Parameter);
 	}	

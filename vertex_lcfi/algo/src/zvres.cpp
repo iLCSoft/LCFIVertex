@@ -25,17 +25,16 @@ namespace vertex_lcfi
 
 		using namespace ZVTOP;
 		using namespace util;
-		ZVRES::ZVRES()
-		{
+		ZVRES::ZVRES():
 			//Default Values
-			_Kip = 1.0;
-			_Kalpha = 5.0;
-			_TwoProngCut = 10.0;
-			_TrackTrimCut = 10.0;
-			_ResolverCut = 0.6;
-			_AutoJetAxis = 1;
-			_UseEventIP = 0;
-		}
+			_Kip ( 1.0 ),
+			_Kalpha ( 5.0 ),
+			_TwoProngCut ( 10.0 ),
+			_TrackTrimCut ( 10.0 ),
+			_ResolverCut ( 0.6 ),
+			_AutoJetAxis ( 1 ),
+			_UseEventIP ( 0 )
+		{ }
 	
 		string ZVRES::name() const
 		{
@@ -152,7 +151,7 @@ namespace vertex_lcfi
 			this->badParameter(Parameter);
 		}
 		
-		void ZVRES::setPointerParameter(const string & Parameter, void * Value)
+		void ZVRES::setPointerParameter(const string & Parameter, void* )
 		{
 			this->badParameter(Parameter);
 		}

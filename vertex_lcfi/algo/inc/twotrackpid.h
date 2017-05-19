@@ -97,10 +97,10 @@ namespace vertex_lcfi
 		std::map<PidCutType, std::vector<Track*> > calculateFor(Jet* MyJet) const;
 		
 		private:
-		double _MaxGammaMass,_MinKsMass,_MaxKsMass,_Chi2Cut, _RPhiCut, _SignificanceCut;
-		std::string _Name;
-		std::vector<std::string> _ParameterNames;
-		mutable std::vector<std::string> _ParameterValues;
+		double _MaxGammaMass=0.0, _MinKsMass=0.0, _MaxKsMass=0.0, _Chi2Cut=0.0,  _RPhiCut=0.0,  _SignificanceCut=0.0;
+		std::string _Name{};
+		std::vector<std::string> _ParameterNames{};
+		mutable std::vector<std::string> _ParameterValues{};
 	};
 }
 #endif //LCFITWOTRACKPID_H

@@ -25,17 +25,17 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void VertexCharge::setStringParameter(const string & Parameter, const string & Value)
+  void VertexCharge::setStringParameter(const string& /*Parameter*/, const string& /*Value*/)
   {
   //TODO Throw Something
   }
   
-  void VertexCharge::setDoubleParameter(const string & Parameter, const double Value)
+  void VertexCharge::setDoubleParameter(const string& /*Parameter*/, const double /*Value*/)
   {
   //TODO Throw Something
   }		
   
-  void VertexCharge::setPointerParameter(const string & Parameter, void * Value)
+  void VertexCharge::setPointerParameter(const string& /*Parameter*/, void* /*Value*/)
   {
   //TODO Throw Something
   }	

@@ -86,7 +86,7 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void JointProb::setStringParameter(const string & Parameter, const string & Value)
+  void JointProb::setStringParameter(const string & Parameter, const string& )
   {
   this->badParameter(Parameter);
   }

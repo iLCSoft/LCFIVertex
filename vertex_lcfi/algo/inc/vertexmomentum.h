@@ -81,9 +81,9 @@ namespace vertex_lcfi
 		double calculateFor(DecayChain* MyDecayChain ) const;
 		
 	private:
-		std::string _Name;
-		std::vector<std::string> _ParameterNames;
-		std::vector<std::string> _ParameterValues;
+		std::string _Name{};
+		std::vector<std::string> _ParameterNames{};
+		std::vector<std::string> _ParameterValues{};
 	  };
 
 	}

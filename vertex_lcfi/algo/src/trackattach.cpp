@@ -54,7 +54,7 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void TrackAttach::setStringParameter(const string & Parameter, const string & Value)
+  void TrackAttach::setStringParameter(const string & Parameter, const string& )
   {
 	 this->badParameter(Parameter);
   }
@@ -84,7 +84,7 @@ namespace vertex_lcfi
       this->badParameter(Parameter);
   }		
   
-  void TrackAttach::setPointerParameter(const string & Parameter, void * Value)
+  void TrackAttach::setPointerParameter(const string & Parameter, void* )
   {
     this->badParameter(Parameter);
   }	

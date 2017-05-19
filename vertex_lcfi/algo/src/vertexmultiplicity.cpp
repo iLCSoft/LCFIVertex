@@ -24,17 +24,17 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void VertexMultiplicity::setStringParameter(const string & Parameter, const string & Value)
+  void VertexMultiplicity::setStringParameter(const string & Parameter, const string& )
   {
   this->badParameter(Parameter);
   }
   
-  void VertexMultiplicity::setDoubleParameter(const string & Parameter, const double Value)
+  void VertexMultiplicity::setDoubleParameter(const string & Parameter, const double )
   {
   this->badParameter(Parameter);
   }		
   
-  void VertexMultiplicity::setPointerParameter(const string & Parameter, void * Value)
+  void VertexMultiplicity::setPointerParameter(const string & Parameter, void* )
   {
   this->badParameter(Parameter);
   }	

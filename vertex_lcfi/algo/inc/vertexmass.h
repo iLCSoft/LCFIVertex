@@ -102,14 +102,14 @@ namespace vertex_lcfi
 		
 	private:
 
-		std::string _Name;
-		std::vector<std::string> _ParameterNames;
-		mutable std::vector<std::string> _ParameterValues;
+		std::string _Name{};
+		std::vector<std::string> _ParameterNames{};
+		mutable std::vector<std::string> _ParameterValues{};
+		// std::vector<vertex_lcfi::Track > _AllAttachedTracks;
+		double _MaxMomentumAngle=0.0;
+		double _MaxKinematicCorrectionSigma=0.0;
+		double _MaxMomentumCorrection=0.0;
 
-		//		std::vector<vertex_lcfi::Track > _AllAttachedTracks;
-		double _MaxMomentumAngle;
-		double _MaxKinematicCorrectionSigma;
-		double _MaxMomentumCorrection;
 		double ptvertexcons(Vector3*, Vertex*, Vertex*, double ) const;
 	  };
 

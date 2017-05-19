@@ -50,7 +50,7 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void SecVertexProb::setStringParameter(const string & Parameter, const string & Value)
+  void SecVertexProb::setStringParameter(const string & Parameter, const string& )
   {
   this->badParameter(Parameter);
   }
@@ -71,7 +71,7 @@ namespace vertex_lcfi
   this->badParameter(Parameter);
   }		
   
-  void SecVertexProb::setPointerParameter(const string & Parameter, void * Value)
+  void SecVertexProb::setPointerParameter(const string & Parameter, void* )
   {
   this->badParameter(Parameter);
   }	

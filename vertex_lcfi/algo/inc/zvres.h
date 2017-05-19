@@ -85,7 +85,7 @@ namespace vertex_lcfi
 	private:
 		double _Kip,_Kalpha,_TwoProngCut,_TrackTrimCut,_ResolverCut;
 		bool _AutoJetAxis,_UseEventIP;
-		Vector3 _JetAxis;
+		Vector3 _JetAxis{};
 	};
 }
 #endif //LCFIZVRES_H

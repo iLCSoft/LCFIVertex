@@ -52,7 +52,7 @@ namespace vertex_lcfi
     return _ParameterValues;
   }	
   
-  void ParameterSignificance::setStringParameter(const string & Parameter, const string & Value)
+  void ParameterSignificance::setStringParameter(const string & Parameter, const string& )
   {
   this->badParameter(Parameter);
   }

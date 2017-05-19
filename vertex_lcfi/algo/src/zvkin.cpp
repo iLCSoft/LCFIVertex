@@ -131,7 +131,7 @@ namespace vertex_lcfi
 			this->badParameter(Parameter);
 		}
 		
-		void ZVKIN::setPointerParameter(const string & Parameter, void * Value)
+		void ZVKIN::setPointerParameter(const string & Parameter, void* )
 		{
 			this->badParameter(Parameter);
 		}

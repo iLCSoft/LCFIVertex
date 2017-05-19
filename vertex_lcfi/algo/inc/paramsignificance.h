@@ -41,7 +41,9 @@ namespace vertex_lcfi
 	{
 	public:
 	        //! Constructor
-	        ParameterSignificance();	
+	        ParameterSignificance();
+		ParameterSignificance(const vertex_lcfi::ParameterSignificance&) = delete;
+		ParameterSignificance& operator=(const vertex_lcfi::ParameterSignificance&) = delete;
 		//! Name
 		/*!
 		String name of the algorithm
@@ -98,13 +100,13 @@ namespace vertex_lcfi
 	       std::map<SignificanceType, double> calculateFor(Jet* MyJet) const;
 		
 	private:		
-	       double _LayersHit;
-	       double _AllbutOneLayersMomentumCut; 
-	       double _AllLayersMomentumCut;
-	       std::string _Name;
-	       std::vector<std::string> _ParameterNames;
-	       mutable std::vector<std::string> _ParameterValues;
-	       std::map<PidCutType,std::vector<vertex_lcfi::Track*> >* _TwoTrackPidCut;
+		double _LayersHit=0.0;
+		double _AllbutOneLayersMomentumCut=0.0;
+		double _AllLayersMomentumCut=0.0;
+		std::string _Name{};
+		std::vector<std::string> _ParameterNames{};
+		mutable std::vector<std::string> _ParameterValues{};
+		std::map<PidCutType,std::vector<vertex_lcfi::Track*> >* _TwoTrackPidCut=nullptr;
 	};
 
 	}

@@ -78,8 +78,8 @@ namespace vertex_lcfi
 		Vertex* calculateFor(Event* MyEvent) const;
 	
 	private:
-		std::string _Name;
-		double _ProbThreshold;		
+		std::string _Name{};
+		double _ProbThreshold=0.0;		
 	};
 
 	}
