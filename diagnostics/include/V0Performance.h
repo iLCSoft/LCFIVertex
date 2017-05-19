@@ -23,6 +23,8 @@ class V0Performance : public Processor {
   
   virtual Processor*  newProcessor() { return new V0Performance ; }
   V0Performance() ;
+  V0Performance(const V0Performance&) = delete;
+  V0Performance& operator=(const V0Performance&) = delete;
   virtual void init() ;
   virtual void processRunHeader( LCRunHeader* run ) ;
   virtual void processEvent( LCEvent * evt ) ; 
@@ -42,7 +44,7 @@ class V0Performance : public Processor {
 
   // number of hits that at least two charged conv/V0 decay particles
   // need to leave in the detector in order for this conv/V0 to be counted
-  int _minHits; 
+  int _minHits=0;
 
 
   // structure to store V0 and conversion candidates
@@ -51,26 +53,26 @@ class V0Performance : public Processor {
   // - pointers to all tracks corresponding to decay MCParticles
   // - pointers to all V0 candidates corresponding to original MCParticle
   typedef struct {
-    const MCParticle* mother;
-    std::vector<MCParticle*> daughters;
-    std::map<string,vector<Track*> > tracks;
-    std::map<string,vector<double> > track_weights;
-    std::map<string,vector<ReconstructedParticle*> > recopart;
-    int V0Type;
-    double radius;
-    double z;
-    int numTrackerHits;
+    const MCParticle* mother=nullptr;
+    std::vector<MCParticle*> daughters{};
+    std::map<string,vector<Track*> > tracks{};
+    std::map<string,vector<double> > track_weights{};
+    std::map<string,vector<ReconstructedParticle*> > recopart{};
+    int V0Type=0;
+    double radius=0.0;
+    double z=0.0;
+    int numTrackerHits=0;
   } V0Candidate_type;
-  std::vector<V0Candidate_type*> V0Candidates;
+  std::vector<V0Candidate_type*> V0Candidates{};
 
-  map<MCParticle*,int> numHits;
+  map<MCParticle*,int> numHits{};
 
   void dump_V0Candidate(V0Candidate_type* cand);
-  size_t _maxCollNameLength;
-  std::vector<std::string> _CollectionsToPrint;
+  size_t _maxCollNameLength=0;
+  std::vector<std::string> _CollectionsToPrint{};
   
   // LCRelation handling
-  map<string,LCRelationNavigator*> lcRel;
+  map<string,LCRelationNavigator*> lcRel{};
 
   // efficiency/purity determination
   enum V0Types { V0Gamma, V0K0, V0Lambda, V0LastType};
@@ -79,8 +81,8 @@ class V0Performance : public Processor {
   int mc_num[V0LastType];
   int mc_tracks[V0LastType];
 
-  map<string,int> num_tracks_total;
-  map<string,int> num_composites_total;
+  map<string,int> num_tracks_total{};
+  map<string,int> num_composites_total{};
   map<string,int> num_composites_by_type[V0LastType];
 
   map<string,int> foundNOtracks[V0LastType];
@@ -89,7 +91,7 @@ class V0Performance : public Processor {
   map<string,int> foundALLtracks[V0LastType];
   map<string,int> foundComposite[V0LastType];
 
-  HistMap *histos;
+  HistMap *histos=nullptr;
 } ;
 
 #endif

@@ -73,7 +73,7 @@ void V0Performance::init() {
 }
 
 
-void V0Performance::processRunHeader( LCRunHeader* run) { 
+void V0Performance::processRunHeader( LCRunHeader* ) {
 
 } 
 
@@ -619,7 +619,7 @@ void V0Performance::recoAnalysis( const LCEvent *evt, const string collectionNam
 }
 
 
-void V0Performance::check( LCEvent * evt ) { 
+void V0Performance::check( LCEvent* ) {
 
 }
 

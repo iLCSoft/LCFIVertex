@@ -7,8 +7,9 @@
 #include "marlin/AIDAProcessor.h"
 #endif
 
-HistMap::HistMap(marlin::Processor* processor, string folderName) {
-  _dirName="/"+processor->name()+"/"+folderName;
+HistMap::HistMap(marlin::Processor* processor, string const& folderName):
+  _dirName("/"+processor->name()+"/"+folderName)
+{
 
 #ifdef MARLIN_USE_AIDA
   _histFact=marlin::AIDAProcessor::histogramFactory(processor);
@@ -28,7 +29,7 @@ HistMap::~HistMap() {
 
 void HistMap::fill(string histname,double val, double weight,
 		   string title, int nbins, double min, double max,
-		   string axistitle) {
+		   string /*axistitle*/) {
 
 
 #ifdef MARLIN_USE_AIDA
@@ -71,7 +72,7 @@ void HistMap::fill(string histname,double xval, double yval,
 		   double weight,
 		   string title, int nbinsx, double xmin, double xmax,
 		   int nbinsy, double ymin, double ymax,
-		   string xaxistitle, string yaxistitle) {
+		   string /*xaxistitle*/, string /*yaxistitle*/) {
 
 
 #ifdef MARLIN_USE_AIDA

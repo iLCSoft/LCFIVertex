@@ -21,9 +21,11 @@ class HistMap {
   
  public:
  
-  HistMap(marlin::Processor* processor, string folderName="");
+  HistMap(marlin::Processor* processor, string const& folderName="");
   ~HistMap();
-    
+  HistMap(const HistMap&) = delete;
+  HistMap& operator=(const HistMap&) = delete;
+
   void fill(string histname,double val, double weight=1,
 	    string title="", int nbins=0, double min=0, double max=0,
 	    string axistitle="");
@@ -39,23 +41,23 @@ class HistMap {
 
 #ifdef MARLIN_USE_AIDA
 
-  AIDA::IHistogramFactory* _histFact;
-  AIDA::ITree* _aidaTree;
+  AIDA::IHistogramFactory* _histFact=nullptr;
+  AIDA::ITree* _aidaTree=nullptr;
 
-  map<string,AIDA::IHistogram1D*> _histmap1D;
-  map<string,AIDA::IHistogram2D*> _histmap2D;
+  map<string,AIDA::IHistogram1D*> _histmap1D{};
+  map<string,AIDA::IHistogram2D*> _histmap2D{};
 
 #endif
 
-  map<string,double> _histmap1D_xmin;
-  map<string,double> _histmap2D_xmin;
-  map<string,double> _histmap2D_ymin;
-  map<string,double> _histmap1D_xmax;
-  map<string,double> _histmap2D_xmax;
-  map<string,double> _histmap2D_ymax;
-  map<string,bool> _histmap1D_xnan;
-  map<string,bool> _histmap2D_xnan;
-  map<string,bool> _histmap2D_ynan;
+  map<string,double> _histmap1D_xmin{};
+  map<string,double> _histmap2D_xmin{};
+  map<string,double> _histmap2D_ymin{};
+  map<string,double> _histmap1D_xmax{};
+  map<string,double> _histmap2D_xmax{};
+  map<string,double> _histmap2D_ymax{};
+  map<string,bool> _histmap1D_xnan{};
+  map<string,bool> _histmap2D_xnan{};
+  map<string,bool> _histmap2D_ynan{};
 
 } ;
 

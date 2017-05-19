@@ -56,19 +56,19 @@ class KnowYourInputs : public Processor {
   void simTrackerHitPlots( const LCEvent *evt,
 			   const string collName, const string subdet );
  
-  bool _trackEnable;
-  bool _recParEnable;
-  bool _simTrkHitEnable;
-  bool _trkHitEnable;
-  bool _calHitEnable;
-  bool _simCalHitEnable;
+  bool _trackEnable=false;
+  bool _recParEnable=false;
+  bool _simTrkHitEnable=false;
+  bool _trkHitEnable=false;
+  bool _calHitEnable=false;
+  bool _simCalHitEnable=false;
   
-  double _bField;
+  double _bField=0.0;
 
-  vector<string> _knownCollections;
-  vector<string> _knownCollectionTypes;
+  vector<string> _knownCollections{};
+  vector<string> _knownCollectionTypes{};
 
-  map<string,HistMap*> _histograms;
+  map<string,HistMap*> _histograms{};
 };
 
 #endif
