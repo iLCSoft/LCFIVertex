@@ -35,12 +35,12 @@
 //change USING_RAIDA to USING_JAIDA if you are using JAIDA/AIDAJNI - you will obtain more functionality!
 #define USING_RAIDA
 
-#ifdef USING_RAIDA 
-#warning "USING_RAIDA defined"
-#else
-#define USING_JAIDA
-#warning "USING_JAIDA defined"
-#endif
+// #ifdef USING_RAIDA
+// #pragma message "USING_RAIDA defined"
+// #else
+// #define USING_JAIDA
+// #pragma message "USING_JAIDA defined"
+// #endif
 
 
 #ifdef USING_JAIDA//Data point sets aren't implemented in RAIDA - which is a shame as they have functionality not given by histograms
@@ -225,7 +225,7 @@ void DSTAIDAPlotProcessor::end()
 
 // IMPORTANT - If you change the cuts make sure you change the line below to show the changes in the docs
 /*! Currently applies no cuts at all*/
-bool DSTAIDAPlotProcessor::_passesEventCuts( LCEvent* pEvent )
+bool DSTAIDAPlotProcessor::_passesEventCuts( LCEvent* )
 {
 
 	return true;
@@ -336,12 +336,10 @@ void DSTAIDAPlotProcessor::CreateTagPlots()
 
 void DSTAIDAPlotProcessor::CreateFlavourTagTuple()
 {
- 
+#ifdef USING_JAIDA
   //AIDA::IHistogramFactory* pHistogramFactory=marlin::AIDAProcessor::histogramFactory( this );
   AIDA::ITree* pTree=marlin::AIDAProcessor::tree( this );
-  
 
-#ifdef USING_JAIDA
   //something dosen't work for me with the tuples in RAIDA
   AIDA::ITupleFactory* pTupleFactory=marlin::AIDAProcessor::tupleFactory( this );
 
@@ -370,7 +368,11 @@ void DSTAIDAPlotProcessor::CreateFlavourTagTuple()
     _pMyTuple=pTupleFactory->create( "FlavourTagInputsTuple","FlavourTagInputsTuple", columnNames);
  
 
-    
+#else
+  //just in case this has side-effects..., previously the output was assigned to
+  //a variable but not used if JAIDA was not used. Now we call this just in case
+  //this function has side effects even though we do not use the return value
+  marlin::AIDAProcessor::tree( this );
 #endif	
  
  
@@ -378,7 +380,7 @@ void DSTAIDAPlotProcessor::CreateFlavourTagTuple()
 }
 
 
-void DSTAIDAPlotProcessor::CreateFlavourTagInputPlots(LCRunHeader* pRun )
+void DSTAIDAPlotProcessor::CreateFlavourTagInputPlots(LCRunHeader* )
 {
 
   

@@ -15,12 +15,12 @@
 //change USING_RAIDA to USING_JAIDA if you are interested in using this processor! In RAIDA the processor is only a place holder! This is really due to the limited functionality of RAIDA!!!
 #define USING_RAIDA
 
-#ifdef USING_RAIDA 
-#warning "USING_RAIDA defined"
-#else
-#define USING_JAIDA
-#warning "USING_JAIDA defined"
-#endif
+// #ifdef USING_RAIDA
+// #pragma message "USING_RAIDA defined"
+// #else
+// #define USING_JAIDA
+// #pragma message "USING_JAIDA defined"
+// #endif
 
 
 
@@ -156,7 +156,7 @@ void SignificanceFit::init()
 }
 
 
-void SignificanceFit::processEvent( LCEvent * evt ) 
+void SignificanceFit::processEvent( LCEvent* )
 {
 #ifdef USING_JAIDA
 
@@ -249,12 +249,12 @@ void SignificanceFit::processEvent( LCEvent * evt )
 }
 
 
-void SignificanceFit::processRunHeader( LCRunHeader* run) 
+void SignificanceFit::processRunHeader( LCRunHeader* )
 {
   _nRun++ ;
 }
 
-void SignificanceFit::check( LCEvent * evt ) 
+void SignificanceFit::check( LCEvent* )
 {
 
 

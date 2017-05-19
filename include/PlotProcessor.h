@@ -72,18 +72,18 @@ public:
 	//virtual void check( LCEvent* pEvent );
 	virtual void end();
 protected:
-	std::string _JetCollectionName;	/**< @internal The name of the collection of ReconstructedParticles that is the jet (comes from the steering file).*/
-	std::vector<std::string> _FlavourTagCollectionNames;	/**< @internal The names of the collection of LCFloatVec that are the flavour tags (a set of purity effiency plots will be made for each tag) (comes from the steering file).*/
-	std::string _TrueJetFlavourColName; /**< @internal The name of the collection of LCIntVec that is the true jet flavour (comes from the steering file).*/
-	std::string _OutputFilename; /**< @internal The filename of the output root file if using root, otherwise the directory and the first part of the filename of the comma seperated value files.*/
-	std::vector<std::map<std::string,unsigned int> > _IndexOfForEachTag;
-	int _nRun; /**< @internal The current run number.*/
-
-	histogram_data<double> _jetEnergy; /**< @internal Custom storage class that holds all of the jet energies.*/
-
-	std::vector<efficiency_purity<double> > _BTagEfficiencyPurity;/**< @internal Custom storage class that holds all the efficiency/purity data for the b tag calculated by the FlavourTagProcessor.*/
-	std::vector<efficiency_purity<double> > _CTagEfficiencyPurity;/**< @internal Custom storage class that holds all the efficiency/purity data for the b tag calculated by the FlavourTagProcessor.*/
-	std::vector<efficiency_purity<double> > _BCTagEfficiencyPurity;/**< @internal Custom storage class that holds all the efficiency/purity data for the b tag (only b background) calculated by the FlavourTagProcessor.*/
+	std::string _JetCollectionName{};	/**< @internal The name of the collection of ReconstructedParticles that is the jet (comes from the steering file).*/
+	std::vector<std::string> _FlavourTagCollectionNames{};	/**< @internal The names of the collection of LCFloatVec that are the flavour tags (a set of purity effiency plots will be made for each tag) (comes from the steering file).*/
+	std::string _TrueJetFlavourColName{}; /**< @internal The name of the collection of LCIntVec that is the true jet flavour (comes from the steering file).*/
+	std::string _OutputFilename{}; /**< @internal The filename of the output root file if using root, otherwise the directory and the first part of the filename of the comma seperated value files.*/
+	std::vector<std::map<std::string,unsigned int> > _IndexOfForEachTag{};
+	int _nRun=-1; /**< @internal The current run number.*/
+	
+	histogram_data<double> _jetEnergy{}; /**< @internal Custom storage class that holds all of the jet energies.*/
+	
+	std::vector<efficiency_purity<double> > _BTagEfficiencyPurity{}; /**< @internal Custom storage class that holds all the efficiency/purity data for the b tag calculated by the FlavourTagProcessor.*/
+	std::vector<efficiency_purity<double> > _CTagEfficiencyPurity{}; /**< @internal Custom storage class that holds all the efficiency/purity data for the b tag calculated by the FlavourTagProcessor.*/
+	std::vector<efficiency_purity<double> > _BCTagEfficiencyPurity{}; /**< @internal Custom storage class that holds all the efficiency/purity data for the b tag (only b background) calculated by the FlavourTagProcessor.*/
 
 	//useful constants
 	static const int C_JET=4;/**< @internal Useful constant for the jet flavour*/
@@ -96,7 +96,7 @@ protected:
 	void _fillPlots( LCEvent* pEvent, unsigned int jet);/**< @internal Internal function that is just code split off from processEvent() to simplify it - fills the container classes with the data from the file.*/
 	void _outputDataToFile( std::string filename );/**< @internal Internal function that is just code split off from end() to simplify it - writes the required data from the container classes to the output file.*/
 
-	double _jetEMax;/**< @internal Keeps a record of the highest jet energy - gets printed to standard output at the end as a sanity check.*/
+	double _jetEMax=0.0;/**< @internal Keeps a record of the highest jet energy - gets printed to standard output at the end as a sanity check.*/
 };
 
 #endif //ifndef PlotProcessor_h

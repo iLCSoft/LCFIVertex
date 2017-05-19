@@ -437,7 +437,7 @@ if( isFirstEvent() )
 
 
 
-void FlavourTagInputsProcessor::check( LCEvent * evt ) { 
+void FlavourTagInputsProcessor::check( LCEvent* ) {
   // nothing to check here - could be used to fill checkplots in reconstruction processor
 }
 

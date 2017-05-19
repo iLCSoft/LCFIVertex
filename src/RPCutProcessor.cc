@@ -257,7 +257,7 @@ void RPCutProcessor::init() {
   }
 }
 
-void RPCutProcessor::processRunHeader( LCRunHeader* run) { 
+void RPCutProcessor::processRunHeader( LCRunHeader* ) {
 	_nRun++ ;
 }
 
@@ -437,7 +437,7 @@ void RPCutProcessor::processEvent( LCEvent * evt ) {
 
 
 
-void RPCutProcessor::check( LCEvent * evt ) { 
+void RPCutProcessor::check( LCEvent* ) {
   // nothing to check here - could be used to fill checkplots in reconstruction processor
 }
 

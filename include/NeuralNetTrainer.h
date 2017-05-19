@@ -83,34 +83,34 @@ public:
 	virtual void end();
 protected:
 	//variables for the steering file options
-	std::string _JetCollectionName;	//The name of the collection of ReconstructedParticles that is the jet (comes from the steering file)
-	std::string _FlavourTagInputsCollectionName;
-	std::string _TrueJetFlavourCollectionName;
-	int _serialiseAsXML;
-	nnet::NeuralNet::SerialisationMode _outputFormat;
+	std::string _JetCollectionName{};	//The name of the collection of ReconstructedParticles that is the jet (comes from the steering file)
+	std::string _FlavourTagInputsCollectionName{};
+	std::string _TrueJetFlavourCollectionName{};
+	int _serialiseAsXML=0;
+	nnet::NeuralNet::SerialisationMode _outputFormat{};
 
 	//These maps all use the same string keys to distinguish between the different nets.
 	//The strings are of the form "c_net-2vtx", "bc_net-3vtx" etcetera.
-	std::map<std::string,std::string> _filename;/**< @internal A map of the output filenames for the trained net. All of these maps use strings of the form "c_net-2vtx", "bc_net-3vtx" etcetera as the key*/
-	std::map<std::string,bool> _trainThisNet;	/**< @internal Map containing true or false depending on whether this net has been selected for
+	std::map<std::string,std::string> _filename{};/**< @internal A map of the output filenames for the trained net. All of these maps use strings of the form "c_net-2vtx", "bc_net-3vtx" etcetera as the key*/
+	std::map<std::string,bool> _trainThisNet{};	/**< @internal Map containing true or false depending on whether this net has been selected for
 							training (if the user supplies an output filename in the steering file).*/
-	std::map<std::string,nnet::NeuralNetDataSet*> _dataSet;/**< @internal Map of the data sets for each of the selected nets */
-	std::map<std::string,int> _numSignal;  /**< @internal Map of the number of signal events for each net. Not really used for anything, just printed
+	std::map<std::string,nnet::NeuralNetDataSet*> _dataSet{};/**< @internal Map of the data sets for each of the selected nets */
+	std::map<std::string,int> _numSignal{};  /**< @internal Map of the number of signal events for each net. Not really used for anything, just printed
 							as info when the net starts training.*/
-	std::map<std::string,int> _numBackground;  /**< @internal Dito for the number of backgrounds.*/
+	std::map<std::string,int> _numBackground{};  /**< @internal Dito for the number of backgrounds.*/
 
 	//List of strings for all the nets enabled for training
 	//Strings are the same as the keys used in the maps above
-	std::vector<std::string> _listOfSelectedNetNames; /**< @internal A list of the nets that have been selected for training, in the form of the strings
+	std::vector<std::string> _listOfSelectedNetNames{}; /**< @internal A list of the nets that have been selected for training, in the form of the strings
 								used in the map keys above.*/
 
 	//This map holds the position of the Inputs in the LCFloatVec
-	std::map<std::string,unsigned int> _IndexOf; /**< @internal Holds the positions of the inputs, so that, for example, you can get the position of
+	std::map<std::string,unsigned int> _IndexOf{}; /**< @internal Holds the positions of the inputs, so that, for example, you can get the position of
 							D0Significance1 in the inputs LCFloatVec just with _IndexOf["D0Significance1"]*/
 	
-	int _nRun; /**< @internal The run number.*/
-	int _nEvent;/**< @internal The event number.*/
-	int _nAcceptedEvents; /**< @internal The number of events that have passed the cuts so far.*/
+	int _nRun=-1; /**< @internal The run number.*/
+	int _nEvent=-1;/**< @internal The event number.*/
+	int _nAcceptedEvents=0; /**< @internal The number of events that have passed the cuts so far.*/
 	
 	//useful constants
 	static const int C_JET=4; /**< @internal Just a useful constant for testing true jet flavour.*/

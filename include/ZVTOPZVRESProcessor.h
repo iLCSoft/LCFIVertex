@@ -68,6 +68,8 @@ class ZVTOPZVRESProcessor : public Processor {
   //The usual Marlin processor methods
   virtual Processor*  newProcessor() { return new ZVTOPZVRESProcessor ; }
   ZVTOPZVRESProcessor() ;
+  ZVTOPZVRESProcessor(const ZVTOPZVRESProcessor&) = delete;
+  ZVTOPZVRESProcessor& operator=(const ZVTOPZVRESProcessor&) = delete;
   virtual void init() ;
   virtual void processRunHeader( LCRunHeader* run ) ;
   virtual void processEvent( LCEvent * evt ) ; 
@@ -76,24 +78,24 @@ class ZVTOPZVRESProcessor : public Processor {
   
  protected:
 
-  std::string _JetRPCollectionName ;
-  std::string _DecayChainRPTracksCollectionName;
-  std::string _VertexCollectionName ;
-  std::string _IPVertexCollectionName ;
-  std::string _DecayChainCollectionName;
-  //std::string _RelationCollectionName;
-  vertex_lcfi::Algo<Jet*,DecayChain*>* _ZVRES;
-  bool _ManualPrimaryVertex;
-  FloatVec _ManualPrimaryVertexPos;
-  FloatVec _ManualPrimaryVertexErr;
-  double _IPWeighting;
-  double _JetWeightingEnergyScaling;
-  double _TwoTrackCut;
-  double _TrackTrimCut;
-  double _ResolverCut;
-  bool _OutputTrackChi2;
-  int _nRun ;
-  int _nEvt ;
+  std::string _JetRPCollectionName {};
+  std::string _DecayChainRPTracksCollectionName{};
+  std::string _VertexCollectionName {};
+  std::string _IPVertexCollectionName {};
+  std::string _DecayChainCollectionName{};
+  //std::string _RelationCollectionName{};
+  vertex_lcfi::Algo<Jet*,DecayChain*>* _ZVRES{};
+  bool _ManualPrimaryVertex=false;
+  FloatVec _ManualPrimaryVertexPos{};
+  FloatVec _ManualPrimaryVertexErr{};
+  double _IPWeighting=0.0;
+  double _JetWeightingEnergyScaling=0.0;
+  double _TwoTrackCut=0.0;
+  double _TrackTrimCut=0.0;
+  double _ResolverCut=0.0;
+  bool _OutputTrackChi2=false;
+  int _nRun=-1;
+  int _nEvt=-1;
 } ;
 
 #endif

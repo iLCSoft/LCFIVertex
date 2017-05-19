@@ -48,6 +48,8 @@ public:
 	}
 
 	virtual ~TypesafeCollection(){}
+	TypesafeCollection<T>(const TypesafeCollection<T>&) = delete;
+	TypesafeCollection<T>& operator=(const TypesafeCollection<T>&) = delete;
 
 	bool is_valid()
 	{
@@ -75,8 +77,8 @@ public:
 		return dynamic_cast<T*>( _pCollection->getElementAt( element ) );
 	}
 private:
-	lcio::LCCollection* _pCollection;
-	std::stringstream _error; ///< Holds a string explaining the last error encountered.
+	lcio::LCCollection* _pCollection=nullptr;
+	std::stringstream _error{}; ///< Holds a string explaining the last error encountered.
 	
 //	template<class T>
 	bool _checkCollectionType();

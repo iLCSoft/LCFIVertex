@@ -94,7 +94,10 @@ public:
 	//this bit has to be done for all Marlin processors 
 	virtual Processor* newProcessor() { return new LCFIAIDAPlotProcessor; } 
  
-	LCFIAIDAPlotProcessor(); 
+	LCFIAIDAPlotProcessor();
+	LCFIAIDAPlotProcessor(const LCFIAIDAPlotProcessor&) = delete;
+	LCFIAIDAPlotProcessor& operator=(const LCFIAIDAPlotProcessor&) = delete;
+
 	virtual ~LCFIAIDAPlotProcessor(); 
  
 	virtual void init(); 
@@ -109,151 +112,151 @@ public:
 protected: 
 
 	//!required input collections
-	std::vector<std::string> _FlavourTagCollectionNames;
-	std::vector<std::string> _FlavourTagInputsCollectionNames;
-	std::string _TrueJetFlavourColName;
-	std::string _JetCollectionName;
-	std::string _VertexColName;
-	std::string _CVertexChargeCollection;
-	std::string _BVertexChargeCollection;
+	std::vector<std::string> _FlavourTagCollectionNames{};
+	std::vector<std::string> _FlavourTagInputsCollectionNames{};
+	std::string _TrueJetFlavourColName{};
+	std::string _JetCollectionName{};
+	std::string _VertexColName{};
+	std::string _CVertexChargeCollection{};
+	std::string _BVertexChargeCollection{};
 
-	std::string _TrueTracksToMCPCollection;
-	std::string _ZVRESSelectedJetsCollection;
-	std::string _ZVRESDecayChainRPTracksCollection;
-	std::string _ZVRESDecayChainCollection;
+	std::string _TrueTracksToMCPCollection{};
+	std::string _ZVRESSelectedJetsCollection{};
+	std::string _ZVRESDecayChainRPTracksCollection{};
+	std::string _ZVRESDecayChainCollection{};
 				  
 
 	//! cuts on all jets 
-	double _CosThetaJetMax;
+	double _CosThetaJetMax=0.0;
 	//! cuts on all jets 
-	double _CosThetaJetMin;
+	double _CosThetaJetMin=0.0;
+	//! cuts on all jets
+	double _PJetMin=0.0;
 	//! cuts on all jets 
-	double _PJetMin;
-	//! cuts on all jets 
-	double _PJetMax;
+	double _PJetMax=0.0;
 
 	//!Cut on the NN output variables - applied in vertex charge plots
-	double _BTagNNCut;
+	double _BTagNNCut=0.0;
 	//!Cut on the NN output variables - applied in vertex charge plots
-	double _CTagNNCut;
+	double _CTagNNCut=0.0;
 
 	//!optional parameters to make an ntuple of the neural net inputs; and print out the tagging ouputs (useful for scripts)
 
-	bool _PrintTrackVertexOutput;
-	bool _MakeTuple;
-	bool _MakePurityEfficiencyPlots;
-	bool _PrintPurityEfficiencyValues;
-	bool _MakeAdditionalPlots;
+	bool _PrintTrackVertexOutput=false;
+	bool _MakeTuple=false;
+	bool _MakePurityEfficiencyPlots=false;
+	bool _PrintPurityEfficiencyValues=false;
+	bool _MakeAdditionalPlots=false;
 	
-	std::string _PurityEfficiencyOutputFile;
-	std::string _TrackVertexOutputFile;
+	std::string _PurityEfficiencyOutputFile{};
+	std::string _TrackVertexOutputFile{};
  
-	int _iVertexChargeTagCollection;
-	unsigned int _myVertexChargeTagCollection;
+	int _iVertexChargeTagCollection=0;
+	unsigned int _myVertexChargeTagCollection=0;
 
-	std::vector<std::string> _VertexCatNames;
-	std::vector<std::string>  _NumVertexCatDir;
-	std::vector<std::string> _ZoomedVarNames;
-	std::string _MCParticleColName;
+	std::vector<std::string> _VertexCatNames{};
+	std::vector<std::string>  _NumVertexCatDir{};
+	std::vector<std::string> _ZoomedVarNames{};
+	std::string _MCParticleColName{};
 
-	std::vector<AIDA::IHistogram2D*> _pBJetCharge;
-	std::vector<AIDA::IHistogram2D*> _pCJetCharge;
+	std::vector<AIDA::IHistogram2D*> _pBJetCharge{};
+	std::vector<AIDA::IHistogram2D*> _pCJetCharge{};
 	
-	std::vector<AIDA::IHistogram1D*> _pCDecayLengthAll;
-	std::vector<AIDA::IHistogram1D*> _pBDecayLengthAll;
-	std::vector<AIDA::IHistogram1D*> _pCDecayLengthTwoVertices;
-	std::vector<AIDA::IHistogram1D*> _pBDecayLengthTwoVertices;
+	std::vector<AIDA::IHistogram1D*> _pCDecayLengthAll{};
+	std::vector<AIDA::IHistogram1D*> _pBDecayLengthAll{};
+	std::vector<AIDA::IHistogram1D*> _pCDecayLengthTwoVertices{};
+	std::vector<AIDA::IHistogram1D*> _pBDecayLengthTwoVertices{};
 
 	//!True B-jets - vertex charge vs true charge
-	AIDA::IHistogram2D* _pBJetCharge2D;
+	AIDA::IHistogram2D* _pBJetCharge2D=nullptr;
 	//!True C-jets - vertex charge vs true charge
-	AIDA::IHistogram2D* _pCJetCharge2D;
+	AIDA::IHistogram2D* _pCJetCharge2D=nullptr;
 
 	//!True B-jets - vertex charge leakage rate
-	AIDA::IHistogram1D* _pBJetLeakageRate;
+	AIDA::IHistogram1D* _pBJetLeakageRate=nullptr;
 	//!True C-jets - vertex charge leakage rate
-	AIDA::IHistogram1D* _pCJetLeakageRate;
+	AIDA::IHistogram1D* _pCJetLeakageRate=nullptr;
 	//!True B-jets - vertex charge
-	AIDA::IHistogram1D* _pBJetVertexCharge;
+	AIDA::IHistogram1D* _pBJetVertexCharge=nullptr;
 	//!True C-jets - vertex charge
-	AIDA::IHistogram1D* _pCJetVertexCharge;
+	AIDA::IHistogram1D* _pCJetVertexCharge=nullptr;
 
 
-	AIDA::IHistogram2D* _decayLengthCJet2D;
-	AIDA::IHistogram2D* _decayLengthBJet2D;
+	AIDA::IHistogram2D* _decayLengthCJet2D=nullptr;
+	AIDA::IHistogram2D* _decayLengthBJet2D=nullptr;
 
-	AIDA::ICloud2D* _decayLengthCJetCloud2D;
-	AIDA::ICloud2D* _decayLengthBJetCloud2D;
+	AIDA::ICloud2D* _decayLengthCJetCloud2D=nullptr;
+	AIDA::ICloud2D* _decayLengthBJetCloud2D=nullptr;
 
 
-	std::vector< std::map<std::string,unsigned int> > _IndexOfForEachTag;
-	std::vector< std::map<std::string,unsigned int> > _InputsIndex;
-	std::vector< std::map<std::string,unsigned int> > _ZoomedInputsIndex;
-	std::map<std::string,unsigned int>  _FlavourIndex;
+	std::vector< std::map<std::string,unsigned int> > _IndexOfForEachTag{};
+	std::vector< std::map<std::string,unsigned int> > _InputsIndex{};
+	std::vector< std::map<std::string,unsigned int> > _ZoomedInputsIndex{};
+	std::map<std::string,unsigned int>  _FlavourIndex{};
 
 	//!Histograms of the neural net inputs for true B-jets
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _inputsHistogramsBJets;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _inputsHistogramsBJets{};
 	//!Histograms of the neural net inputs for true C-jets
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _inputsHistogramsCJets;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _inputsHistogramsCJets{};
 	//!Histograms of the neural net inputs for light B-jets
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _inputsHistogramsUDSJets;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _inputsHistogramsUDSJets{};
 	
 	//!Zoomed-in histograms of some of the neural net inputs for true B-jets
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _zoomedInputsHistogramsBJets;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _zoomedInputsHistogramsBJets{};
 	//!Zoomed-in histograms of some of the neural net inputs for true C-jets
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _zoomedInputsHistogramsCJets;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _zoomedInputsHistogramsCJets{};
 	//!Zoomed-in histograms of some of the neural net inputs for true light-jets
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _zoomedInputsHistogramsUDSJets;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _zoomedInputsHistogramsUDSJets{};
 
 	//!Histograms of the neural net B-tag outputs for true light-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetBTag;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetBTag{};
 	//!Histograms of the neural net C-tag outputs for true light-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetCTag;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetCTag{};
 	//!Histograms of the neural net B-tag outputs for true B-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetBTag;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetBTag{};
 	//!Histograms of the neural net C-tag outputs for true B-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetCTag;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetCTag{};
 	//!Histograms of the neural net B-tag outputs for true C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetBTag;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetBTag{};
 	//!Histograms of the neural net C-tag outputs for true C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetCTag; 
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetCTag{}; 
 	//!Histograms of the neural net BC-tag outputs for true B-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)   
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetBCTag;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetBCTag{};
 	//!Histograms of the neural net BC-tag outputs for true C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetBCTag;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetBCTag{};
 	//!Histograms of the neural net BC-tag outputs for true light-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetBCTag;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetBCTag{};
 	//!Histograms of the neural net B-tag outputs for non B-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBTagBackgroundValues;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBTagBackgroundValues{};
 	//!Histograms of the neural net C-tag outputs for non C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCTagBackgroundValues;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCTagBackgroundValues{};
 	//!Histograms of the neural net BC-tag outputs for non C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBCTagBackgroundValues;
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBCTagBackgroundValues{};
 	
 	//!Histograms of the neural net tags - number of events that pass a given cut: jet NN value > given NN value for the three tags - B-tag, C-tag, BC-tag
 	//!  - separately for true B jets, true C jets & true light jets and different number of vertices in the jets, 1, 2 or >=3 & any (sum of previous three)
 	//! See comments above
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetBTagIntegral;    
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetBTagIntegral;
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetBTagIntegral;
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetCTagIntegral;  
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetCTagIntegral;
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetCTagIntegral;
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetBCTagIntegral; 
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetBCTagIntegral;
-	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetBCTagIntegral; 
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetBTagIntegral{};
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetBTagIntegral{};
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetBTagIntegral{};
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetCTagIntegral{};
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetCTagIntegral{};
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetCTagIntegral{};
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pBJetBCTagIntegral{};
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pCJetBCTagIntegral{};
+	std::vector< std::map<std::string,AIDA::IHistogram1D*> > _pLightJetBCTagIntegral{};
 	
 	//!Number of bins used for neural nets plots
-	int _numberOfPoints;
+	int _numberOfPoints=0;
 
 	//!number of different vertex categories we want to look at: 1 vertex, 2 vertices, >=3 vertices
 	static const unsigned int N_VERTEX_CATEGORIES=3;  
 			
 	//!Tuple of the input variables - only filled for one input collection - selected with UseFlavourTagCollectionForVertexCharge
-	AIDA::ITuple* _pMyTuple;
+	AIDA::ITuple* _pMyTuple=nullptr;
 
-	int _lastRunHeaderProcessed;
-	int _suppressOutputForRun;
+	int _lastRunHeaderProcessed=0;
+	int _suppressOutputForRun=0;
 
 	bool PassesEventCuts( LCEvent* pEvent );
 	bool PassesJetCuts( ReconstructedParticle* pJet );
@@ -334,242 +337,242 @@ protected:
 	void CreateVertexChargeLeakagePlot();
 	
 	//vertex plots
-	AIDA::IHistogram1D* _pVertexDistanceFromIP;
-	AIDA::IHistogram1D* _pVertexPositionX;
-	AIDA::IHistogram1D* _pVertexPositionY;
-	AIDA::IHistogram1D* _pVertexPositionZ;	
-	AIDA::IHistogram1D* _pPrimaryVertexPullX;
-	AIDA::IHistogram1D* _pPrimaryVertexPullY;
-	AIDA::IHistogram1D* _pPrimaryVertexPullZ;
-	AIDA::IHistogram1D* _pPrimaryVertexPositionX;
-	AIDA::IHistogram1D* _pPrimaryVertexPositionY;
-	AIDA::IHistogram1D* _pPrimaryVertexPositionZ;
+	AIDA::IHistogram1D* _pVertexDistanceFromIP=nullptr;
+	AIDA::IHistogram1D* _pVertexPositionX=nullptr;
+	AIDA::IHistogram1D* _pVertexPositionY=nullptr;
+	AIDA::IHistogram1D* _pVertexPositionZ=nullptr;	
+	AIDA::IHistogram1D* _pPrimaryVertexPullX=nullptr;
+	AIDA::IHistogram1D* _pPrimaryVertexPullY=nullptr;
+	AIDA::IHistogram1D* _pPrimaryVertexPullZ=nullptr;
+	AIDA::IHistogram1D* _pPrimaryVertexPositionX=nullptr;
+	AIDA::IHistogram1D* _pPrimaryVertexPositionY=nullptr;
+	AIDA::IHistogram1D* _pPrimaryVertexPositionZ=nullptr;
 	
-	AIDA::IHistogram1D* _reconstructedSecondaryDecayLength;
-	AIDA::IHistogram1D* _reconstructedSecTerDecayLength;
-	AIDA::IHistogram2D* _numberOfJetsDC;
-	AIDA::IHistogram1D* _numberOfSecondaryVertices;
+	AIDA::IHistogram1D* _reconstructedSecondaryDecayLength=nullptr;
+	AIDA::IHistogram1D* _reconstructedSecTerDecayLength=nullptr;
+	AIDA::IHistogram2D* _numberOfJetsDC=nullptr;
+	AIDA::IHistogram1D* _numberOfSecondaryVertices=nullptr;
 	
-	AIDA::IHistogram1D* _recoDecayLengthBJet;
-	AIDA::IHistogram1D* _recoDecayLengthBCJet;
-	AIDA::IHistogram1D* _nVerticesBJet;
-	AIDA::IHistogram1D* _recoDecayLengthCJet;
-	AIDA::IHistogram1D* _nVerticesCJet;
-	AIDA::IHistogram1D* _recoDecayLengthLightJet;
-	AIDA::IHistogram1D* _nVerticesLightJet;
-	AIDA::IHistogram1D* _decayLengthBJetTrue;
-      	AIDA::IHistogram1D* _decayLengthBCJetTrue;
-      	AIDA::IHistogram1D* _decayLengthCJetTrue;  
+	AIDA::IHistogram1D* _recoDecayLengthBJet=nullptr;
+	AIDA::IHistogram1D* _recoDecayLengthBCJet=nullptr;
+	AIDA::IHistogram1D* _nVerticesBJet=nullptr;
+	AIDA::IHistogram1D* _recoDecayLengthCJet=nullptr;
+	AIDA::IHistogram1D* _nVerticesCJet=nullptr;
+	AIDA::IHistogram1D* _recoDecayLengthLightJet=nullptr;
+	AIDA::IHistogram1D* _nVerticesLightJet=nullptr;
+	AIDA::IHistogram1D* _decayLengthBJetTrue=nullptr;
+	AIDA::IHistogram1D* _decayLengthBCJetTrue=nullptr;
+	AIDA::IHistogram1D* _decayLengthCJetTrue=nullptr;
 	
 
 	//!numbers of true C-jets with true charge ++
-	int _cJet_truePlus2;
+	int _cJet_truePlus2=0;
 	//!numbers of true C-jets with true charge +
-	int _cJet_truePlus;
+	int _cJet_truePlus=0;
 	//!numbers of true C-jets with true charge 0
-	int _cJet_trueNeut;
+	int _cJet_trueNeut=0;
 	//!numbers of true C-jets with true charge -
-	int _cJet_trueMinus;
+	int _cJet_trueMinus=0;
 	//!numbers of true C-jets with true charge --
-	int _cJet_trueMinus2;
+	int _cJet_trueMinus2=0;
 	//!numbers of true C-jets with true charge ++; reconstructed vertex charge >0
-	int _cJet_truePlus2_recoPlus; 
-	//!numbers of true C-jets with true charge ++; reconstructed vertex charge =0	
-	int _cJet_truePlus2_recoNeut;
+	int _cJet_truePlus2_recoPlus=0;
+	//!numbers of true C-jets with true charge ++; reconstructed vertex charge =0
+	int _cJet_truePlus2_recoNeut=0;
 	//!numbers of true C-jets with true charge ++; reconstructed vertex charge <0
-	int _cJet_truePlus2_recoMinus;
+	int _cJet_truePlus2_recoMinus=0;
 	//!numbers of true C-jets with true charge +; reconstructed vertex charge >0
-	int _cJet_truePlus_recoPlus; 
+	int _cJet_truePlus_recoPlus=0;
 	//!numbers of true C-jets with true charge +; reconstructed vertex charge =0
-	int _cJet_truePlus_recoNeut;
+	int _cJet_truePlus_recoNeut=0;
 	//!numbers of true C-jets with true charge +; reconstructed vertex charge <0
-	int _cJet_truePlus_recoMinus;
+	int _cJet_truePlus_recoMinus=0;
 	//!numbers of true C-jets with true charge 0; reconstructed vertex charge >0
-	int _cJet_trueNeut_recoPlus; 
+	int _cJet_trueNeut_recoPlus=0;
 	//!numbers of true C-jets with true charge 0; reconstructed vertex charge =0
-	int _cJet_trueNeut_recoNeut;
+	int _cJet_trueNeut_recoNeut=0;
 	//!numbers of true C-jets with true charge 0; reconstructed vertex charge <0
-	int _cJet_trueNeut_recoMinus;
+	int _cJet_trueNeut_recoMinus=0;
 	//!numbers of true C-jets with true charge -; reconstructed vertex charge >0
-	int _cJet_trueMinus_recoPlus; 
+	int _cJet_trueMinus_recoPlus=0;
 	//!numbers of true C-jets with true charge -; reconstructed vertex charge =0
-	int _cJet_trueMinus_recoNeut;
+	int _cJet_trueMinus_recoNeut=0;
 	//!numbers of true C-jets with true charge -; reconstructed vertex charge <0
-	int _cJet_trueMinus_recoMinus;
+	int _cJet_trueMinus_recoMinus=0;
 	//!numbers of true C-jets with true charge --; reconstructed vertex charge >0
-	int _cJet_trueMinus2_recoPlus; 
+	int _cJet_trueMinus2_recoPlus=0;
 	//!numbers of true C-jets with true charge --; reconstructed vertex charge =0
-	int _cJet_trueMinus2_recoNeut;
+	int _cJet_trueMinus2_recoNeut=0;
 	//!numbers of true C-jets with true charge --; reconstructed vertex charge <0
-	int _cJet_trueMinus2_recoMinus;
+	int _cJet_trueMinus2_recoMinus=0;
 
 	//!numbers of true B-jets with true charge ++
-	int _bJet_truePlus2;
+	int _bJet_truePlus2=0;
 	//!numbers of true B-jets with true charge +
-	int _bJet_truePlus;	
+	int _bJet_truePlus=0;	
 	//!numbers of true B-jets with true charge 0
-	int _bJet_trueNeut;	
+	int _bJet_trueNeut=0;	
 	//!numbers of true B-jets with true charge -
-	int _bJet_trueMinus;	
+	int _bJet_trueMinus=0;	
 	//!numbers of true B-jets with true charge --
-	int _bJet_trueMinus2;
+	int _bJet_trueMinus2=0;
 	//!numbers of true B-jets with true charge ++; reconstructed vertex charge >0
-	int _bJet_truePlus2_recoPlus; 
+	int _bJet_truePlus2_recoPlus=0;
 	//!numbers of true B-jets with true charge ++; reconstructed vertex charge =0
-	int _bJet_truePlus2_recoNeut;
+	int _bJet_truePlus2_recoNeut=0;
 	//!numbers of true B-jets with true charge ++; reconstructed vertex charge <0
-	int _bJet_truePlus2_recoMinus;
+	int _bJet_truePlus2_recoMinus=0;
 	//!numbers of true B-jets with true charge +; reconstructed vertex charge >0
-	int _bJet_truePlus_recoPlus; 
+	int _bJet_truePlus_recoPlus=0;
 	//!numbers of true B-jets with true charge +; reconstructed vertex charge =0
-	int _bJet_truePlus_recoNeut;
+	int _bJet_truePlus_recoNeut=0;
 	//!numbers of true B-jets with true charge +; reconstructed vertex charge <0
-	int _bJet_truePlus_recoMinus;
+	int _bJet_truePlus_recoMinus=0;
 	//!numbers of true B-jets with true charge 0; reconstructed vertex charge >0
-	int _bJet_trueNeut_recoPlus; 
+	int _bJet_trueNeut_recoPlus=0;
 	//!numbers of true B-jets with true charge 0; reconstructed vertex charge =0
-	int _bJet_trueNeut_recoNeut;
+	int _bJet_trueNeut_recoNeut=0;
 	//!numbers of true B-jets with true charge 0; reconstructed vertex charge <0
-	int _bJet_trueNeut_recoMinus;
+	int _bJet_trueNeut_recoMinus=0;
 	//!numbers of true B-jets with true charge -; reconstructed vertex charge >0
-	int _bJet_trueMinus_recoPlus; 
+	int _bJet_trueMinus_recoPlus=0;
 	//!numbers of true B-jets with true charge -; reconstructed vertex charge =0
-	int _bJet_trueMinus_recoNeut;
+	int _bJet_trueMinus_recoNeut=0;
 	//!numbers of true B-jets with true charge -; reconstructed vertex charge <0
-	int _bJet_trueMinus_recoMinus;
+	int _bJet_trueMinus_recoMinus=0;
 	//!numbers of true B-jets with true charge --; reconstructed vertex charge >0
-	int _bJet_trueMinus2_recoPlus; 
+	int _bJet_trueMinus2_recoPlus=0;
 	//!numbers of true B-jets with true charge --; reconstructed vertex charge =0
-	int _bJet_trueMinus2_recoNeut;
+	int _bJet_trueMinus2_recoNeut=0;
 	//!numbers of true B-jets with true charge --; reconstructed vertex charge <0
-	int _bJet_trueMinus2_recoMinus;
+	int _bJet_trueMinus2_recoMinus=0;
 
 	//! Vector of numbers of true C-jets with true charge ++
 	//! See above for details
-	std::vector< unsigned int>  _cJet_truePlus2_angle;
-	std::vector< unsigned int>  _cJet_truePlus_angle;
-	std::vector< unsigned int>  _cJet_trueNeut_angle;
-	std::vector< unsigned int>  _cJet_trueMinus_angle;
-	std::vector< unsigned int>  _cJet_trueMinus2_angle;
+	std::vector< unsigned int>  _cJet_truePlus2_angle{};
+	std::vector< unsigned int>  _cJet_truePlus_angle{};
+	std::vector< unsigned int>  _cJet_trueNeut_angle{};
+	std::vector< unsigned int>  _cJet_trueMinus_angle{};
+	std::vector< unsigned int>  _cJet_trueMinus2_angle{};
 		     
-	std::vector< unsigned int>  _cJet_truePlus2_recoPlus_angle; 
-	std::vector< unsigned int>  _cJet_truePlus2_recoNeut_angle;
-	std::vector< unsigned int>  _cJet_truePlus2_recoMinus_angle;
-	std::vector< unsigned int>  _cJet_truePlus_recoPlus_angle; 
-	std::vector< unsigned int>  _cJet_truePlus_recoNeut_angle;
-	std::vector< unsigned int>  _cJet_truePlus_recoMinus_angle;
-	std::vector< unsigned int>  _cJet_trueNeut_recoPlus_angle; 
-	std::vector< unsigned int>  _cJet_trueNeut_recoNeut_angle;
-	std::vector< unsigned int>  _cJet_trueNeut_recoMinus_angle;
-	std::vector< unsigned int>  _cJet_trueMinus_recoPlus_angle; 
-	std::vector< unsigned int>  _cJet_trueMinus_recoNeut_angle;
-	std::vector< unsigned int>  _cJet_trueMinus_recoMinus_angle;
-	std::vector< unsigned int>  _cJet_trueMinus2_recoPlus_angle; 
-	std::vector< unsigned int>  _cJet_trueMinus2_recoNeut_angle;
-	std::vector< unsigned int>  _cJet_trueMinus2_recoMinus_angle;
+	std::vector< unsigned int>  _cJet_truePlus2_recoPlus_angle{};
+	std::vector< unsigned int>  _cJet_truePlus2_recoNeut_angle{};
+	std::vector< unsigned int>  _cJet_truePlus2_recoMinus_angle{};
+	std::vector< unsigned int>  _cJet_truePlus_recoPlus_angle{};
+	std::vector< unsigned int>  _cJet_truePlus_recoNeut_angle{};
+	std::vector< unsigned int>  _cJet_truePlus_recoMinus_angle{};
+	std::vector< unsigned int>  _cJet_trueNeut_recoPlus_angle{};
+	std::vector< unsigned int>  _cJet_trueNeut_recoNeut_angle{};
+	std::vector< unsigned int>  _cJet_trueNeut_recoMinus_angle{};
+	std::vector< unsigned int>  _cJet_trueMinus_recoPlus_angle{};
+	std::vector< unsigned int>  _cJet_trueMinus_recoNeut_angle{};
+	std::vector< unsigned int>  _cJet_trueMinus_recoMinus_angle{};
+	std::vector< unsigned int>  _cJet_trueMinus2_recoPlus_angle{};
+	std::vector< unsigned int>  _cJet_trueMinus2_recoNeut_angle{};
+	std::vector< unsigned int>  _cJet_trueMinus2_recoMinus_angle{};
 		     
-	std::vector< unsigned int>  _bJet_truePlus2_angle;
-	std::vector< unsigned int>  _bJet_truePlus_angle;	
-	std::vector< unsigned int>  _bJet_trueNeut_angle;	
-	std::vector< unsigned int>  _bJet_trueMinus_angle;	
-	std::vector< unsigned int>  _bJet_trueMinus2_angle;
-	std::vector< unsigned int>  _bJet_truePlus2_recoPlus_angle; 
-	std::vector< unsigned int>  _bJet_truePlus2_recoNeut_angle;
-	std::vector< unsigned int>  _bJet_truePlus2_recoMinus_angle;
-	std::vector< unsigned int>  _bJet_truePlus_recoPlus_angle; 
-	std::vector< unsigned int>  _bJet_truePlus_recoNeut_angle;
-	std::vector< unsigned int>  _bJet_truePlus_recoMinus_angle;
-	std::vector< unsigned int>  _bJet_trueNeut_recoPlus_angle; 
-	std::vector< unsigned int>  _bJet_trueNeut_recoNeut_angle;
-	std::vector< unsigned int>  _bJet_trueNeut_recoMinus_angle;
-	std::vector< unsigned int>  _bJet_trueMinus_recoPlus_angle; 
-	std::vector< unsigned int>  _bJet_trueMinus_recoNeut_angle;
-	std::vector< unsigned int>  _bJet_trueMinus_recoMinus_angle;
-	std::vector< unsigned int>  _bJet_trueMinus2_recoPlus_angle; 
-	std::vector< unsigned int>  _bJet_trueMinus2_recoNeut_angle;
-	std::vector< unsigned int>  _bJet_trueMinus2_recoMinus_angle;
+	std::vector< unsigned int>  _bJet_truePlus2_angle{};
+	std::vector< unsigned int>  _bJet_truePlus_angle{};
+	std::vector< unsigned int>  _bJet_trueNeut_angle{};
+	std::vector< unsigned int>  _bJet_trueMinus_angle{};
+	std::vector< unsigned int>  _bJet_trueMinus2_angle{};
+	std::vector< unsigned int>  _bJet_truePlus2_recoPlus_angle{};
+	std::vector< unsigned int>  _bJet_truePlus2_recoNeut_angle{};
+	std::vector< unsigned int>  _bJet_truePlus2_recoMinus_angle{};
+	std::vector< unsigned int>  _bJet_truePlus_recoPlus_angle{};
+	std::vector< unsigned int>  _bJet_truePlus_recoNeut_angle{};
+	std::vector< unsigned int>  _bJet_truePlus_recoMinus_angle{};
+	std::vector< unsigned int>  _bJet_trueNeut_recoPlus_angle{};
+	std::vector< unsigned int>  _bJet_trueNeut_recoNeut_angle{};
+	std::vector< unsigned int>  _bJet_trueNeut_recoMinus_angle{};
+	std::vector< unsigned int>  _bJet_trueMinus_recoPlus_angle{};
+	std::vector< unsigned int>  _bJet_trueMinus_recoNeut_angle{};
+	std::vector< unsigned int>  _bJet_trueMinus_recoMinus_angle{};
+	std::vector< unsigned int>  _bJet_trueMinus2_recoPlus_angle{};
+	std::vector< unsigned int>  _bJet_trueMinus2_recoNeut_angle{};
+	std::vector< unsigned int>  _bJet_trueMinus2_recoMinus_angle{};
 
 	//! Numbers for purity if reconstructed track-vertex association
-	int _nb_twoVertex_bTrack_Primary;	  
-	int _nb_twoVertex_bTrack_Secondary;  
-	int _nb_twoVertex_bTrack_Tertiary;
-	int _nb_twoVertex_bTrack_Isolated;
+	int _nb_twoVertex_bTrack_Primary=0;
+	int _nb_twoVertex_bTrack_Secondary=0;
+	int _nb_twoVertex_bTrack_Tertiary=0;
+	int _nb_twoVertex_bTrack_Isolated=0;
 	
-	int _nb_twoVertex_cTrack_Primary; 	  
-	int _nb_twoVertex_cTrack_Secondary;	  
-	int _nb_twoVertex_cTrack_Tertiary; 
-	int _nb_twoVertex_cTrack_Isolated; 
+	int _nb_twoVertex_cTrack_Primary=0;
+	int _nb_twoVertex_cTrack_Secondary=0;
+	int _nb_twoVertex_cTrack_Tertiary=0;
+	int _nb_twoVertex_cTrack_Isolated=0;
 	
-	int _nb_twoVertex_lTrack_Primary; 	  
-	int _nb_twoVertex_lTrack_Secondary;	  
-	int _nb_twoVertex_lTrack_Tertiary;
-	int _nb_twoVertex_lTrack_Isolated;
+	int _nb_twoVertex_lTrack_Primary=0;
+	int _nb_twoVertex_lTrack_Secondary=0;
+	int _nb_twoVertex_lTrack_Tertiary=0;
+	int _nb_twoVertex_lTrack_Isolated=0;
 	
-	int _nb_threeVertex_bTrack_Primary;   
-	int _nb_threeVertex_bTrack_Secondary;  
-	int _nb_threeVertex_bTrack_Tertiary;  
-	int _nb_threeVertex_bTrack_Isolated;  
+	int _nb_threeVertex_bTrack_Primary=0;
+	int _nb_threeVertex_bTrack_Secondary=0;
+	int _nb_threeVertex_bTrack_Tertiary=0;
+	int _nb_threeVertex_bTrack_Isolated=0;
 	
-	int _nb_threeVertex_cTrack_Primary;  
-	int _nb_threeVertex_cTrack_Secondary; 
-	int _nb_threeVertex_cTrack_Tertiary; 
-	int _nb_threeVertex_cTrack_Isolated; 
+	int _nb_threeVertex_cTrack_Primary=0;
+	int _nb_threeVertex_cTrack_Secondary=0;
+	int _nb_threeVertex_cTrack_Tertiary=0;
+	int _nb_threeVertex_cTrack_Isolated=0;
 	
-	int _nb_threeVertex_lTrack_Primary;   
-	int _nb_threeVertex_lTrack_Secondary;  
-	int _nb_threeVertex_lTrack_Tertiary;  
-	int _nb_threeVertex_lTrack_Isolated;  
+	int _nb_threeVertex_lTrack_Primary=0;
+	int _nb_threeVertex_lTrack_Secondary=0;
+	int _nb_threeVertex_lTrack_Tertiary=0;
+	int _nb_threeVertex_lTrack_Isolated=0;
 
-	int _nb_threeVertex_Primary_noMCP;
-	int _nb_threeVertex_Secondary_noMCP;
-	int _nb_threeVertex_Tertiary_noMCP;
-	int _nb_threeVertex_Isolated_noMCP;
+	int _nb_threeVertex_Primary_noMCP=0;
+	int _nb_threeVertex_Secondary_noMCP=0;
+	int _nb_threeVertex_Tertiary_noMCP=0;
+	int _nb_threeVertex_Isolated_noMCP=0;
 	
-	int _nb_twoVertex_Primary_noMCP;
-	int _nb_twoVertex_Secondary_noMCP;
-	int _nb_twoVertex_Tertiary_noMCP;
-	int _nb_twoVertex_Isolated_noMCP;
+	int _nb_twoVertex_Primary_noMCP=0;
+	int _nb_twoVertex_Secondary_noMCP=0;
+	int _nb_twoVertex_Tertiary_noMCP=0;
+	int _nb_twoVertex_Isolated_noMCP=0;
 
 
-	int _nc_twoVertex_bTrack_Primary;	  
-	int _nc_twoVertex_bTrack_Secondary;  
-	int _nc_twoVertex_bTrack_Tertiary;
-	int _nc_twoVertex_bTrack_Isolated;
+	int _nc_twoVertex_bTrack_Primary=0;
+	int _nc_twoVertex_bTrack_Secondary=0;
+	int _nc_twoVertex_bTrack_Tertiary=0;
+	int _nc_twoVertex_bTrack_Isolated=0;
 	
-	int _nc_twoVertex_cTrack_Primary; 	  
-	int _nc_twoVertex_cTrack_Secondary;	  
-	int _nc_twoVertex_cTrack_Tertiary; 
-	int _nc_twoVertex_cTrack_Isolated; 
+	int _nc_twoVertex_cTrack_Primary=0;
+	int _nc_twoVertex_cTrack_Secondary=0;
+	int _nc_twoVertex_cTrack_Tertiary=0;
+	int _nc_twoVertex_cTrack_Isolated=0;
 	
-	int _nc_twoVertex_lTrack_Primary; 	  
-	int _nc_twoVertex_lTrack_Secondary;	  
-	int _nc_twoVertex_lTrack_Tertiary;
-	int _nc_twoVertex_lTrack_Isolated;
+	int _nc_twoVertex_lTrack_Primary=0;
+	int _nc_twoVertex_lTrack_Secondary=0;
+	int _nc_twoVertex_lTrack_Tertiary=0;
+	int _nc_twoVertex_lTrack_Isolated=0;
 	
-	int _nc_threeVertex_bTrack_Primary;   
-	int _nc_threeVertex_bTrack_Secondary;  
-	int _nc_threeVertex_bTrack_Tertiary;  
-	int _nc_threeVertex_bTrack_Isolated;  
+	int _nc_threeVertex_bTrack_Primary=0;
+	int _nc_threeVertex_bTrack_Secondary=0;
+	int _nc_threeVertex_bTrack_Tertiary=0;
+	int _nc_threeVertex_bTrack_Isolated=0;
 	
-	int _nc_threeVertex_cTrack_Primary;  
-	int _nc_threeVertex_cTrack_Secondary; 
-	int _nc_threeVertex_cTrack_Tertiary; 
-	int _nc_threeVertex_cTrack_Isolated; 
+	int _nc_threeVertex_cTrack_Primary=0;
+	int _nc_threeVertex_cTrack_Secondary=0;
+	int _nc_threeVertex_cTrack_Tertiary=0;
+	int _nc_threeVertex_cTrack_Isolated=0;
 	
-	int _nc_threeVertex_lTrack_Primary;   
-	int _nc_threeVertex_lTrack_Secondary;  
-	int _nc_threeVertex_lTrack_Tertiary;  
-	int _nc_threeVertex_lTrack_Isolated;  
+	int _nc_threeVertex_lTrack_Primary=0;
+	int _nc_threeVertex_lTrack_Secondary=0;
+	int _nc_threeVertex_lTrack_Tertiary=0;
+	int _nc_threeVertex_lTrack_Isolated=0;
 
-	int _nc_threeVertex_Primary_noMCP;
-	int _nc_threeVertex_Secondary_noMCP;
-	int _nc_threeVertex_Tertiary_noMCP;
-	int _nc_threeVertex_Isolated_noMCP;
+	int _nc_threeVertex_Primary_noMCP=0;
+	int _nc_threeVertex_Secondary_noMCP=0;
+	int _nc_threeVertex_Tertiary_noMCP=0;
+	int _nc_threeVertex_Isolated_noMCP=0;
 	
-	int _nc_twoVertex_Primary_noMCP;
-	int _nc_twoVertex_Secondary_noMCP;
-	int _nc_twoVertex_Tertiary_noMCP;
-	int _nc_twoVertex_Isolated_noMCP;
+	int _nc_twoVertex_Primary_noMCP=0;
+	int _nc_twoVertex_Secondary_noMCP=0;
+	int _nc_twoVertex_Tertiary_noMCP=0;
+	int _nc_twoVertex_Isolated_noMCP=0;
 	 
 }; 
 

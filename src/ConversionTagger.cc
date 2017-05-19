@@ -14,9 +14,8 @@
 #include <marlin/Global.h>
 #include <marlin/VerbosityLevels.h>
 #include <MarlinUtil.h>
+#include <marlinutil/GeometryUtil.h>
 #include <HelixClass.h>
-
-#include <gear/BField.h>
 
 #define M_ELECTRON  0.00051
 #define M_PIPLUS    0.13957
@@ -37,8 +36,6 @@ ConversionTagger::ConversionTagger() : Processor("ConversionTagger") {
   // modify processor description
   _description = "ConversionTagger processor does conversion and V0 tagging" ;
   
-  _twopi=2*acos(-1.0);
-
   // input collections to run the conversion/V0 tagging on.
   // default is empty list, which means the code will run over
   // every single collection of type TRACK or RECONSTRUCTEDPARTICLE
@@ -94,7 +91,7 @@ void ConversionTagger::init() {
 
   printParameters() ;
 
-  _BField = Global::GEAR->getBField().at(gear::Vector3D(0.,0.,0.)).z();
+  _BField = MarlinUtil::getBzAtOrigin();
 
   for (size_t i=0; i<_PdgToTag.size(); i++) _TagPDG[_PdgToTag[i]]=true;
 

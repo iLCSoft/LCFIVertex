@@ -150,13 +150,13 @@ void DSTPlotProcessor::processEvent( LCEvent* pEvent )
 	//make sure the collection is of the right type
 	if( pJetCollection->getTypeName()!=LCIO::RECONSTRUCTEDPARTICLE )
 	{
-		stringstream message;
-		message << endl
+		stringstream errMessage;
+		errMessage << endl
 			<< "########################################################################################\n"
 			<< "# DSTPlotProcessor -                                                                      #\n"
 			<< "#   The jet collection requested (\"" << _JetCollectionName << "\") is not of the type \"" << LCIO::RECONSTRUCTEDPARTICLE << "\"  #\n"
 			<< "########################################################################################" << endl;
-		throw EventException( message.str() );
+		throw EventException( errMessage.str() );
 	}
 	
 	//apply any cuts on the event here
@@ -190,7 +190,7 @@ void DSTPlotProcessor::end()
 
 // IMPORTANT - If you change the cuts make sure you change the line below to show the changes in the docs
 /*! Currently applies no cuts at all*/
-bool DSTPlotProcessor::_passesEventCuts( LCEvent* pEvent )
+bool DSTPlotProcessor::_passesEventCuts( LCEvent* )
 {
 	//
 	// No event cuts at present
@@ -366,7 +366,10 @@ void DSTPlotProcessor::_outputDataToFile( string filename )
 	
 	rootFile.Write();
 	rootFile.Close();
-#endif //of
+#else //of
+        // avoid warning for unused parameter filename
+        std::cout << "not writing to " << filename << "because function not implemented without root"  << std::endl;
+#endif
 
 }
 
