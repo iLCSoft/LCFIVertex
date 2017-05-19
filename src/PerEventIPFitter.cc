@@ -82,7 +82,7 @@ void PerEventIPFitterProcessor::init() {
   _IPFitter->setDoubleParameter("ProbThreshold",_ProbThreshold);
 }
 
-void PerEventIPFitterProcessor::processRunHeader( LCRunHeader* run) { 
+void PerEventIPFitterProcessor::processRunHeader( LCRunHeader* ) {
 	_nRun++ ;
 } 
 
@@ -140,7 +140,7 @@ void PerEventIPFitterProcessor::processEvent( LCEvent * evt ) {
 
 
 
-void PerEventIPFitterProcessor::check( LCEvent * evt ) { 
+void PerEventIPFitterProcessor::check( LCEvent* ) {
   // nothing to check here - could be used to fill checkplots in reconstruction processor
 }
 

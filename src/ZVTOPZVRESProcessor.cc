@@ -135,7 +135,7 @@ void ZVTOPZVRESProcessor::init() {
 	
 }
 
-void ZVTOPZVRESProcessor::processRunHeader( LCRunHeader* run) { 
+void ZVTOPZVRESProcessor::processRunHeader( LCRunHeader* ) {
 	_nRun++ ;
 } 
 
@@ -242,7 +242,7 @@ void ZVTOPZVRESProcessor::processEvent( LCEvent * evt ) {
 
 
 
-void ZVTOPZVRESProcessor::check( LCEvent * evt ) { 
+void ZVTOPZVRESProcessor::check( LCEvent* ) {
   // nothing to check here - could be used to fill checkplots in reconstruction processor
 }
 

@@ -73,18 +73,18 @@ public:
 	//virtual void check( LCEvent* pEvent );
 	virtual void end();
 protected:
-	std::string _JetCollectionName;	//The name of the collection of ReconstructedParticles that is the jet (comes from the steering file)
-	std::string _FlavourTagInputsCollectionName;
-	std::string _FlavourTagCollectionName;
-	int _nRun;
-	int _evt;
-	std::map<std::string,std::string> _filename;//The input filenames for the nets.
-	std::map<std::string,nnet::NeuralNet*> _NeuralNet;//Pointers to the neural nets
+	std::string _JetCollectionName{}; //The name of the collection of ReconstructedParticles that is the jet (comes from the steering file)
+	std::string _FlavourTagInputsCollectionName{};
+	std::string _FlavourTagCollectionName{};
+	int _nRun=0;
+	int _evt=0;
+	std::map<std::string,std::string> _filename{};//The input filenames for the nets.
+	std::map<std::string,nnet::NeuralNet*> _NeuralNet{};//Pointers to the neural nets
 	//ofstream ofile;
 	//This map holds the position of the Inputs in the LCFloatVec
-	std::map<std::string,unsigned int> _IndexOf;
+	std::map<std::string,unsigned int> _IndexOf{};
 
-	std::vector<nnet::NeuralNetDataSet*> _dataSet;
+	std::vector<nnet::NeuralNetDataSet*> _dataSet{};
 
 	void _displayCollectionNames( lcio::LCEvent* pEvent );
 	

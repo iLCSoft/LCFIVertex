@@ -57,12 +57,12 @@
 //change USING_RAIDA to USING_JAIDA if you are using JAIDA/AIDAJNI - you will obtain more functionality!
 #define USING_RAIDA
 
-#ifdef USING_RAIDA 
-#warning "USING_RAIDA defined"
-#else
-#define USING_JAIDA
-#warning "USING_JAIDA defined"
-#endif
+// #ifdef USING_RAIDA
+// #pragma message "USING_RAIDA defined"
+// #else
+// #define USING_JAIDA
+// #pragma message "USING_JAIDA defined"
+// #endif
 
 
 #ifdef USING_JAIDA//Data point sets aren't implemented in RAIDA - which is a shame as they have functionality not given by histograms
@@ -345,11 +345,11 @@ void LCFIAIDAPlotProcessor::processRunHeader( LCRunHeader* pRun )
 void LCFIAIDAPlotProcessor::CreateFlavourTagTuple()
 {
  
-  //AIDA::IHistogramFactory* pHistogramFactory=marlin::AIDAProcessor::histogramFactory( this );
-  AIDA::ITree* pTree=marlin::AIDAProcessor::tree( this );
   
 
 #ifdef USING_JAIDA
+  //AIDA::IHistogramFactory* pHistogramFactory=marlin::AIDAProcessor::histogramFactory( this );
+  AIDA::ITree* pTree=marlin::AIDAProcessor::tree( this );
   //something dosen't work for me with the tuples in RAIDA
   AIDA::ITupleFactory* pTupleFactory=marlin::AIDAProcessor::tupleFactory( this );
 
@@ -377,7 +377,9 @@ void LCFIAIDAPlotProcessor::CreateFlavourTagTuple()
     
     _pMyTuple=pTupleFactory->create( "FlavourTagInputsTuple","FlavourTagInputsTuple", columnNames);
  }
-#endif	
+#else
+  marlin::AIDAProcessor::tree( this );
+#endif
  
  
 }
@@ -637,7 +639,7 @@ void LCFIAIDAPlotProcessor::processEvent( LCEvent* pEvent )
 
  
  
-void LCFIAIDAPlotProcessor::check( LCEvent* pEvent ) 
+void LCFIAIDAPlotProcessor::check( LCEvent* )
 {
 }
 
@@ -655,7 +657,7 @@ void LCFIAIDAPlotProcessor::end()
 
 // IMPORTANT - If you change the cuts make sure you change the line below to show the changes in the docs
 /*! Currently applies no cuts at all*/
-bool LCFIAIDAPlotProcessor::PassesEventCuts( LCEvent* pEvent )
+bool LCFIAIDAPlotProcessor::PassesEventCuts( LCEvent* )
 {
   //
   // No event cuts at present
@@ -1046,8 +1048,8 @@ void LCFIAIDAPlotProcessor::FillTagPlots( LCEvent* pEvent, unsigned int jetNumbe
   
   //needs to be tidied up
   TypesafeCollection<lcio::ReconstructedParticle> jetCollection( pEvent, _JetCollectionName );
-  ReconstructedParticle* pJet;
-  pJet=jetCollection.getElementAt(jetNumber);
+  // ReconstructedParticle* pJet;
+  // pJet=jetCollection.getElementAt(jetNumber);
   
   for (unsigned int iTagCollection=0; iTagCollection < _FlavourTagCollectionNames.size(); ++iTagCollection)
     {
@@ -2084,9 +2086,9 @@ void LCFIAIDAPlotProcessor::CreateVertexChargeLeakagePlot()
 
 void LCFIAIDAPlotProcessor::FillVertexPlots(LCEvent* pEvent, unsigned int jetNumber)
 {
-  int jetType=FindTrueJetType( pEvent, jetNumber );
+  int jetTypeTrue=FindTrueJetType( pEvent, jetNumber );
    
-  if( jetType==0 ) return;
+  if( jetTypeTrue==0 ) return;
   
   std::vector<double> mcDecayLengthVector;
   std::vector<double> bMCDecayLengthVector;
@@ -2101,10 +2103,10 @@ void LCFIAIDAPlotProcessor::FillVertexPlots(LCEvent* pEvent, unsigned int jetNum
 
     unsigned int NumVertices = FindNumVertex(pEvent, jetNumber, iTagCollection);
 
-    if( jetType==B_JET )  {
+    if( jetTypeTrue==B_JET )  {
       _pBDecayLengthAll[iTagCollection]->fill(b_mc_decay_length);
       if (NumVertices > 1)  _pBDecayLengthTwoVertices[iTagCollection]->fill(b_mc_decay_length);
-    } else if( jetType==C_JET ) {
+    } else if( jetTypeTrue==C_JET ) {
       _pCDecayLengthAll[iTagCollection]->fill(c_mc_decay_length);
       if (NumVertices > 1)  _pCDecayLengthTwoVertices[iTagCollection]->fill(c_mc_decay_length);
     }
@@ -2364,12 +2366,12 @@ void LCFIAIDAPlotProcessor::FillZVRESTable(LCEvent* pEvent)
   std::vector<Vertex*> tertiaryVertices;
   std::vector<Vertex*> allVertices;
   //to store pairs of vertices with a track in between
-  std::vector< std::pair<Vertex*,Vertex*> > myVertexPairVector;
+  //std::vector< std::pair<Vertex*,Vertex*> > myVertexPairVector;
+  //myVertexPairVector.clear();
   primaryVertices.clear();
   secondaryVertices.clear();
   tertiaryVertices.clear();
   allVertices.clear();
-  myVertexPairVector.clear();
 
 
   //loop over all the jets to find the verticies.  Only ZVRESDecayChains know about their vertices.
@@ -3756,15 +3758,15 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength( LCEvent* pEvent, unsigned in
 	    //v./ std::cout << "1: " << pdgcode << " " << GetPDGFlavour(pdgcode) << std::endl;
 
 	    //get decay length
-	    const double* vertex = myMCParticle->getVertex();
-	    const double* endpoint = myMCParticle->getEndpoint();	 	  
-	    double decay_length = CalculateDistance(vertex, endpoint);
+	    const double* vertexMC = myMCParticle->getVertex();
+	    const double* endpointMC = myMCParticle->getEndpoint();
+	    double decay_length_MC = CalculateDistance(vertexMC, endpointMC);
 	    
 	    //if (decay_length>0) {
 
-	      decaylengthvector.push_back(decay_length);
-	      if (GetPDGFlavour(pdgcode) == C_JET ) cjetdecaylengthvector.push_back(decay_length);
-	      if (GetPDGFlavour(pdgcode) == B_JET ) bjetdecaylengthvector.push_back(decay_length);
+	      decaylengthvector.push_back(decay_length_MC);
+	      if (GetPDGFlavour(pdgcode) == C_JET ) cjetdecaylengthvector.push_back(decay_length_MC);
+	      if (GetPDGFlavour(pdgcode) == B_JET ) bjetdecaylengthvector.push_back(decay_length_MC);
 	      //}
 	    //get the daughters
 	    const MCParticleVec& daughters = myMCParticle->getDaughters();
@@ -3783,14 +3785,14 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength( LCEvent* pEvent, unsigned in
 
 
 		  //get decay length
-		  const double* vertex = (*idaughter)->getVertex();
-		  const double* endpoint = (*idaughter)->getEndpoint();	 	  
-		  double decay_length = CalculateDistance(vertex, endpoint);
+		  const double* vertexDau1 = (*idaughter)->getVertex();
+		  const double* endpointDau1 = (*idaughter)->getEndpoint();
+		  double decay_length_Dau1 = CalculateDistance(vertexDau1, endpointDau1);
 		
 		  //if (decay_length>0) {
-		    decaylengthvector.push_back(decay_length);  
-		    if (abs(flavour) == C_JET ) cjetdecaylengthvector.push_back(decay_length);
-		    if (abs(flavour) == B_JET ) bjetdecaylengthvector.push_back(decay_length);
+		    decaylengthvector.push_back(decay_length_Dau1);
+		    if (abs(flavour) == C_JET ) cjetdecaylengthvector.push_back(decay_length_Dau1);
+		    if (abs(flavour) == B_JET ) bjetdecaylengthvector.push_back(decay_length_Dau1);
 
 		    
 		    // }
@@ -3814,14 +3816,14 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength( LCEvent* pEvent, unsigned in
 			//v./ std::cout << "3: " << code2 << " " << flavour2 << std::endl;
 
 			//get decay length
-			const double* vertex = (*idaughter2)->getVertex();
-			const double* endpoint = (*idaughter2)->getEndpoint();	 	  
-			double decay_length = CalculateDistance(vertex, endpoint);
+			const double* vertexDau2 = (*idaughter2)->getVertex();
+			const double* endpointDau2 = (*idaughter2)->getEndpoint();
+			double decay_length_Dau2 = CalculateDistance(vertexDau2, endpointDau2);
 
 			//if (decay_length>0) {
-			  decaylengthvector.push_back(decay_length);
-			  if (abs(flavour2) == C_JET ) cjetdecaylengthvector.push_back(decay_length);
-			  if (abs(flavour2) == B_JET ) bjetdecaylengthvector.push_back(decay_length);
+			  decaylengthvector.push_back(decay_length_Dau2);
+			  if (abs(flavour2) == C_JET ) cjetdecaylengthvector.push_back(decay_length_Dau2);
+			  if (abs(flavour2) == B_JET ) bjetdecaylengthvector.push_back(decay_length_Dau2);
 			  //}
 
 			const MCParticleVec& daughters3 = (*idaughter2)->getDaughters();
@@ -3838,14 +3840,14 @@ void LCFIAIDAPlotProcessor::FindTrueJetDecayLength( LCEvent* pEvent, unsigned in
 			      //v./ std::cout << "4: " << code3 << " " << flavour3 << std::endl;
    
 			      //get decay length
-			      const double* vertex = (*idaughter3)->getVertex();
-			      const double* endpoint = (*idaughter3)->getEndpoint();	 	  
-			      double decay_length = CalculateDistance(vertex, endpoint);
+			      const double* vertexDau3 = (*idaughter3)->getVertex();
+			      const double* endpointDau3 = (*idaughter3)->getEndpoint();
+			      double decay_length_Dau3 = CalculateDistance(vertexDau3, endpointDau3);
 			
 			      //if (decay_length>0) {
-				decaylengthvector.push_back(decay_length);
-				if (abs(flavour3) == C_JET ) cjetdecaylengthvector.push_back(decay_length);
-				if (abs(flavour3) == B_JET ) bjetdecaylengthvector.push_back(decay_length);
+				decaylengthvector.push_back(decay_length_Dau3);
+				if (abs(flavour3) == C_JET ) cjetdecaylengthvector.push_back(decay_length_Dau3);
+				if (abs(flavour3) == B_JET ) bjetdecaylengthvector.push_back(decay_length_Dau3);
 				//}
 
 			      const MCParticleVec& daughters4 = (*idaughter3)->getDaughters();

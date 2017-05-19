@@ -78,6 +78,8 @@ class RPCutProcessor : public Processor {
   //The usual Marlin processor methods
   virtual Processor*  newProcessor() { return new RPCutProcessor ; }
   RPCutProcessor() ;
+  RPCutProcessor(const RPCutProcessor&) = delete;
+  RPCutProcessor& operator=(const RPCutProcessor&) = delete;
   virtual void init() ;
   virtual void processRunHeader( LCRunHeader* run ) ;
   virtual void processEvent( LCEvent * evt ) ; 
@@ -96,72 +98,72 @@ class RPCutProcessor : public Processor {
   bool  _BadParametersFail(lcio::ReconstructedParticle* RPTrack);
   bool  _MCVertexFail(lcio::ReconstructedParticle* RPTrack, UTIL::LCRelationNavigator* pMCRelationNavigator );
   
-  std::string _InRCPColName ;
-  std::string _TrackColName;
-  std::string _OutRCPColName ;
-  bool _WriteNewCollection;
-  bool _SubParticleLists;
+  std::string _InRCPColName{};
+  std::string _TrackColName{};
+  std::string _OutRCPColName{};
+  bool _WriteNewCollection=false;
+  bool _SubParticleLists=false;
   
-  bool _Chi2OverDOFEnable;
-  bool _Chi2OverDOFCutLowerThan;
-  float _Chi2OverDOFCutValue;
+  bool _Chi2OverDOFEnable=false;
+  bool _Chi2OverDOFCutLowerThan=false;
+  float _Chi2OverDOFCutValue=0.0;
   
-  bool _D0Enable;
-  bool _D0CutLowerThan;
-  float _D0CutValue;
+  bool _D0Enable=false;
+  bool _D0CutLowerThan=false;
+  float _D0CutValue=0.0;
   
-  bool _D0ErrEnable;
-  bool _D0ErrCutLowerThan;
-  float _D0ErrCutValue;
+  bool _D0ErrEnable=false;
+  bool _D0ErrCutLowerThan=false;
+  float _D0ErrCutValue=0.0;
   
-  bool _Z0Enable;
-  bool _Z0CutLowerThan;
-  float _Z0CutValue;
+  bool _Z0Enable=false;
+  bool _Z0CutLowerThan=false;
+  float _Z0CutValue=0.0;
 
-  bool _Z0ErrEnable;
-  bool _Z0ErrCutLowerThan;
-  float _Z0ErrCutValue;
+  bool _Z0ErrCutLowerThan=false;
+  bool _Z0ErrEnable=false;
+  float _Z0ErrCutValue=0.0;
   
-  bool _PTEnable;
-  bool _PTCutLowerThan;
-  float _PTCutValue;
+  bool _PTEnable=false;
+  bool _PTCutLowerThan=false;
+  float _PTCutValue=0.0;
 
-  bool _MonteCarloPIDEnable;
-  std::vector<int> _MonteCarloPIDsToCut;
-  std::string _MonteCarloRelationColName;
+  bool _MonteCarloPIDEnable=false;
+  std::vector<int> _MonteCarloPIDsToCut{};
+  std::string _MonteCarloRelationColName{};
   
-  bool _BadParametersEnable;
+  bool _BadParametersEnable=false;
   
-  bool _DetectorHitsEnable;
-  std::vector<std::string> _DetectorHitsBoundaryDetectorNames;
-  std::vector<int> _DetectorHitsBoundaryCuts;
-  std::vector<std::string> _DetectorHitsRegion1DetectorNames;
-  std::vector<int> _DetectorHitsRegion1Cuts;
-  std::vector<std::string> _DetectorHitsRegion2DetectorNames;
-  std::vector<int> _DetectorHitsRegion2Cuts;
-  std::vector<std::string> _DetectorNames;
+  bool _DetectorHitsEnable=false;
+  std::vector<std::string> _DetectorHitsBoundaryDetectorNames{};
+  std::vector<int> _DetectorHitsBoundaryCuts{};
+  std::vector<std::string> _DetectorHitsRegion1DetectorNames{};
+  std::vector<int> _DetectorHitsRegion1Cuts{};
+  std::vector<std::string> _DetectorHitsRegion2DetectorNames{};
+  std::vector<int> _DetectorHitsRegion2Cuts{};
+  std::vector<std::string> _DetectorNames{};
   
-  bool _MCVertexEnable;
-  const gear::VXDParameters* _VxdPar;
-  double _BeamPipeInnerRadius;
-  double _BeamPipeOuterRadius;
-  double _BeamPipeHalfZ;
-  double _CutDistance;
+  bool _MCVertexEnable=false;
+  const gear::VXDParameters* _VxdPar=nullptr;
+  double _BeamPipeInnerRadius=0.0;
+  double _BeamPipeOuterRadius=0.0;
+  double _BeamPipeHalfZ=0.0;
+  double _CutDistance=0.0;
 
 #ifdef MCFAIL_DIAGNOSTICS
-  TH2F *_diaghist_bpmat_xy;
-  TH2F *_diaghist_vxmat_xy;
-  TH2F *_diaghist_nomat_xy;
-  TH2F *_diaghist_bpmat_rz;
-  TH2F *_diaghist_vxmat_rz;
-  TH2F *_diaghist_nomat_rz;
-  TH1F *_diaghist_dist;
-  TH1F *_diaghist_dist_vxmat;
-  TH1F *_diaghist_dist_nomat;
+  TH2F *_diaghist_bpmat_xy=nullptr;
+  TH2F *_diaghist_vxmat_xy=nullptr;
+  TH2F *_diaghist_nomat_xy=nullptr;
+  TH2F *_diaghist_bpmat_rz=nullptr;
+  TH2F *_diaghist_vxmat_rz=nullptr;
+  TH2F *_diaghist_nomat_rz=nullptr;
+  TH1F *_diaghist_dist=nullptr;
+  TH1F *_diaghist_dist_vxmat=nullptr;
+  TH1F *_diaghist_dist_nomat=nullptr;
 #endif
   
-  int _nRun ;
-  int _nEvt ;
+  int _nRun=-1;
+  int _nEvt=-1;
 } ;
 
 #endif

@@ -123,8 +123,8 @@ void NeuralNetTrainerProcessor::init()
 	//Just check that the user hasn't accidently disabled training of all the nets
 	if( _listOfSelectedNetNames.size()==0 )
 	{
-		std::stringstream message;
-		message << std::endl
+		std::stringstream errMessage;
+		errMessage << std::endl
 			<< "############################################################################################\n"
 			<< "# NeuralNetTrainerProcessor:                                                               #\n"
 			<< "#   No nets have been enabled for training in the steering file!                           #\n"
@@ -132,7 +132,7 @@ void NeuralNetTrainerProcessor::init()
 			<< "#      <parameter name=\"Filename-bc_net-1vtx\" type=\"string\"> bc_net-1vtx.xml </parameter>  #\n"
 			<< "#   In with the parameters for this processor.                                             #\n"
 			<< "############################################################################################" << std::endl;
-		throw lcio::Exception( message.str() );
+		throw lcio::Exception( errMessage.str() );
 	}
 
 	//Decide which format (plain text or XML) to save the files as
@@ -204,13 +204,13 @@ void NeuralNetTrainerProcessor::processEvent( lcio::LCEvent* pEvent )
 	//make sure the collection is of the right type
 	if( pJetCollection->getTypeName()!=lcio::LCIO::RECONSTRUCTEDPARTICLE )
 	{
-		std::stringstream message;
-		message << std::endl
+		std::stringstream errMessage;
+		errMessage << std::endl
 			<< "########################################################################################\n"
 			<< "# NeuralNetTrainerProcessor:                                                           #\n"
 			<< "#   The jet collection requested (\"" << _JetCollectionName << "\") is not of the type \"" << lcio::LCIO::RECONSTRUCTEDPARTICLE << "\"  #\n"
 			<< "########################################################################################" << std::endl;
-		throw lcio::EventException( message.str() );
+		throw lcio::EventException( errMessage.str() );
 	}
 
 	lcio::ReconstructedParticle* pJet;
@@ -256,13 +256,13 @@ void NeuralNetTrainerProcessor::processEvent( lcio::LCEvent* pEvent )
 			//make sure the collection is of the right type
 			if( pTrueJet->getTypeName()!=lcio::LCIO::LCFLOATVEC )
 			{
-				std::stringstream message;
-				message << std::endl
+				std::stringstream errMessage;
+				errMessage << std::endl
 					<< "########################################################################################\n"
 					<< "# FlavourTagProcessor -                                                                #\n"
 					<< "#   The jet collection requested (\"" << _TrueJetFlavourCollectionName << "\") is not of the type \"" << lcio::LCIO::LCINTVEC << "\"  #\n"
 					<< "########################################################################################" << std::endl;
-				throw lcio::EventException( message.str() );
+				throw lcio::EventException( errMessage.str() );
 			}
 			float jetType = *((dynamic_cast<lcio::LCFloatVec*>( pTrueJet->getElementAt(a))->begin()));
 			
@@ -274,13 +274,13 @@ void NeuralNetTrainerProcessor::processEvent( lcio::LCEvent* pEvent )
 			//make sure the collection is of the right type
 			if( pInputs->getTypeName()!=lcio::LCIO::LCFLOATVEC )
 			{
-				std::stringstream message;
-				message << std::endl
+				std::stringstream errMessage;
+				errMessage << std::endl
 					<< "########################################################################################\n"
 					<< "# FlavourTagProcessor -                                                                #\n"
 					<< "#   The jet collection requested (\"" << _FlavourTagInputsCollectionName << "\") is not of the type \"" << lcio::LCIO::LCFLOATVEC << "\"  #\n"
 					<< "########################################################################################" << std::endl;
-				throw lcio::EventException( message.str() );
+				throw lcio::EventException( errMessage.str() );
 			}
 			LCFloatVec Inputs = *(dynamic_cast<lcio::LCFloatVec*>( pInputs->getElementAt(a) ));
 			
@@ -495,7 +495,8 @@ void NeuralNetTrainerProcessor::_trainNet( nnet::BackPropagationCGAlgorithm& bac
 {
 	//This function pretty much just calls backPropCGAlgo.train(...) at the moment, although code can easily be added
 	//to check the errors after each iteration 
-	double PrevErr,CurrErr;//Training errors
+	double // PrevErr,
+          CurrErr;//Training errors
 	int i=0;
 	bool breakLoop=false;//not actually used at the moment, but will be used to cut the loop early if required
 
@@ -512,7 +513,7 @@ void NeuralNetTrainerProcessor::_trainNet( nnet::BackPropagationCGAlgorithm& bac
 		//smaller (e.g. "if( (CurrErr-PrevErr)/PrevErr < 0.02 ) breakLoop=true")
 		std::vector<double> epochErrors=backPropCGAlgo.getTrainingErrorValuesPerEpoch();
 		CurrErr=epochErrors.back();
-		PrevErr = CurrErr;
+		//PrevErr = CurrErr;
 
 		// 26/Apr/07 - Been having problems with the net not training and getting a NAN
 		//error under certain conditions which are still being looked into. This takes

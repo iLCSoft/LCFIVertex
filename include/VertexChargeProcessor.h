@@ -47,30 +47,32 @@ class VertexChargeProcessor : public Processor {
   //The usual Marlin processor methods
   virtual Processor*  newProcessor() { return new VertexChargeProcessor ; }
   VertexChargeProcessor() ;
+  VertexChargeProcessor(const VertexChargeProcessor&) = delete;
+  VertexChargeProcessor& operator=(const VertexChargeProcessor&) = delete;
   virtual void init() ;
   virtual void processRunHeader( LCRunHeader* run ) ;
   virtual void processEvent( LCEvent * evt ) ; 
   virtual void check( LCEvent * evt ) ; 
   virtual void end() ;
   protected:
-  std::string _JetRPColName;
-  std::string _DecayChainRPColName;
-  std::string _RelationColName;
-  std::string _IPVertexCollectionName;
-  std::string _VertexChargeCollectionName;
+  std::string _JetRPColName{};
+  std::string _DecayChainRPColName{};
+  std::string _RelationColName{};
+  std::string _IPVertexCollectionName{};
+  std::string _VertexChargeCollectionName{};
   
-  std::vector<std::string> _JetVariableNames;
+  std::vector<std::string> _JetVariableNames{};
   
-  vertex_lcfi::Algo<DecayChain*,double>* _VertexCharge;
-  vertex_lcfi::Algo<DecayChain*,DecayChain* >* _Attach;
+  vertex_lcfi::Algo<DecayChain*,double>* _VertexCharge{};
+  vertex_lcfi::Algo<DecayChain*,DecayChain* >* _Attach{};
 
-  bool _ChargeAddAllTracksFromSecondary;
-  double _ChargeLoDCutmin;
-  double _ChargeLoDCutmax;
-  double _ChargeCloseapproachCut;
+  bool _ChargeAddAllTracksFromSecondary=false;
+  double _ChargeLoDCutmin=0.0;
+  double _ChargeLoDCutmax=0.0;
+  double _ChargeCloseapproachCut=0.0;
 
-  int _nRun ;
-  int _nEvt ;
+  int _nRun=-1;
+  int _nEvt=-1;
 } ;
 
 #endif

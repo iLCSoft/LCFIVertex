@@ -124,7 +124,7 @@ void ZVTOPZVKINProcessor::init() {
 	
 }
 
-void ZVTOPZVKINProcessor::processRunHeader( LCRunHeader* run) { 
+void ZVTOPZVKINProcessor::processRunHeader( LCRunHeader* ) {
 	_nRun++ ;
 } 
 
@@ -226,7 +226,7 @@ void ZVTOPZVKINProcessor::processEvent( LCEvent * evt ) {
 
 
 
-void ZVTOPZVKINProcessor::check( LCEvent * evt ) { 
+void ZVTOPZVKINProcessor::check( LCEvent* ) {
   // nothing to check here - could be used to fill checkplots in reconstruction processor
 }
 

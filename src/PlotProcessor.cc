@@ -135,13 +135,13 @@ void PlotProcessor::processEvent( LCEvent* pEvent )
 	//make sure the collection is of the right type
 	if( pJetCollection->getTypeName()!=LCIO::RECONSTRUCTEDPARTICLE )
 	{
-		stringstream message;
-		message << endl
+		stringstream errMessage;
+		errMessage << endl
 			<< "########################################################################################\n"
 			<< "# PlotProcessor -                                                                      #\n"
 			<< "#   The jet collection requested (\"" << _JetCollectionName << "\") is not of the type \"" << LCIO::RECONSTRUCTEDPARTICLE << "\"  #\n"
 			<< "########################################################################################" << endl;
-		throw EventException( message.str() );
+		throw EventException( errMessage.str() );
 	}
 	
 	//apply any cuts on the event here
@@ -175,7 +175,7 @@ void PlotProcessor::end()
 
 // IMPORTANT - If you change the cuts make sure you change the line below to show the changes in the docs
 /*! Currently applies no cuts at all*/
-bool PlotProcessor::_passesEventCuts( LCEvent* pEvent )
+bool PlotProcessor::_passesEventCuts( LCEvent* )
 {
 	//
 	// No event cuts at present

@@ -24,6 +24,9 @@ class ConversionTagger : public Processor {
   
   virtual Processor*  newProcessor() { return new ConversionTagger ; }
   ConversionTagger() ;
+  ConversionTagger(const ConversionTagger&) = delete;
+  ConversionTagger& operator=(const ConversionTagger&) = delete;
+
   virtual void init() ;
   virtual void processEvent( LCEvent * evt ) ; 
   virtual void end() ;
@@ -39,24 +42,20 @@ class ConversionTagger : public Processor {
 
   MCParticle* isFromV0(ReconstructedParticle* rp, vector<LCRelationNavigator*>relCols);
 
-  HistMap* histos;
+  HistMap* histos=nullptr;
 
-  std::vector<std::string> _InputCollections;
-  double _massRangePhoton;
-  double _massRangeKaon;
-  double _massRangeLambda;
-  double _distCut;
-  bool   _cheatMode;
-  bool   _cheatEvenMore;
-  std::vector<int> _PdgToTag;
-  std::map<int,bool> _TagPDG;
-  double _minDistFromIP;
+  std::vector<std::string> _InputCollections{};
+  double _massRangePhoton=0.0;
+  double _massRangeKaon=0.0;
+  double _massRangeLambda=0.0;
+  double _distCut=0.0;
+  bool   _cheatMode=false;
+  bool   _cheatEvenMore=false;
+  std::vector<int> _PdgToTag{};
+  std::map<int,bool> _TagPDG{};
+  double _minDistFromIP=0.0;
 
-  double _BField;
-  double _twopi;
+  double _BField=0.0;
 } ;
 
 #endif
-
-
-

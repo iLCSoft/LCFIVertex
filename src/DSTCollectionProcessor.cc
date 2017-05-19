@@ -276,7 +276,7 @@ void DSTCollectionProcessor::processEvent(  LCEvent* pEvent) {
 
 
 
-void DSTCollectionProcessor::check( LCEvent * evt ) { 
+void DSTCollectionProcessor::check( LCEvent* ) {
   // nothing to check here - could be used to fill checkplots in reconstruction processor
 }
 

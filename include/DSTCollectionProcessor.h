@@ -13,7 +13,7 @@ using namespace marlin ;
 
 class DSTCollectionProcessor : public Processor {
   
- public:
+public:
   
   //The usual Marlin processor methods
   virtual Processor*  newProcessor() { return new DSTCollectionProcessor ; }
@@ -24,27 +24,24 @@ class DSTCollectionProcessor : public Processor {
   virtual void check( LCEvent * evt ) ; 
   virtual void end() ;
 
-  protected:
+protected:
 
-  std::string _FlavourTagCollectionName;
-  std::string _FlavourTagInputsCollectionName;
-  std::string _TrueJetFlavourColName;
+  std::string _FlavourTagCollectionName{};
+  std::string _FlavourTagInputsCollectionName{};
+  std::string _TrueJetFlavourColName{};
   
-  std::string _JetCollectionName;
+  std::string _JetCollectionName{};
 
-  int _lastRunHeaderProcessed;
+  int _lastRunHeaderProcessed=-1;
 
-  std::map<std::string,unsigned int> _IndexOfForEachTag;
-  std::map<std::string,unsigned int>  _FlavourIndex;
-  std::map<std::string,unsigned int>_InputsIndex;
+  std::map<std::string,unsigned int> _IndexOfForEachTag{};
+  std::map<std::string,unsigned int>  _FlavourIndex{};
+  std::map<std::string,unsigned int>_InputsIndex{};
 
-  double _MaximumAngle;
-  int _nRun ;
-  int _nEvt ;
+  int _nRun=-1;
+  int _nEvt=-1;
 
-
-
-  int _debug;
+  int _debug=0;
 } ;
 
 #endif

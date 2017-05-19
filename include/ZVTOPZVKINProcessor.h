@@ -65,7 +65,9 @@ class ZVTOPZVKINProcessor : public Processor {
  public:
   //The usual Marlin processor methods
   virtual Processor*  newProcessor() { return new ZVTOPZVKINProcessor ; }
-  ZVTOPZVKINProcessor() ;  
+  ZVTOPZVKINProcessor() ;
+  ZVTOPZVKINProcessor(const ZVTOPZVKINProcessor&) = delete;
+  ZVTOPZVKINProcessor& operator=(const ZVTOPZVKINProcessor&) = delete;
   virtual void init() ;
   virtual void processRunHeader( LCRunHeader* run ) ;
   virtual void processEvent( LCEvent * evt ) ; 
@@ -73,22 +75,22 @@ class ZVTOPZVKINProcessor : public Processor {
   virtual void end() ;
   
  protected:
-  std::string _JetRPCollectionName ;
-  std::string _DecayChainRPTracksCollectionName;
-  std::string _VertexCollectionName ;
-  std::string _IPVertexCollectionName ;
-  std::string _DecayChainCollectionName;
+  std::string _JetRPCollectionName{};
+  std::string _DecayChainRPTracksCollectionName{};
+  std::string _VertexCollectionName{};
+  std::string _IPVertexCollectionName{};
+  std::string _DecayChainCollectionName{};
   //std::string _RelationCollectionName;
-  vertex_lcfi::Algo<Jet*,DecayChain*>* _ZVKIN;
-  bool _ManualPrimaryVertex;
-  FloatVec _ManualPrimaryVertexPos;
-  FloatVec _ManualPrimaryVertexErr;
-  double _MinimumProbability;
-  double _InitialGhostWidth;
-  double _MaxChi2Allowed;
-  bool _OutputTrackChi2;
-  int _nRun ;
-  int _nEvt ;
+  vertex_lcfi::Algo<Jet*,DecayChain*>* _ZVKIN=nullptr;
+  bool _ManualPrimaryVertex=false;
+  FloatVec _ManualPrimaryVertexPos{};
+  FloatVec _ManualPrimaryVertexErr{};
+  double _MinimumProbability=0.0;
+  double _InitialGhostWidth=0.0;
+  double _MaxChi2Allowed=0.0;
+  bool _OutputTrackChi2=false;
+  int _nRun=-1;
+  int _nEvt=-1;
 } ;
 
 #endif

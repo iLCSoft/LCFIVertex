@@ -53,6 +53,8 @@ class PerEventIPFitterProcessor : public Processor {
   //The usual Marlin processor methods
   virtual Processor*  newProcessor() { return new PerEventIPFitterProcessor ; }
   PerEventIPFitterProcessor() ;
+  PerEventIPFitterProcessor(const PerEventIPFitterProcessor&) = delete;
+  PerEventIPFitterProcessor& operator=(const PerEventIPFitterProcessor&) = delete;
   virtual void init() ;
   virtual void processRunHeader( LCRunHeader* run ) ;
   virtual void processEvent( LCEvent * evt ) ; 
@@ -60,14 +62,14 @@ class PerEventIPFitterProcessor : public Processor {
   virtual void end() ;
   
  protected:
-std::string _InputRPCollectionName ;
-  std::string _VertexCollectionName;
-  vertex_lcfi::Algo<Event*,Vertex*>* _IPFitter;
-  FloatVec _DefaultIPPos;
-  FloatVec _DefaultIPErr;
-  double _ProbThreshold;
-  int _nRun ;
-  int _nEvt ;
+  std::string _InputRPCollectionName{};
+  std::string _VertexCollectionName{};
+  vertex_lcfi::Algo<Event*,Vertex*>* _IPFitter=nullptr;
+  FloatVec _DefaultIPPos{};
+  FloatVec _DefaultIPErr{};
+  double _ProbThreshold=0.0;
+  int _nRun=-1;
+  int _nEvt=-1;
 } ;
 
 #endif

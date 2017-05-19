@@ -24,6 +24,8 @@ public:
 	//The usual Marlin processor methods
 	virtual Processor* newProcessor() { return new DSTAIDAPlotProcessor; }
 	DSTAIDAPlotProcessor();
+	DSTAIDAPlotProcessor(const DSTAIDAPlotProcessor&) = delete;
+	DSTAIDAPlotProcessor& operator=(const DSTAIDAPlotProcessor&) = delete;
 	virtual ~DSTAIDAPlotProcessor();
 	virtual void init();
 	virtual void processRunHeader( LCRunHeader* pRun );
@@ -32,71 +34,71 @@ public:
 	//virtual void check( LCEvent* pEvent );
 	virtual void end();
 protected:
-	std::string _JetCollectionName;	/**< @internal The name of the collection of ReconstructedParticles that is the jet (comes from the steering file).*/
+	std::string _JetCollectionName{};	/**< @internal The name of the collection of ReconstructedParticles that is the jet (comes from the steering file).*/
 
 
-	int _nRun; /**< @internal The current run number.*/
+	int _nRun=-1; /**< @internal The current run number.*/
 
 
 
 	//!Histograms of the neural net B-tag outputs for true light-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pLightJetBTag;
+	std::map<std::string,AIDA::IHistogram1D*> _pLightJetBTag{};
 	//!Histograms of the neural net C-tag outputs for true light-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pLightJetCTag;
+	std::map<std::string,AIDA::IHistogram1D*> _pLightJetCTag{};
 	//!Histograms of the neural net B-tag outputs for true B-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pBJetBTag;
+	std::map<std::string,AIDA::IHistogram1D*> _pBJetBTag{};
 	//!Histograms of the neural net C-tag outputs for true B-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pBJetCTag;
+	std::map<std::string,AIDA::IHistogram1D*> _pBJetCTag{};
 	//!Histograms of the neural net B-tag outputs for true C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pCJetBTag;
+	std::map<std::string,AIDA::IHistogram1D*> _pCJetBTag{};
 	//!Histograms of the neural net C-tag outputs for true C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pCJetCTag; 
+	std::map<std::string,AIDA::IHistogram1D*> _pCJetCTag{}; 
 	//!Histograms of the neural net BC-tag outputs for true B-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)   
-	std::map<std::string,AIDA::IHistogram1D*> _pBJetBCTag;
+	std::map<std::string,AIDA::IHistogram1D*> _pBJetBCTag{};
 	//!Histograms of the neural net BC-tag outputs for true C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pCJetBCTag;
+	std::map<std::string,AIDA::IHistogram1D*> _pCJetBCTag{};
 	//!Histograms of the neural net BC-tag outputs for true light-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pLightJetBCTag;
+	std::map<std::string,AIDA::IHistogram1D*> _pLightJetBCTag{};
 	//!Histograms of the neural net B-tag outputs for non B-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pBTagBackgroundValues;
+	std::map<std::string,AIDA::IHistogram1D*> _pBTagBackgroundValues{};
 	//!Histograms of the neural net C-tag outputs for non C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pCTagBackgroundValues;
+	std::map<std::string,AIDA::IHistogram1D*> _pCTagBackgroundValues{};
 	//!Histograms of the neural net BC-tag outputs for non C-jets - seperately for different number of vertices in the jets, 1, 2, >=3, any (sum of previous)
-	std::map<std::string,AIDA::IHistogram1D*> _pBCTagBackgroundValues;
+	std::map<std::string,AIDA::IHistogram1D*> _pBCTagBackgroundValues{};
 	
 	//!Histograms of the neural net tags - number of events that pass a given cut: jet NN value > given NN value for the three tags - B-tag, C-tag, BC-tag
 	//!  - separately for true B jets, true C jets & true light jets and different number of vertices in the jets, 1, 2 or >=3 & any (sum of previous three)
 	//! See comments above
-	std::map<std::string,AIDA::IHistogram1D*> _pBJetBTagIntegral;    
-	std::map<std::string,AIDA::IHistogram1D*> _pCJetBTagIntegral;
-	std::map<std::string,AIDA::IHistogram1D*> _pLightJetBTagIntegral;
-	std::map<std::string,AIDA::IHistogram1D*> _pBJetCTagIntegral;  
-	std::map<std::string,AIDA::IHistogram1D*> _pCJetCTagIntegral;
-	std::map<std::string,AIDA::IHistogram1D*> _pLightJetCTagIntegral;
-	std::map<std::string,AIDA::IHistogram1D*> _pBJetBCTagIntegral; 
-	std::map<std::string,AIDA::IHistogram1D*> _pCJetBCTagIntegral;
-	std::map<std::string,AIDA::IHistogram1D*> _pLightJetBCTagIntegral; 
+	std::map<std::string,AIDA::IHistogram1D*> _pBJetBTagIntegral{};
+	std::map<std::string,AIDA::IHistogram1D*> _pCJetBTagIntegral{};
+	std::map<std::string,AIDA::IHistogram1D*> _pLightJetBTagIntegral{};
+	std::map<std::string,AIDA::IHistogram1D*> _pBJetCTagIntegral{};
+	std::map<std::string,AIDA::IHistogram1D*> _pCJetCTagIntegral{};
+	std::map<std::string,AIDA::IHistogram1D*> _pLightJetCTagIntegral{};
+	std::map<std::string,AIDA::IHistogram1D*> _pBJetBCTagIntegral{};
+	std::map<std::string,AIDA::IHistogram1D*> _pCJetBCTagIntegral{};
+	std::map<std::string,AIDA::IHistogram1D*> _pLightJetBCTagIntegral{};
 
 
-	std::vector<std::string> _VertexCatNames;
-	std::vector<std::string>  _NumVertexCatDir;
+	std::vector<std::string> _VertexCatNames{};
+	std::vector<std::string>  _NumVertexCatDir{};
 	
 	//!Histograms of the neural net inputs for true B-jets
-	std::map<std::string,AIDA::IHistogram1D*>  _inputsHistogramsBJets;
+	std::map<std::string,AIDA::IHistogram1D*>  _inputsHistogramsBJets{};
 	//!Histograms of the neural net inputs for true C-jets
-	std::map<std::string,AIDA::IHistogram1D*>  _inputsHistogramsCJets;
+	std::map<std::string,AIDA::IHistogram1D*>  _inputsHistogramsCJets{};
 	//!Histograms of the neural net inputs for light B-jets
-	std::map<std::string,AIDA::IHistogram1D*>  _inputsHistogramsUDSJets;
+	std::map<std::string,AIDA::IHistogram1D*>  _inputsHistogramsUDSJets{};
 
 
 
 	//!number of different vertex categories we want to look at: 1 vertex, 2 vertices, >=3 vertices
 	static const unsigned int N_VERTEX_CATEGORIES=3;  
 
-	int _numberOfPoints;
+	int _numberOfPoints=0;
 
 	//!Tuple of the input variables - only filled for one input collection - selected with UseFlavourTagCollectionForVertexCharge
-	AIDA::ITuple* _pMyTuple;
+	AIDA::ITuple* _pMyTuple=nullptr;
 
 	//useful constants
 	static const int C_JET=4;/**< @internal Useful constant for the jet flavour*/

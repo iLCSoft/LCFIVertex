@@ -292,10 +292,10 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
 		double anglestored = 100000;
 		vector<double> normMomMC;
 		const double* MomentumMC = (*iParticle3)->getMomentum();
-		double length = sqrt(MomentumMC[0]*MomentumMC[0]+MomentumMC[1]*MomentumMC[1]+MomentumMC[2]*MomentumMC[2]);
-		normMomMC.push_back(MomentumMC[0]/length);
-		normMomMC.push_back(MomentumMC[1]/length);
-		normMomMC.push_back(MomentumMC[2]/length);
+		double length1 = sqrt(MomentumMC[0]*MomentumMC[0]+MomentumMC[1]*MomentumMC[1]+MomentumMC[2]*MomentumMC[2]);
+		normMomMC.push_back(MomentumMC[0]/length1);
+		normMomMC.push_back(MomentumMC[1]/length1);
+		normMomMC.push_back(MomentumMC[2]/length1);
 		
 		//		std::cout<<"numberUSED    "<< (*iParticle3)->getPDG() <<std::endl;
 
@@ -303,10 +303,10 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
 		  {
 		    vector<double> normMom;
 		    const double* Momentum = (*iParticle2)->getMomentum();
-		    double length = sqrt(Momentum[0]*Momentum[0]+Momentum[1]*Momentum[1]+Momentum[2]*Momentum[2]);
-		    normMom.push_back(Momentum[0]/length);
-		    normMom.push_back(Momentum[1]/length);
-		    normMom.push_back(Momentum[2]/length);
+		    double length2 = sqrt(Momentum[0]*Momentum[0]+Momentum[1]*Momentum[1]+Momentum[2]*Momentum[2]);
+		    normMom.push_back(Momentum[0]/length2);
+		    normMom.push_back(Momentum[1]/length2);
+		    normMom.push_back(Momentum[2]/length2);
 		    
 		    double disttemp= sqrt(((normMomMC[0]-normMom[0])*(normMomMC[0]-normMom[0]))+
 					  ((normMomMC[1]-normMom[1])*(normMomMC[1]-normMom[1]))+
@@ -398,7 +398,7 @@ void TrueAngularJetFlavourProcessor::processEvent( LCEvent * evt ) {
 
 
 
-void TrueAngularJetFlavourProcessor::check( LCEvent * evt ) { 
+void TrueAngularJetFlavourProcessor::check( LCEvent* ) {
   // nothing to check here - could be used to fill checkplots in reconstruction processor
 }
 

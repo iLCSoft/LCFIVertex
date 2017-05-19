@@ -137,13 +137,13 @@ void FlavourTagProcessor::init()
 		}
 		else
 		{
-			std::stringstream message;
-			message << std::endl
+			std::stringstream errMessage;
+			errMessage << std::endl
 				<< "########################################################################################\n"
 				<< "# FlavourTagProcessor -                                                                #\n"
 				<< "#   Unable to open file " << (*iPair).second << " for the " << (*iPair).first << " neural net.    #\n"
 				<< "########################################################################################" << std::endl;
-			throw lcio::Exception( message.str() );
+			throw lcio::Exception( errMessage.str() );
 		}
 	}
 
@@ -205,13 +205,13 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 	//make sure the collection is of the right type
 	if( pJetCollection->getTypeName()!=lcio::LCIO::RECONSTRUCTEDPARTICLE )
 	{
-		std::stringstream message;
-		message << std::endl
+		std::stringstream errMessage;
+		errMessage << std::endl
 			<< "########################################################################################\n"
 			<< "# FlavourTagProcessor -                                                                #\n"
 			<< "#   The jet collection requested (\"" << _JetCollectionName << "\") is not of the type \"" << lcio::LCIO::RECONSTRUCTEDPARTICLE << "\"  #\n"
 			<< "########################################################################################" << std::endl;
-		throw lcio::EventException( message.str() );
+		throw lcio::EventException( errMessage.str() );
 	}
 
 	//Create the collection to store the result
@@ -253,13 +253,13 @@ void FlavourTagProcessor::processEvent( lcio::LCEvent* pEvent )
 		//make sure the collection is of the right type
 		if( pInputs->getTypeName()!=lcio::LCIO::LCFLOATVEC )
 		{
-			std::stringstream message;
-			message << std::endl
+			std::stringstream errMessage;
+			errMessage << std::endl
 				<< "########################################################################################\n"
 				<< "# FlavourTagProcessor -                                                                #\n"
 				<< "#   The jet collection requested (\"" << _FlavourTagInputsCollectionName << "\") is not of the type \"" << lcio::LCIO::LCFLOATVEC << "\"  #\n"
 				<< "########################################################################################" << std::endl;
-			throw lcio::EventException( message.str() );
+			throw lcio::EventException( errMessage.str() );
 		}
 		
 		LCFloatVec* FTInputs = dynamic_cast<lcio::LCFloatVec*>( pInputs->getElementAt(a) );

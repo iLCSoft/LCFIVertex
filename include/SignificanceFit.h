@@ -57,6 +57,8 @@ class SignificanceFit : public Processor
 		
 
 		SignificanceFit();
+		SignificanceFit(const SignificanceFit&) = delete;
+		SignificanceFit& operator=(const SignificanceFit&) = delete;
 //initialises everything		
 		virtual void init() ;
 
@@ -79,28 +81,28 @@ class SignificanceFit : public Processor
 
  /** Input collection name and type.
    */
-		AIDA::IHistogram1D* rphisto;
-		AIDA::IHistogram1D* zhisto;
-		AIDA::IHistogram1D* rphistogauss;
-		AIDA::IHistogram1D* zhistogauss;
-		AIDA::IHistogram1D* rphistoexp1;
-		AIDA::IHistogram1D* zhistoexp1;
-		AIDA::IHistogram1D* rphistoexp2;
-		AIDA::IHistogram1D* zhistoexp2;
-		AIDA::IAnalysisFactory* _analysisFactory; 
+		AIDA::IHistogram1D* rphisto=nullptr;
+		AIDA::IHistogram1D* zhisto=nullptr;
+		AIDA::IHistogram1D* rphistogauss=nullptr;
+		AIDA::IHistogram1D* zhistogauss=nullptr;
+		AIDA::IHistogram1D* rphistoexp1=nullptr;
+		AIDA::IHistogram1D* zhistoexp1=nullptr;
+		AIDA::IHistogram1D* rphistoexp2=nullptr;
+		AIDA::IHistogram1D* zhistoexp2=nullptr;
+		AIDA::IAnalysisFactory* _analysisFactory=nullptr;
 
-		int _nRun ;
-		int _nEvt ;
-		std::string _JetRPColName;
-		std::string _IPVertexCollectionName;
-		std::string _DecayChainRPColName;
-		double _Cutoffgauss;
-		double _Cutoffexp1;
-		double _Cutoffexp2;
-		double _GaussAmp;
-		double _GaussSigma;
-		double _ExpAmp;
-		double _ExpLambda;
+		int _nRun=-1;
+		int _nEvt=-1;
+		std::string _JetRPColName{};
+		std::string _IPVertexCollectionName{};
+		std::string _DecayChainRPColName{};
+		double _Cutoffgauss=0.0;
+		double _Cutoffexp1=0.0;
+		double _Cutoffexp2=0.0;
+		double _GaussAmp=0.0;
+		double _GaussSigma=0.0;
+		double _ExpAmp=0.0;
+		double _ExpLambda=0.0;
 	private:		
 // use this for LCIO naming convention		
 
