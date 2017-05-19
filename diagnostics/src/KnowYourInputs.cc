@@ -13,7 +13,8 @@
 #include <marlin/VerbosityLevels.h>
 
 // MarlinUtil includes
-#include "HelixClass.h"
+#include <HelixClass.h>
+#include <marlinutil/GeometryUtil.h>
 
 // LCIO includes
 #include <EVENT/LCCollection.h>
@@ -30,7 +31,7 @@
 #include <gear/PadRowLayout2D.h>
 #include <gear/VXDParameters.h>
 #include <gear/CalorimeterParameters.h>
-#include <gear/BField.h>
+
 
 #ifdef __APPLE__
 #define abs(a) (a >= 0 ? a : -a)
@@ -78,9 +79,8 @@ void KnowYourInputs::init() {
 
   printParameters() ;
 
-  // GEAR parameters used within this code
-  _bField = Global::GEAR->getBField().at(gear::Vector3D(0.,0.,0.)).z();
-  message<marlin::MESSAGE>(log() << "using GEAR B field " << _bField << " T");
+  _bField = MarlinUtil::getBzAtOrigin();
+  message<marlin::MESSAGE>(log() << "using B field " << _bField << " T");
 
   _knownCollections.clear();
   _histograms.clear();
@@ -315,7 +315,7 @@ void KnowYourInputs::simTrackerHitPlots( const LCEvent *evt,
 
 void KnowYourInputs::calPlots( const LCEvent *evt,
 			       const string collectionName,
-			       const string subdet ) {
+			       const string /*subdet*/ ) {
 
   if (!_histograms[collectionName])
     _histograms[collectionName]= new HistMap(this,"CalorimeterHit/"+collectionName);
@@ -399,7 +399,7 @@ void KnowYourInputs::calPlots( const LCEvent *evt,
 
 void KnowYourInputs::trackerPlots( const LCEvent *evt,
 				   const string collectionName,
-				   const string subdet) {
+				   const string /*subdet*/) {
 
 
   if (!_histograms[collectionName])
