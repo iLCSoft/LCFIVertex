@@ -58,13 +58,6 @@ INCLUDE( "@ILCSOFT_CMAKE_MODULES_ROOT@/MacroCheckPackageLibs.cmake" )
 CHECK_PACKAGE_LIBS( LCFIVertex LCFIVertex )
 
 
-
-# ---------- libraries dependencies -------------------------------------------
-# this sets LCFIVertex_${COMPONENT}_LIB_DEPENDS variables
-INCLUDE( "${LCFIVertex_ROOT}/lib/cmake/LCFIVertexLibDeps.cmake" )
-
-
-
 # ---------- final checking ---------------------------------------------------
 INCLUDE( FindPackageHandleStandardArgs )
 # set LCFIVertex_FOUND to TRUE if all listed variables are TRUE and not empty
