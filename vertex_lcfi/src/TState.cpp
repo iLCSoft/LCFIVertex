@@ -4,12 +4,12 @@
 #include "../util/inc/matrix.h"
 #include "../util/inc/vector3.h"
 
-#include <marlin/Global.h>
-#include <gear/BField.h>
-
 // local
 
 #include "../inc/TState.h"
+
+#include <marlinutil/GeometryUtil.h>
+
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : TState
@@ -35,7 +35,7 @@ TState::TState( TrackState* TrackState )
   
   fQ = ( TrackState->isNeutral() ? 0 : (int)TrackState->charge() );  
   fCLight = 0.000299792458;
-  fB = marlin::Global::GEAR->getBField().at(gear::Vector3D(0.,0.,0.)).z();
+  fB = MarlinUtil::getBzAtOrigin();
 
   double sinp = sin(helix.phi()); double cosp = cos(helix.phi());
   double d0 = helix.d0(); double z0 = helix.z0();
