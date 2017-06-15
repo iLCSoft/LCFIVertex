@@ -62,19 +62,9 @@ ENDIF()
 
 
 # -------------------- boost ------------------------------------------------------
-if( BOOST_ROOT )
-  find_package( Boost REQUIRED ) 
-  include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
-  SET( LCFI_USE_EXTERNAL_BOOST 1)
-else()  
-  # custom command to unpack boost (if needed)
-  ADD_CUSTOM_COMMAND(
-    OUTPUT "${PROJECT_SOURCE_DIR}/include/boost/config.hpp"
-    COMMAND tar xzvf boost.tgz
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    )
-  ADD_CUSTOM_TARGET( unpack_boost DEPENDS "${PROJECT_SOURCE_DIR}/include/boost/config.hpp" )
-endif()
+find_package( Boost REQUIRED )
+include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
+SET( LCFI_USE_EXTERNAL_BOOST 1)
 # ---------------------------------------------------------------------------------
 
 
@@ -87,10 +77,6 @@ INCLUDE_DIRECTORIES( ./include ./vertex_lcfi ./vertex_lcfi/nnet/inc ./diagnostic
 
 INSTALL_DIRECTORY( ./vertex_lcfi DESTINATION include FILES_MATCHING PATTERN "*.h*" )
 
-if(NOT BOOST_ROOT )
-  INSTALL_DIRECTORY( ./include/boost DESTINATION include FILES_MATCHING PATTERN "*.h*" )
-endif()
-
 # get list of all source files
 AUX_SOURCE_DIRECTORY( ./src processor_srcs )
 AUX_SOURCE_DIRECTORY( ./diagnostics/src diagnostics_srcs )
@@ -100,9 +86,6 @@ FILE( GLOB_RECURSE vertex_lcfi_srcs "vertex_lcfi/*.cpp" )
 SET( library_sources ${vertex_lcfi_srcs} )
 # add library
 ADD_SHARED_LIBRARY( ${PROJECT_NAME} ${library_sources} )
-if(NOT BOOST_ROOT )
-  ADD_DEPENDENCIES( ${PROJECT_NAME} unpack_boost ) # unpack boost (if needed)
-endif()
 
 ADD_SHARED_LIBRARY( ${PROJECT_NAME}Processors ${processor_srcs} ${diagnostics_srcs} )
 
