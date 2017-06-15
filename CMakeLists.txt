@@ -28,6 +28,9 @@ FIND_PACKAGE( Marlin 1.0 REQUIRED ) # minimum required Marlin version
 INCLUDE_DIRECTORIES( SYSTEM ${Marlin_INCLUDE_DIRS} )
 ADD_DEFINITIONS( ${Marlin_DEFINITIONS} )
 
+FIND_PACKAGE( LCIO REQUIRED )
+INCLUDE_DIRECTORIES( SYSTEM ${LCIO_INCLUDE_DIRS} )
+ADD_DEFINITIONS( ${LCIO_DEFINITIONS} )
 
 FIND_PACKAGE( MarlinUtil REQUIRED ) # minimum required Marlin version
 INCLUDE_DIRECTORIES( SYSTEM ${MarlinUtil_INCLUDE_DIRS} )
@@ -92,19 +95,19 @@ endif()
 AUX_SOURCE_DIRECTORY( ./src processor_srcs )
 AUX_SOURCE_DIRECTORY( ./diagnostics/src diagnostics_srcs )
 FILE( GLOB_RECURSE vertex_lcfi_srcs "vertex_lcfi/*.cpp" )
-SET( library_sources ${diagnostics_srcs} ${vertex_lcfi_srcs} )
 
 
+SET( library_sources ${vertex_lcfi_srcs} )
 # add library
 ADD_SHARED_LIBRARY( ${PROJECT_NAME} ${library_sources} )
 if(NOT BOOST_ROOT )
   ADD_DEPENDENCIES( ${PROJECT_NAME} unpack_boost ) # unpack boost (if needed)
 endif()
 
-ADD_SHARED_LIBRARY( ${PROJECT_NAME}Processors ${processor_srcs} )
+ADD_SHARED_LIBRARY( ${PROJECT_NAME}Processors ${processor_srcs} ${diagnostics_srcs} )
 
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${Marlin_LIBRARIES} ${MarlinUtil_LIBRARIES} ${AIDA_LIBRARIES} )
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME}Processors ${PROJECT_NAME} )
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${MarlinUtil_LIBRARIES} ${LCIO_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME}Processors ${Marlin_LIBRARIES} ${AIDA_LIBRARIES} ${PROJECT_NAME} )
 
 INSTALL_SHARED_LIBRARY( ${PROJECT_NAME} DESTINATION lib )
 INSTALL_SHARED_LIBRARY( ${PROJECT_NAME}Processors DESTINATION lib )
