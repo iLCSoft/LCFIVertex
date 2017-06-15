@@ -25,20 +25,17 @@ INCLUDE( ilcsoft_default_settings )
 
 
 FIND_PACKAGE( Marlin 1.0 REQUIRED ) # minimum required Marlin version
-LINK_LIBRARIES( ${Marlin_LIBRARIES} )
 INCLUDE_DIRECTORIES( SYSTEM ${Marlin_INCLUDE_DIRS} )
 ADD_DEFINITIONS( ${Marlin_DEFINITIONS} )
 
 
 FIND_PACKAGE( MarlinUtil REQUIRED ) # minimum required Marlin version
-LINK_LIBRARIES( ${MarlinUtil_LIBRARIES} )
 INCLUDE_DIRECTORIES( SYSTEM ${MarlinUtil_INCLUDE_DIRS} )
 
 
 # optional package
 FIND_PACKAGE( AIDA )
 IF( AIDA_FOUND )
-    LINK_LIBRARIES( ${AIDA_LIBRARIES} )
     INCLUDE_DIRECTORIES( SYSTEM ${AIDA_INCLUDE_DIRS} )
     ADD_DEFINITIONS( "-DMARLIN_USE_AIDA" )
     MESSAGE( STATUS "AIDA: ${AIDA_DIR}" )
@@ -95,7 +92,7 @@ endif()
 AUX_SOURCE_DIRECTORY( ./src processor_srcs )
 AUX_SOURCE_DIRECTORY( ./diagnostics/src diagnostics_srcs )
 FILE( GLOB_RECURSE vertex_lcfi_srcs "vertex_lcfi/*.cpp" )
-SET( library_sources ${processor_srcs} ${diagnostics_srcs} ${vertex_lcfi_srcs} )
+SET( library_sources ${diagnostics_srcs} ${vertex_lcfi_srcs} )
 
 
 # add library
@@ -104,7 +101,14 @@ if(NOT BOOST_ROOT )
   ADD_DEPENDENCIES( ${PROJECT_NAME} unpack_boost ) # unpack boost (if needed)
 endif()
 
+ADD_SHARED_LIBRARY( ${PROJECT_NAME}Processors ${processor_srcs} )
+
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${Marlin_LIBRARIES} ${MarlinUtil_LIBRARIES} ${AIDA_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME}Processors ${PROJECT_NAME} )
+
 INSTALL_SHARED_LIBRARY( ${PROJECT_NAME} DESTINATION lib )
+INSTALL_SHARED_LIBRARY( ${PROJECT_NAME}Processors DESTINATION lib )
+
 
 # display some variables and write them to cache
 DISPLAY_STD_VARIABLES()
