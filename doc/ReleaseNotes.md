@@ -1,3 +1,13 @@
+# v00-07-04
+
+* 2017-06-20 Andre Sailer ([PR#4](https://github.com/iLCSoft/LCFIVertex/pull/4))
+  - Split processors into their own library as some tools are used in LCFIPlus, ilcsoft/LCFIVertex#2
+  - Drop old boost tarball, rely in cvmfs/system installation of boost that is now needed elsewhere as well, ilcsoft/LCFIVertex#3
+  - TState: replace usage of gear with MarlinUtil to get bfield value
+
+* 2017-06-15 Andre Sailer ([PR#1](https://github.com/iLCSoft/LCFIVertex/pull/1))
+  - Fixed warnings
+
 # v00-07-03
 
 
