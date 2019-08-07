@@ -55,9 +55,9 @@ class HistMap {
   map<string,double> _histmap1D_xmax{};
   map<string,double> _histmap2D_xmax{};
   map<string,double> _histmap2D_ymax{};
-  map<string,bool> _histmap1D_xnan{};
-  map<string,bool> _histmap2D_xnan{};
-  map<string,bool> _histmap2D_ynan{};
+  map<string,char> _histmap1D_xnan{};
+  map<string,char> _histmap2D_xnan{};
+  map<string,char> _histmap2D_ynan{};
 
 } ;
 
