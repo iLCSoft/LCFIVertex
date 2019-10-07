@@ -80,7 +80,7 @@ void KnowYourInputs::init() {
   printParameters() ;
 
   _bField = MarlinUtil::getBzAtOrigin();
-  message<marlin::MESSAGE>(log() << "using B field " << _bField << " T");
+  streamlog_out(MESSAGE) << "using B field " << _bField << " T" << std::endl ;
 
   _knownCollections.clear();
   _histograms.clear();
@@ -91,9 +91,9 @@ void KnowYourInputs::init() {
 void KnowYourInputs::processEvent( LCEvent * evt ) { 
 
 
-  message<marlin::MESSAGE>(log() << "detector " << evt->getDetectorName() 
+  streamlog_out(MESSAGE) << "detector " << evt->getDetectorName() 
 			   << ", run " << evt->getRunNumber()
-			   << ", event " << evt->getEventNumber());
+			 << ", event " << evt->getEventNumber() << std::endl ;
 
   // get all collection names in this event and make sure we did not lose any
   // collections since the last event. (we'll deal with new collections later)
@@ -108,8 +108,8 @@ void KnowYourInputs::processEvent( LCEvent * evt ) {
       // a collection that was encountered in a previous event is now gone.
       // this usually indicates serious trouble, except when it happens for
       // SimCalorimeterHit collections where it seems to be normal
-      message<marlin::ERROR>(log() << "collection " << _knownCollections[i]
-			     << " not present in this event!");
+      streamlog_out(ERROR) << "collection " << _knownCollections[i]
+			   << " not present in this event!" << std::endl ;
     }
   }
 
@@ -159,12 +159,12 @@ void KnowYourInputs::processEvent( LCEvent * evt ) {
 	// a) there are no previous collections recorded at all
 	//    -> we are looking at the very first event.
 	// b) SimCalorimeterHit collections drop in and out anyway
-	message<marlin::MESSAGE>(log() << "collection found: " << collName
-				 << " (" << collType << ")");
+	streamlog_out(MESSAGE) << "collection found: " << collName
+			       << " (" << collType << ")" << std::endl ;
       } else {
 	// if this happens in any other situation, it is a problem!
-	message<marlin::ERROR>(log() << "new " << collType << " collection"
-			       << " appearing in this event: " << collName);
+	streamlog_out(ERROR) << "new " << collType << " collection"
+			     << " appearing in this event: " << collName << std::endl ;
       }
       // now declare this a known collection
       _knownCollections.push_back(collName);
@@ -216,8 +216,8 @@ void KnowYourInputs::trackerHitPlots( const LCEvent *evt,
   else if (subdet=="FTD") histrange=0.1;
   else {
     histrange=0.2;
-    message<marlin::WARNING>(log() << "cannot identify subdetector from"
-			     << " TrackerHit collection name " << id);
+    streamlog_out(WARNING) << "cannot identify subdetector from"
+			   << " TrackerHit collection name " << id << std::endl ;
   }
 
   // loop over all hits
@@ -288,8 +288,8 @@ void KnowYourInputs::simTrackerHitPlots( const LCEvent *evt,
     else if (subdet=="ETD") histrange=5;
     else {
       histrange=100;
-      message<marlin::WARNING>(log() << "cannot identify subdetector from"
-			       << " SimTrackerHit collection name " << id);
+      streamlog_out(WARNING) << "cannot identify subdetector from"
+			     << " SimTrackerHit collection name " << id << std::endl ;
     }
 
     // now loop over all combinations of hits with same cell ID
