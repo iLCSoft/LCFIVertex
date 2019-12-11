@@ -1,3 +1,13 @@
+# v00-08
+
+* 2019-10-07 Remi Ete ([PR#7](https://github.com/iLCSoft/LCFIVertex/pull/7))
+  - Fixed usage of streamlog
+
+* 2019-08-08 Frank Gaede ([PR#6](https://github.com/iLCSoft/LCFIVertex/pull/6))
+  - make compatible w/ std=c++17
+           - replace bool w/ char in histMaps
+              as c++17 does not allow ++bool
+
 # v00-07-04
 
 * 2017-06-20 Andre Sailer ([PR#4](https://github.com/iLCSoft/LCFIVertex/pull/4))
