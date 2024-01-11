@@ -48,7 +48,7 @@ public:
 	}
 
 	virtual ~TypesafeCollection(){}
-	TypesafeCollection<T>(const TypesafeCollection<T>&) = delete;
+	TypesafeCollection(const TypesafeCollection<T>&) = delete;
 	TypesafeCollection<T>& operator=(const TypesafeCollection<T>&) = delete;
 
 	bool is_valid()

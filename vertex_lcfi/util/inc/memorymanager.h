@@ -72,9 +72,9 @@ namespace vertex_lcfi
 	//Protect the constructor, copy and assignment to prevent usage.		
 	protected:
 		//! Do not use
-		MemoryManager<T>() {}
+		MemoryManager() {}
 		//! Do not use
-		MemoryManager<T>(const MemoryManager<T>&) {}
+		MemoryManager(const MemoryManager<T>&) {}
 		//! Do not use
 		MemoryManager<T>& operator= (const MemoryManager<T>&) {return MemoryManager<T>();}
 	private:
@@ -83,7 +83,7 @@ namespace vertex_lcfi
 	};
 	
 	template <class T>
-	MemoryManager<T>::~MemoryManager<T>()
+	MemoryManager<T>::~MemoryManager()
 	{
 	//Delete all in case the user hasn't done so
 	this->delAll();

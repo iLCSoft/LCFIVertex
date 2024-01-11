@@ -21,7 +21,7 @@ namespace ZVTOP
 		FunctionMinimiser( T* funcClass, double initialDelta, unsigned int decimalPlaces );
 		~FunctionMinimiser(){};//I doubt this will be derived from but stick it in anyway
 		std::vector<double> Minimise( const std::vector<double> & seedPoint );
-		FunctionMinimiser<T>(const FunctionMinimiser<T>&) = delete;
+		FunctionMinimiser(const FunctionMinimiser<T>&) = delete;
 		FunctionMinimiser<T>& operator=(const FunctionMinimiser<T>&) = delete;
 	protected:
 		//Method that finds a vector that 'points down hill' by examining the rate of
