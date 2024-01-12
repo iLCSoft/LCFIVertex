@@ -72,7 +72,7 @@ namespace vertex_lcfi
 	//Protect the constructor, copy and assignment to prevent usage.		
 	protected:
 		//! Do not use
-		MemoryManager() {}
+		MemoryManager() = delete;
 		//! Do not use
 		MemoryManager(const MemoryManager<T>&) {}
 		//! Do not use
