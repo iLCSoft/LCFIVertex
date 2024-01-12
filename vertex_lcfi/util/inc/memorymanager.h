@@ -74,7 +74,7 @@ namespace vertex_lcfi
 		//! Do not use
 		MemoryManager() = delete;
 		//! Do not use
-		MemoryManager(const MemoryManager<T>&) {}
+		MemoryManager(const MemoryManager<T>&) = delete;
 		//! Do not use
 		MemoryManager<T>& operator= (const MemoryManager<T>&) = delete;
 	private:
