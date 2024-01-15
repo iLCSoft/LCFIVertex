@@ -72,18 +72,18 @@ namespace vertex_lcfi
 	//Protect the constructor, copy and assignment to prevent usage.		
 	protected:
 		//! Do not use
-		MemoryManager<T>() {}
+		MemoryManager() = default;
 		//! Do not use
-		MemoryManager<T>(const MemoryManager<T>&) {}
+		MemoryManager(const MemoryManager<T>&) = delete;
 		//! Do not use
-		MemoryManager<T>& operator= (const MemoryManager<T>&) {return MemoryManager<T>();}
+		MemoryManager<T>& operator= (const MemoryManager<T>&) = delete;
 	private:
 		std::vector<T*> _Objects{};
 		
 	};
 	
 	template <class T>
-	MemoryManager<T>::~MemoryManager<T>()
+	MemoryManager<T>::~MemoryManager()
 	{
 	//Delete all in case the user hasn't done so
 	this->delAll();
