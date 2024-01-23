@@ -1,3 +1,15 @@
+# v00-09
+
+* 2024-01-15 jmcarcell ([PR#9](https://github.com/iLCSoft/LCFIVertex/pull/9))
+  - Fix compilation errors with C++20
+
+* 2024-01-12 tmadlener ([PR#10](https://github.com/iLCSoft/LCFIVertex/pull/10))
+  - Add github actions based CI and remove travis-ci configuration
+    - Based on clic nightlies and key4hep nightlies.
+
+* 2020-04-02 Marko Petric ([PR#8](https://github.com/iLCSoft/LCFIVertex/pull/8))
+  - Fix linking of base library (needs `tinyxml`)
+
 # v00-08
 
 * 2019-10-07 Remi Ete ([PR#7](https://github.com/iLCSoft/LCFIVertex/pull/7))
