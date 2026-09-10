@@ -13,6 +13,10 @@ namespace util
             Base_Vector::clear();
         }
 	
+	Vector3::Vector3(const Vector3 &r)
+        : Base_Vector(r)
+    {}
+
 	Vector3& Vector3::operator=(const Vector3 &r)
         {
             Base_Vector::operator=(r);

@@ -627,12 +627,10 @@ void V0Performance::check( LCEvent* ) {
 void V0Performance::end(){ 
 
   streamlog_out(MESSAGE) << "PERFORMANCE SUMMARY:" << endl;
-  double ntrue_tracks=0;
   for (int i=0; i<V0LastType; i++) {
     streamlog_out(MESSAGE) << " actual " << V0Name[i] << " in MCParticles: "
 			 << mc_num[i] << " with "
 			 << mc_tracks[i] << " tracks" << endl;
-    ntrue_tracks+=mc_tracks[i];
   }
   for (map<string,int>::iterator it=num_tracks_total.begin();
        it!=num_tracks_total.end(); it++) {

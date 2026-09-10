@@ -41,6 +41,9 @@ namespace util
         // {
         //     Base_Matrix::operator=(r);
         // }
+        SymMatrix2x2(const SymMatrix2x2 &r)
+            : Base_Matrix(r)
+        {}
         SymMatrix2x2& operator=(const SymMatrix2x2 &r)
         {
             Base_Matrix::operator=(r);
@@ -66,6 +69,9 @@ namespace util
         // {
         //     Base_Matrix::operator=(r);
         // }
+        Matrix2x2(const Matrix2x2 &r)
+            : Base_Matrix(r)
+        {}
         Matrix2x2& operator=(const Matrix2x2 &r)
         {
             Base_Matrix::operator=(r);
@@ -91,6 +97,9 @@ namespace util
         // {
         //     Base_Matrix::operator=(r);
         // }
+        Matrix3x3(const Matrix3x3 &r)
+            : Base_Matrix(r)
+        {}
         Matrix3x3& operator=(const Matrix3x3 &r)
         {
             Base_Matrix::operator=(r);
@@ -116,6 +125,9 @@ namespace util
         // {
         //     Base_Matrix::operator=(r);
         // }
+        Matrix5x5(const Matrix5x5 &r)
+            : Base_Matrix(r)
+        {}
         Matrix5x5& operator=(const Matrix5x5 &r)
         {
             Base_Matrix::operator=(r);
@@ -137,6 +149,9 @@ namespace util
         // {
         //     Base_Matrix::operator=(r);
         // }
+	SymMatrix6x6(const SymMatrix6x6 &r)
+            : Base_Matrix(r)
+        {}
 	SymMatrix6x6& operator=(const SymMatrix6x6 &r)
         {
             Base_Matrix::operator=(r);
@@ -159,6 +174,9 @@ namespace util
         // {
         //     Base_Matrix::operator=(r);
         // }
+        Matrix6x6(const Matrix6x6 &r)
+            : Base_Matrix(r)
+        {}
         Matrix6x6& operator=(const Matrix6x6 &r)
         {
             Base_Matrix::operator=(r);
@@ -182,6 +200,9 @@ namespace util
         //     Base_Matrix::operator=(r);
         //     return *this;
         // }
+        SymMatrix5x5(const SymMatrix5x5 &r)
+            : Base_Matrix(r)
+        {}
         SymMatrix5x5& operator=(const SymMatrix5x5 &r)
         {
             Base_Matrix::operator=(r);
@@ -204,6 +225,9 @@ namespace util
         // {
         //     Base_Matrix::operator=(r);
         // }
+        SymMatrix3x3(const SymMatrix3x3 &r)
+            : Base_Matrix(r)
+        {}
         SymMatrix3x3& operator=(const SymMatrix3x3 &r)
         {
             Base_Matrix::operator=(r);
