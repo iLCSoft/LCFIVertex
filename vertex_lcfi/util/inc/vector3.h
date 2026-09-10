@@ -53,6 +53,7 @@ Simple 3 Vector class
 	
         
         
+	Vector3(const Vector3 &r);
 	Vector3& operator=(const Vector3 &r);
 	bool operator!=(const Vector3 &r);
 

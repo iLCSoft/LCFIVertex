@@ -396,7 +396,7 @@ bool NeuralNetTrainerProcessor::_passesCuts( lcio::LCEvent* pEvent )
 			jetMomentums.push_back( vertex_lcfi::util::Vector3( mom[0], mom[1], mom[2] ) );
 		}
 	}
-	catch( lcio::Exception exception )
+	catch( const lcio::Exception &exception )
 	{
 		//Just print a warning and proceed with the other cuts.
 		if( numWarningsNoMomentum<=2 )

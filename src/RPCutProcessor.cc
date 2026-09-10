@@ -278,7 +278,7 @@ void RPCutProcessor::processEvent( LCEvent * evt ) {
 		{
 			RelCol = evt->getCollection( _MonteCarloRelationColName );
 		}
-		catch( lcio::Exception exception )
+		catch( const lcio::Exception & )
 		{
 			// Don't want to quit, so don't do much here. Just ignore MC PID cuts and apply the other cuts.
 			// Print a warning though.

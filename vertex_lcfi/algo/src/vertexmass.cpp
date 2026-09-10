@@ -199,6 +199,7 @@ namespace vertex_lcfi
     Matrix3x3 inverse;
 
     result.clear();
+    inverse.clear(); // Needed to avoid an maybe-uninitialized warning
 
     totalmom = momentum->mag();
     

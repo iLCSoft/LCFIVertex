@@ -52,7 +52,7 @@ class V0Performance : public Processor {
   // - pointers to all decay MCParticles
   // - pointers to all tracks corresponding to decay MCParticles
   // - pointers to all V0 candidates corresponding to original MCParticle
-  typedef struct {
+  struct V0Candidate_type {
     const MCParticle* mother=nullptr;
     std::vector<MCParticle*> daughters{};
     std::map<string,vector<Track*> > tracks{};
@@ -62,7 +62,7 @@ class V0Performance : public Processor {
     double radius=0.0;
     double z=0.0;
     int numTrackerHits=0;
-  } V0Candidate_type;
+  };
   std::vector<V0Candidate_type*> V0Candidates{};
 
   map<MCParticle*,int> numHits{};

@@ -176,7 +176,7 @@ extern "C" {
 NEURALNETDLL int LOADNEURALNETFROMFILE(const char *filename,const int *format,const int length)
 {
 	std::string fn(filename,length);
-    const NeuralNet::SerialisationMode mode = static_cast<const NeuralNet::SerialisationMode>(*format);
+    const NeuralNet::SerialisationMode mode = static_cast<NeuralNet::SerialisationMode>(*format);
 	NeuralNet *nn = new NeuralNet(fn,mode);
 	return NNFInterfaceManager<NeuralNet>::instance()->add(nn);
 }
@@ -582,7 +582,7 @@ NEURALNETDLL double TRAINWITHBATCHBACKPROPSETNORMALISERS(const int *ibp,const in
 
 NEURALNETDLL void SETSERIALISATIONMODE(const int *nn,const int *mode)
 {
-    const NeuralNet::SerialisationMode theMode = static_cast<const NeuralNet::SerialisationMode>(*mode);
+    const NeuralNet::SerialisationMode theMode = static_cast<NeuralNet::SerialisationMode>(*mode);
     NNFInterfaceManager<NeuralNet>::instance()->item(*nn)->setSerialisationMode(theMode);
 }
 
