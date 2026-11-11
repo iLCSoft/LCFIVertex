@@ -1,3 +1,12 @@
+# v00-10
+
+* 2026-11-11 Juan Miguel Carceller ([PR#13](https://github.com/iLCSoft/LCFIVertex/pull/13))
+  - Require CMake 3.10 to fix `Compatibility with CMake < 3.5 has been removed from CMake.`
+
+* 2026-09-10 Thomas Madlener ([PR#12](https://github.com/iLCSoft/LCFIVertex/pull/12))
+  - Switch to the latest version of the key4hep-build workflow
+  - Fix source-level warnings-as-errors surfaced by the key4hep nightly stack (gcc 16, C++23): deprecated implicit copy constructors in the util matrix/vector types, an anonymous typedef'd struct, an unused variable, catching exceptions by value, and redundant const-qualified casts
+
 # v00-09
 
 * 2024-01-15 jmcarcell ([PR#9](https://github.com/iLCSoft/LCFIVertex/pull/9))
